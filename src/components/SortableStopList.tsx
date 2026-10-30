@@ -65,6 +65,8 @@ function SortableRow({ stop, number }: { stop: Stop; number: number }) {
                 ref={setActivatorNodeRef}
                 {...attributes}
                 {...listeners}
+                // 휴대폰 바텀시트 안에서 이 손잡이를 끌 때는 시트가 움직이지 않게 합니다. (BottomSheet 참고)
+                data-sheet-nodrag=""
                 aria-label={`${stop.title} 순서 옮기기`}
                 // touch-none: 손잡이를 끌 때 페이지가 스크롤되지 않게 합니다.
                 className="cursor-grab touch-none rounded-md px-2 py-1 text-[18px] leading-none text-muted active:cursor-grabbing"

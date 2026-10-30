@@ -3,7 +3,7 @@
 //  - 맛집·카페: 다른 모양의 배지(🍴 식당 / ☕ 카페)
 //  - API 키가 없거나 로드에 실패하면 지도 대신 안내를 보여줍니다.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AdvancedMarker, APILoadingStatus, InfoWindow, Map, Polyline, useMap } from '@vis.gl/react-google-maps';
 import { formatTime } from '../lib/datetime';
 import { gmaps } from '../lib/links';
@@ -31,6 +31,13 @@ interface TripMapProps {
     onFoodEdit: (id: string) => void;
     /** 키가 없을 때 설정 화면 열기 */
     onOpenSettings: () => void;
+    /**
+     * 휴대폰 전체화면 모드: 부모 영역을 꽉 채우고, 한 손가락으로 지도를 움직이며(greedy),
+     * 상단 버튼을 지도 위에 띄웁니다. 아래에 바텀시트가 겹쳐 있다는 전제입니다.
+     */
+    fill?: boolean;
+    /** 지도 아래쪽을 가리는 높이(px, 바텀시트). 위치 이동·전체 보기 때 이만큼을 피해 보이는 영역 가운데에 맞춥니다. */
+    bottomInset?: number;
 }
 
 /** 이 지도의 ID. useMap(MAP_ID) 로 지도 인스턴스를 꺼낼 때 사용합니다. */
@@ -49,15 +56,18 @@ type MapItem =
 export function TripMap(props: TripMapProps) {
     const { status } = useMaps();
     return (
-        <div className="overflow-hidden rounded-[14px] border border-line bg-paper shadow-card">
+        // fill: 부모 높이를 꽉 채우고 테두리·둥근 모서리 없이 / 기본: 카드 모양
+        <div className={props.fill ? 'relative h-full bg-paper' : 'overflow-hidden rounded-[14px] border border-line bg-paper shadow-card'}>
             {status === APILoadingStatus.LOADED ? (
                 <GoogleTripMap {...props} />
             ) : (
                 <>
-                    <div className="px-4 py-[13px] max-phone:p-[11px]">
-                        <strong className="text-[12px] max-phone:text-[11px]">오늘의 이동 포인트</strong>
-                    </div>
-                    <MapPlaceholder status={status} onOpenSettings={props.onOpenSettings} />
+                    {!props.fill && (
+                        <div className="px-4 py-[13px] max-phone:p-[11px]">
+                            <strong className="text-[12px] max-phone:text-[11px]">오늘의 이동 포인트</strong>
+                        </div>
+                    )}
+                    <MapPlaceholder status={status} onOpenSettings={props.onOpenSettings} fill={props.fill} />
                 </>
             )}
         </div>
@@ -65,7 +75,7 @@ export function TripMap(props: TripMapProps) {
 }
 
 /** 지도를 그릴 수 없을 때의 안내 영역 */
-function MapPlaceholder({ status, onOpenSettings }: { status: ReturnType<typeof useMaps>['status']; onOpenSettings: () => void }) {
+function MapPlaceholder({ status, onOpenSettings, fill }: { status: ReturnType<typeof useMaps>['status']; onOpenSettings: () => void; fill?: boolean }) {
     let body;
     if (status === 'no-key') {
         body = (
@@ -90,11 +100,13 @@ function MapPlaceholder({ status, onOpenSettings }: { status: ReturnType<typeof 
     } else {
         body = <span className="text-[12px] text-muted">지도를 불러오는 중…</span>;
     }
-    return <div className={`${MAP_HEIGHT} grid place-items-center bg-[#e9eee4] p-6 text-center`}><div>{body}</div></div>;
+    // fill 모드: 아래쪽은 바텀시트가 가리므로 안내를 위쪽(items-start)에 둡니다.
+    const layout = fill ? 'h-full place-items-start pt-10' : `${MAP_HEIGHT} place-items-center`;
+    return <div className={`${layout} grid bg-[#e9eee4] p-6 text-center`}><div>{body}</div></div>;
 }
 
 /** Google 지도 본체 (스크립트 로드 완료 후에만 렌더링) */
-function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onStopDetail, onFoodEdit }: TripMapProps) {
+function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onStopDetail, onFoodEdit, fill = false, bottomInset = 0 }: TripMapProps) {
     const toast = useToast();
     const { config } = useMaps();
     // useMap(MAP_ID): 아래 <Map id={MAP_ID}> 가 만들어지면 그 google.maps.Map 인스턴스를 돌려줍니다. (그 전에는 null)
@@ -105,6 +117,12 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const [myPosition, setMyPosition] = useState<google.maps.LatLngLiteral | null>(null);
     /** 지도 영역 요소 (목록에서 선택했을 때 지도가 화면 밖이면 스크롤하기 위해) */
     const regionRef = useRef<HTMLDivElement>(null);
+    /** 최신 아래쪽 가림 높이 (fitAll 처럼 나중에 실행되는 함수에서 읽기 위해 ref 로 보관) */
+    const insetRef = useRef(bottomInset);
+    // 아래 effect 들보다 먼저 실행되도록 맨 앞에서 갱신합니다.
+    useLayoutEffect(() => {
+        insetRef.current = bottomInset;
+    }, [bottomInset]);
 
     // 지도에 그릴 항목 목록. 같은 좌표에 여러 번 방문하면 핀이 겹쳐 누를 수 없으므로 반복될 때마다 살짝 비켜 둡니다.
     const items = useMemo<MapItem[]>(() => {
@@ -129,18 +147,20 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const fitAll = useCallback(() => {
         if (!map || !items.length) return;
         if (items.length === 1) {
-            map.setCenter(items[0].position);
             map.setZoom(15);
+            map.setCenter(shiftForInset(map, items[0].position, insetRef.current));
             return;
         }
         const bounds = new google.maps.LatLngBounds();
         items.forEach(item => bounds.extend(item.position));
-        map.fitBounds(bounds, 40); // 40px 여백
+        // 40px 여백. 아래가 바텀시트로 가려지면 그만큼 아래 여백을 더해 보이는 영역 안에 모두 들어오게 합니다.
+        // (fill 모드는 위쪽에 지도 버튼이 떠 있으므로 위 여백도 조금 더)
+        map.fitBounds(bounds, { top: fill ? 60 : 40, right: 40, left: 40, bottom: 40 + insetRef.current });
         // 항목이 아주 가까이 모여 있으면 지나치게 확대되므로, 이동이 끝난 뒤(idle) 최대 16단계로 제한합니다.
         google.maps.event.addListenerOnce(map, 'idle', () => {
             if ((map.getZoom() ?? 0) > 16) map.setZoom(16);
         });
-    }, [map, items]);
+    }, [map, items, fill]);
 
     // 날짜가 바뀌거나 좌표가 바뀐 경우에만 전체 보기로 맞춥니다.
     // (체크 표시 같은 다른 변경 때 사용자가 움직인 지도가 되돌아가지 않도록 좌표 문자열을 의존성으로 사용)
@@ -155,14 +175,15 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
         if (!focusRequest || !map) return;
         const item = items.find(entry => entry.id === focusRequest.id);
         if (!item) return; // 위치 없는 맛집이거나 맛집 숨김 상태
-        map.panTo(item.position);
+        // 확대를 먼저 맞춘 뒤, 그 확대 수준 기준으로 바텀시트에 가리지 않는 위치로 이동합니다.
         if ((map.getZoom() ?? 0) < 14) map.setZoom(15);
+        map.panTo(shiftForInset(map, item.position, insetRef.current));
         setInfoId(item.id);
         // 좁은 화면에서는 지도가 목록 위에 있어 화면 밖일 수 있으므로 지도까지 스크롤합니다.
-        // (넓은 화면은 지도가 sticky 로 고정돼 항상 보이므로 스크롤하지 않음)
+        // (넓은 화면은 지도가 sticky 로 고정돼 항상 보이고, fill 모드는 페이지가 스크롤되지 않으므로 제외)
         // 판단 기준: 지도 아래쪽 1/3 이 화면 위로 가려졌거나, 지도 위쪽이 화면 아래로 벗어난 경우
         const region = regionRef.current;
-        if (region) {
+        if (region && !fill) {
             const rect = region.getBoundingClientRect();
             if (rect.bottom < rect.height / 3 + 80 || rect.top > window.innerHeight - 80) {
                 region.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -193,33 +214,49 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const infoItem = infoId ? items.find(item => item.id === infoId) : undefined;
     const hiddenFoods = foods.filter(food => food.lat === null).length;
 
+    // 지도 조작 버튼 (맛집 표시 / 전체 보기 / 내 위치)
+    const controls = (
+        <div className="flex items-center gap-1">
+            <label className="mr-1 flex cursor-pointer items-center gap-1 text-[11px] text-muted">
+                <input type="checkbox" className="h-3.5 w-3.5 p-0 accent-green" checked={showFoods} onChange={event => setShowFoods(event.target.checked)} />
+                맛집
+            </label>
+            <button type="button" className="btn btn-mini" onClick={fitAll}>전체 보기</button>
+            <button type="button" className="btn btn-mini" onClick={locate} aria-label="내 위치 표시">◎ 내 위치</button>
+        </div>
+    );
+
     return (
         <>
-            <div className="flex items-center justify-between px-4 py-[13px] max-phone:p-[11px]">
-                <strong className="text-[12px] max-phone:text-[11px]">오늘의 이동 포인트</strong>
-                <div className="flex items-center gap-1">
-                    <label className="mr-1 flex cursor-pointer items-center gap-1 text-[11px] text-muted">
-                        <input type="checkbox" className="h-3.5 w-3.5 p-0 accent-green" checked={showFoods} onChange={event => setShowFoods(event.target.checked)} />
-                        맛집
-                    </label>
-                    <button type="button" className="btn btn-mini" onClick={fitAll}>전체 보기</button>
-                    <button type="button" className="btn btn-mini" onClick={locate} aria-label="내 위치 표시">◎ 내 위치</button>
+            {fill ? (
+                // fill 모드: 제목 줄 없이 버튼만 지도 오른쪽 위에 띄웁니다.
+                <div className="absolute top-2.5 right-2.5 z-[2] rounded-[10px] bg-paper/95 px-2 py-1.5 shadow-card">{controls}</div>
+            ) : (
+                <div className="flex items-center justify-between px-4 py-[13px] max-phone:p-[11px]">
+                    <strong className="text-[12px] max-phone:text-[11px]">오늘의 이동 포인트</strong>
+                    {controls}
                 </div>
-            </div>
+            )}
             {/* scroll-mt: 좁은 화면에서 위에 고정된 날짜 탭(약 85px)에 지도가 가려지지 않도록 스크롤 위치를 띄웁니다. */}
-            <div ref={regionRef} role="region" aria-label="방문 순서와 맛집이 표시된 지도" className="scroll-mt-[100px]">
+            <div ref={regionRef} role="region" aria-label="방문 순서와 맛집이 표시된 지도" className={fill ? 'h-full' : 'scroll-mt-[100px]'}>
                 <Map
                     id={MAP_ID}
                     mapId={config.mapId} // 고급 마커(AdvancedMarker)를 쓰려면 Map ID 가 필요
                     // 첫 항목(장소 → 위치 있는 맛집 순) 근처에서 시작하고, 곧바로 fitAll 이 전체가 보이게 맞춥니다.
                     defaultCenter={items[0]?.position ?? DEFAULT_CENTER}
                     defaultZoom={items[0] ? 11 : DEFAULT_ZOOM}
-                    gestureHandling="cooperative" // 페이지 스크롤 중 지도가 확대되지 않도록 (두 손가락·Ctrl+휠로 조작)
+                    // greedy: 한 손가락으로 바로 이동·확대 (fill 모드는 페이지가 스크롤되지 않으므로 ‘두 손가락을 사용하세요’ 안내 없이 조작)
+                    // cooperative: 페이지 스크롤 중 지도가 움직이지 않도록 두 손가락·Ctrl+휠로만 조작
+                    gestureHandling={fill ? 'greedy' : 'cooperative'}
                     mapTypeControl={false}
                     streetViewControl={false}
+                    // fill 모드: 확대·전체화면 버튼은 손가락 확대로 대신하고, 아래 바텀시트·위 버튼과 겹치지 않게 숨깁니다.
+                    zoomControl={!fill}
+                    fullscreenControl={!fill}
+                    cameraControl={!fill}
                     clickableIcons={false} // 구글 기본 장소 아이콘 클릭 정보창 끄기
                     onClick={() => setInfoId(null)}
-                    className={`${MAP_HEIGHT} bg-[#e2e9df]`}
+                    className={`${fill ? 'h-full' : MAP_HEIGHT} bg-[#e2e9df]`}
                 >
                     {/* 방문 순서를 잇는 점선 (실제 도로 경로 아님). 선은 투명하게 두고 짧은 선분 기호를 반복해 점선을 만듭니다. */}
                     {stops.length > 1 && (
@@ -285,12 +322,31 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                     )}
                 </Map>
             </div>
-            <div className="px-3.5 py-2.5 text-[10px] leading-[1.6] text-muted max-phone:text-[9px]">
-                <span className="mr-[5px] inline-block h-1.5 w-1.5 rounded-full bg-gold" /> 숫자는 방문 순서 · 🍴 식당 · ☕ 카페 · 점선은 순서 안내이며 실제 도로 경로가 아닙니다.
-                {hiddenFoods > 0 && ` 위치 없는 맛집 ${hiddenFoods}곳은 지도에 표시되지 않습니다.`}
-            </div>
+            {/* 범례: fill 모드는 바텀시트에 가려지므로 생략 */}
+            {!fill && (
+                <div className="px-3.5 py-2.5 text-[10px] leading-[1.6] text-muted max-phone:text-[9px]">
+                    <span className="mr-[5px] inline-block h-1.5 w-1.5 rounded-full bg-gold" /> 숫자는 방문 순서 · 🍴 식당 · ☕ 카페 · 점선은 순서 안내이며 실제 도로 경로가 아닙니다.
+                    {hiddenFoods > 0 && ` 위치 없는 맛집 ${hiddenFoods}곳은 지도에 표시되지 않습니다.`}
+                </div>
+            )}
         </>
     );
+}
+
+/**
+ * 아래쪽이 inset(px)만큼 가려진 지도에서, position 이 ‘보이는 영역’의 가운데에 오도록 할 지도 중심 좌표.
+ * 지도 중심을 inset/2 픽셀만큼 남쪽(아래)으로 옮기면 position 은 그만큼 위로 올라가 보입니다.
+ * 지도 투영(projection)이 아직 준비되지 않았거나 inset 이 0이면 원래 좌표를 그대로 돌려줍니다.
+ */
+function shiftForInset(map: google.maps.Map, position: google.maps.LatLngLiteral, inset: number): google.maps.LatLngLiteral {
+    const projection = map.getProjection();
+    const zoom = map.getZoom();
+    if (!inset || !projection || zoom === undefined) return position;
+    // fromLatLngToPoint: 위경도 → ‘세계 좌표’(확대 0 기준 픽셀). 확대 z 에서는 화면 픽셀 = 세계 좌표 × 2^z
+    const point = projection.fromLatLngToPoint(position);
+    if (!point) return position;
+    const shifted = new google.maps.Point(point.x, point.y + inset / 2 / 2 ** zoom);
+    return projection.fromPointToLatLng(shifted)?.toJSON() ?? position;
 }
 
 /** 정보창 제목 (닫기 버튼과 같은 줄에 표시) */

@@ -11,6 +11,7 @@
         "test": "vitest run",
         "seed": "py scripts/make-seed.py",
         "geocode": "node scripts/geocode-foods.mjs",
+        "icons": "node scripts/generate-icons.mjs",
         "db:login": "supabase login --output-format text",
         "db:link": "supabase link --output-format text",
         "db:push": "supabase db push --linked --output-format text"
@@ -30,6 +31,7 @@
         "react-dom": "^19.3.1"
     },
     "devDependencies": {
+        "@resvg/resvg-js": "^2.6.2",
         "@tailwindcss/vite": "^4.3.3",
         "@types/node": "^20.19.43",
         "@types/react": "^19.3.0",

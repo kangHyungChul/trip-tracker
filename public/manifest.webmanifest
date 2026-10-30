@@ -1,0 +1,17 @@
+{
+    "name": "TRIP TRACKER",
+    "short_name": "TRIP TRACKER",
+    "description": "여러 여행 일정을 지도·맛집·주차·비용과 함께 한눈에 보고 직접 편집하는 여행 플래너.",
+    "lang": "ko",
+    "start_url": "/",
+    "scope": "/",
+    "display": "browser",
+    "background_color": "#f6f5ef",
+    "theme_color": "#173e35",
+    "icons": [
+        { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+        { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    ]
+}
