@@ -1,0 +1,11 @@
+{
+    "name": "kagoshima-travel-journal",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Editable Kagoshima trip with numbered map, navigation and Supabase sync",
+    "scripts": {
+        "build": "node scripts/build.mjs",
+        "test": "node scripts/check.mjs"
+    },
+    "engines": { "node": ">=20" }
+}
