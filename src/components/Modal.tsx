@@ -2,6 +2,7 @@
 // showModal() 을 써야 배경 클릭 차단·포커스 가두기·Esc 닫기가 브라우저 기본 동작으로 처리됩니다.
 
 import { useEffect, useRef, type ReactNode } from 'react';
+import { X } from 'lucide-react';
 
 interface ModalProps {
     open: boolean;
@@ -39,7 +40,7 @@ export function Modal({ open, onClose, children, labelledBy, size = 'default' }:
     );
 }
 
-/** 모달 상단 제목 영역 (작은 머리말 + 제목 + × 버튼) */
+/** 모달 상단 제목 영역 (작은 머리말 + 제목 + X 닫기 버튼) */
 export function ModalHead({ id, eyebrow, title, onClose }: { id?: string; eyebrow?: string; title: string; onClose: () => void }) {
     return (
         <div className="flex items-center justify-between gap-2.5 border-b border-line px-[25px] py-[23px] max-phone:p-[18px]">
@@ -49,8 +50,9 @@ export function ModalHead({ id, eyebrow, title, onClose }: { id?: string; eyebro
                     {title}
                 </h2>
             </div>
-            <button type="button" onClick={onClose} aria-label="닫기" className="shrink-0 px-2 py-[3px] text-[27px] leading-none">
-                ×
+            {/* 누르기 쉽게 36px 정사각형 영역 가운데에 22px X 아이콘 */}
+            <button type="button" onClick={onClose} aria-label="닫기" className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted hover:text-ink">
+                <X className="size-[22px]" />
             </button>
         </div>
     );

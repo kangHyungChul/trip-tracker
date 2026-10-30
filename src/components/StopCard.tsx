@@ -67,7 +67,7 @@ export function StopCard({ stop, number, selected, onFocus, onToggleDone, onDeta
                 <Fact label="주차">{stop.parking}</Fact>
             </div>
             <div className="mt-3.5 flex flex-wrap items-center gap-[7px] max-phone:gap-1.5 print:hidden">
-                <ExternalLink href={gmaps(stop.query, true, stop.mode)} className="navlink">구글지도 길찾기 ↗</ExternalLink>
+                <ExternalLink href={gmaps(stop.query, true, stop.mode)} className="navlink">구글지도 길찾기</ExternalLink>
                 <button type="button" onClick={() => onDetail(stop.id)} className="rounded-[7px] border border-line px-2.5 py-1.5 text-[11px]">
                     자세히
                 </button>

@@ -1,8 +1,9 @@
-// ⚙ 설정 모달: Google Maps API 키·Map ID, Supabase 연결(URL·공개 키) 관리.
+// 설정 모달: Google Maps API 키·Map ID, Supabase 연결(URL·공개 키) 관리.
 // 화면에서 입력한 값은 이 기기에만 저장되며, 환경변수 값보다 우선합니다.
 // Google 지도 스크립트·Supabase 연결은 페이지를 열 때 한 번 정해지므로 저장 후 새로고침으로 적용합니다.
 
 import { useState, type FormEvent } from 'react';
+import { Check } from 'lucide-react';
 import { cloudConnectError, cloudUrl, isCloudEnabled } from '../lib/cloudTrips';
 import { clearGoogleMapsConfig, DEMO_MAP_ID, hasEnvGoogleKey, saveGoogleMapsConfig } from '../lib/googleMaps';
 import { readItem, removeItem, SUPABASE_CONFIG_KEY, writeItem } from '../lib/storage';
@@ -33,7 +34,7 @@ const STATUS_TEXT: Record<string, string> = {
     'no-key': '키 없음 · 지도를 표시할 수 없습니다.',
     NOT_LOADED: '불러오기 전',
     LOADING: '불러오는 중…',
-    LOADED: '정상 동작 중 ✓',
+    LOADED: '정상 동작 중',
     FAILED: '불러오기 실패 · 네트워크나 키를 확인하세요.',
     AUTH_FAILURE: '키 인증 실패 · 키, 허용 웹사이트(리퍼러), API 사용 설정을 확인하세요.',
 };
@@ -78,7 +79,11 @@ function SettingsForm({ onClose }: SettingsDialogProps) {
             <h3 className="mx-[25px] mt-[22px] mb-0 text-[15px] font-bold max-phone:mx-[18px]">Google 지도</h3>
             <div className="px-[25px] py-[22px] text-[12px] max-phone:p-[18px]">
                 <div className="mb-4 grid gap-1 rounded-[10px] bg-[#f2f4ee] p-3">
-                    <span>상태: <b>{STATUS_TEXT[status] ?? status}</b></span>
+                    <span>
+                        상태: <b>{STATUS_TEXT[status] ?? status}</b>
+                        {/* 정상 동작이면 초록 체크 SVG 아이콘 */}
+                        {status === 'LOADED' && <Check className="icon ml-1 text-green" />}
+                    </span>
                     <span>사용 중인 키: {sourceText}{config.apiKey ? ` (${mask(config.apiKey)})` : ''}</span>
                     <span>Map ID: {config.mapId === DEMO_MAP_ID ? '기본 데모 ID' : config.mapId}</span>
                 </div>

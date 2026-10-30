@@ -1,6 +1,7 @@
 // 첫 화면의 저장·백업 모달: 저장 상태 안내, JSON 백업 파일을 여행으로 추가, 휴지통(삭제한 여행 복구).
 
 import { useState, type ChangeEvent } from 'react';
+import { Trash2, Upload } from 'lucide-react';
 import { readTripFile } from '../lib/backup';
 import { isCloudEnabled, listDeletedTrips, restoreCloudTrip, type CloudRow } from '../lib/cloudTrips';
 import { adoptRestored, markDirty } from '../lib/sync';
@@ -93,16 +94,16 @@ function Body({ onClose, onChanged }: HomeStorageDialogProps) {
                     <p className={desc}>
                         {cloud
                             ? '모든 편집은 Supabase 에 자동 저장되어, 이 앱 주소로 접속한 모든 기기에서 같은 여행을 보고 편집할 수 있습니다. 오프라인일 때는 기기에 보관했다가 연결되면 올립니다.'
-                            : 'Supabase 연결 설정이 없어 이 브라우저에만 저장됩니다. ⚙ 설정 또는 .env.local 에 Supabase URL·공개 키를 넣으면 자동으로 클라우드에 저장됩니다.'}
+                            : 'Supabase 연결 설정이 없어 이 브라우저에만 저장됩니다. 설정 또는 .env.local 에 Supabase URL·공개 키를 넣으면 자동으로 클라우드에 저장됩니다.'}
                     </p>
                     {cloud && <p className={`${desc} text-[#935e43]`}>로그인 기능이 없어 주소를 아는 누구나 편집·삭제할 수 있습니다. 주소를 공유할 때 주의하세요.</p>}
                 </section>
 
                 <section className={block}>
                     <h3 className="mb-2 text-[16px] font-bold">백업 파일로 여행 추가</h3>
-                    <p className={desc}>여행 화면의 ‘↓ JSON 백업’으로 받은 파일(예전 가고시마 앱 백업 포함)을 여행 목록에 추가합니다.</p>
+                    <p className={desc}>여행 화면의 ‘JSON 백업’으로 받은 파일(예전 가고시마 앱 백업 포함)을 여행 목록에 추가합니다.</p>
                     <label className="btn btn-outline mt-2">
-                        ↑ 백업 파일 불러오기
+                        <Upload className="icon" />백업 파일 불러오기
                         <input type="file" accept=".json,application/json" hidden onChange={importFile} />
                     </label>
                 </section>
@@ -117,7 +118,13 @@ function Body({ onClose, onChanged }: HomeStorageDialogProps) {
                             disabled={!!pending}
                             onClick={() => run('list-deleted', async () => setDeleted(await listDeletedTrips()))}
                         >
-                            {pending === 'list-deleted' ? '불러오는 중…' : '🗑 삭제한 여행 보기'}
+                            {pending === 'list-deleted' ? (
+                                '불러오는 중…'
+                            ) : (
+                                <>
+                                    <Trash2 className="icon" />삭제한 여행 보기
+                                </>
+                            )}
                         </button>
                         {deleted && (
                             <ul className="my-3 list-none p-0">

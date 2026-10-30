@@ -2,6 +2,7 @@
 // 목록은 기기 캐시를 먼저 보여주고, Supabase 와 동기화(syncAll)가 끝나면 다시 읽습니다.
 
 import { useEffect, useState } from 'react';
+import { Check, Cloud, Plus, Settings, Trash2 } from 'lucide-react';
 import { AppHeader, headerButton } from '../components/AppHeader';
 import { HomeStorageDialog } from '../components/HomeStorageDialog';
 import { NewTripDialog } from '../components/NewTripDialog';
@@ -111,8 +112,8 @@ export function HomePage({ onOpenSettings }: HomePageProps) {
     return (
         <>
             <AppHeader>
-                <button type="button" className={headerButton} onClick={() => setStorageOpen(true)}>☁ 저장·백업</button>
-                <button type="button" className={headerButton} onClick={onOpenSettings} aria-label="설정">⚙</button>
+                <button type="button" className={headerButton} onClick={() => setStorageOpen(true)}><Cloud className="icon" />저장·백업</button>
+                <button type="button" className={headerButton} onClick={onOpenSettings} aria-label="설정"><Settings className="icon" /></button>
             </AppHeader>
 
             <main className="mx-auto max-w-[1500px] px-[5%] pb-10 max-tab:px-[22px] max-phone:px-[15px] wide:px-[50px]">
@@ -129,15 +130,20 @@ export function HomePage({ onOpenSettings }: HomePageProps) {
                                   ? '클라우드와 동기화 중…'
                                   : cloudSync.state === 'failed'
                                     ? `클라우드에 연결하지 못해 기기에 저장된 목록을 보여줍니다. 연결되면 자동으로 맞춥니다. (${cloudSync.message})`
-                                    : '클라우드 자동 저장 사용 중 ✓'}
+                                    : (
+                                        // 정상 연결: 문구 뒤에 초록 체크 SVG 아이콘
+                                        <>
+                                            클라우드 자동 저장 사용 중 <Check className="icon text-green" />
+                                        </>
+                                    )}
                         </p>
                     </div>
-                    <button type="button" className="btn btn-primary shrink-0" onClick={() => setNewOpen(true)}>＋ 새 여행</button>
+                    <button type="button" className="btn btn-primary shrink-0" onClick={() => setNewOpen(true)}><Plus className="icon" />새 여행</button>
                 </section>
 
                 {entries.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-line p-10 text-center text-muted">
-                        {cloudSync.state === 'syncing' ? '여행 목록을 불러오는 중…' : '아직 여행이 없습니다. ‘＋ 새 여행’으로 시작하세요.'}
+                        {cloudSync.state === 'syncing' ? '여행 목록을 불러오는 중…' : '아직 여행이 없습니다. ‘새 여행’으로 시작하세요.'}
                     </div>
                 ) : (
                     <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 p-0 max-phone:grid-cols-1">
@@ -210,7 +216,8 @@ function TripCard({ entry, onDelete }: { entry: StoredTrip; onDelete: (id: strin
                 aria-label={`${trip.title} 삭제`}
                 className="absolute top-3 right-3 rounded-md px-2 py-1 text-[16px] text-muted hover:text-danger"
             >
-                🗑
+                {/* 휴지통 SVG 아이콘 (선 색이 글자색을 따라가 마우스를 올리면 빨간색) */}
+                <Trash2 className="icon" />
             </button>
         </article>
     );

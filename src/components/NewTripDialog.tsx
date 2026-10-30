@@ -32,7 +32,7 @@ function NewTripForm({ onClose, onCreate }: NewTripDialogProps) {
                     {/* autoFocus: 모달이 열리면 바로 입력할 수 있게 */}
                     <input required autoFocus maxLength={100} placeholder="예: 오사카 가족 여행" value={title} onChange={event => setTitle(event.target.value)} />
                 </label>
-                <p className="text-[12px] text-muted">만든 뒤 여행 화면에서 ‘＋ 날짜’로 날짜를 추가하고 장소를 채우세요.</p>
+                <p className="text-[12px] text-muted">만든 뒤 여행 화면에서 ‘날짜’ 추가 버튼으로 날짜를 추가하고 장소를 채우세요.</p>
             </div>
             <ModalFooter>
                 <button type="button" className="btn btn-outline" onClick={onClose}>취소</button>

@@ -2,7 +2,7 @@
 //
 // 키를 넣는 방법은 두 가지이며, 화면에서 입력한 값이 우선합니다.
 //  1) 빌드 환경변수: .env.local / Vercel 의 VITE_GOOGLE_MAPS_API_KEY (+ 선택 VITE_GOOGLE_MAPS_MAP_ID)
-//  2) 앱 ⚙ 설정 화면에서 입력 → 이 기기 localStorage 에 저장
+//  2) 앱 설정 화면에서 입력 → 이 기기 localStorage 에 저장
 //
 // 주의: 브라우저에서 쓰는 지도 키는 어떤 방식이든 사용자에게 노출됩니다.
 //       Google Cloud 콘솔에서 반드시 "웹사이트(HTTP 리퍼러)" 제한과 사용할 API 제한을 걸어 두세요.

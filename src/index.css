@@ -102,6 +102,15 @@
         color: var(--color-danger);
         border: 1px solid #e9d4cc;
     }
+    /* SVG 아이콘(lucide-react) 기본 크기: 주변 글자 크기(1em)에 맞춰 커지고, 글자와 같은 줄 높이에 오도록 살짝 내립니다.
+       색은 stroke="currentColor" 라서 글자색을 그대로 따라갑니다. 크기는 size-* 유틸리티로 덮어쓸 수 있습니다. */
+    .icon {
+        display: inline-block;
+        flex-shrink: 0;
+        width: 1.15em;
+        height: 1.15em;
+        vertical-align: -0.2em;
+    }
     /* 초록색 길찾기 링크 버튼 */
     .navlink {
         border-radius: 7px;
@@ -151,7 +160,7 @@
         background: #b38642;
         transform: scale(1.15);
     }
-    /* 맛집·카페 배지: 번호 핀(원)과 구분되도록 둥근 사각형 + 이모지. 지도와 맛집 카드에서 함께 사용 */
+    /* 맛집·카페 배지: 번호 핀(원)과 구분되도록 둥근 사각형 + SVG 아이콘. 지도와 맛집 카드에서 함께 사용 */
     .food-badge {
         display: grid;
         place-items: center;
@@ -160,7 +169,7 @@
         border: 2px solid #fff;
         border-radius: 8px;
         box-shadow: 0 2px 6px #0003;
-        color: #fff; /* 안의 SVG 아이콘(fill=currentColor)이 흰색이 되도록 */
+        color: #fff; /* 안의 SVG 아이콘(stroke=currentColor)이 흰색이 되도록 */
         font-size: 14px;
         line-height: 1;
     }
@@ -229,9 +238,10 @@
     background: var(--color-green);
     color: #fff;
 }
-/* × 지우기 버튼 색 */
+/* 지우기 버튼: 라이브러리의 '×' 글자 대신 흰색 X 선 SVG(lucide 'x' 모양)를 회색 원 위에 그립니다. */
 .react-datepicker__close-icon::after {
-    background: #9aa596;
+    content: '';
+    background: #9aa596 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E") center / 10px no-repeat;
 }
 /* 모달 안에서 달력이 다른 입력칸 위에 뜨도록 */
 .react-datepicker-popper {

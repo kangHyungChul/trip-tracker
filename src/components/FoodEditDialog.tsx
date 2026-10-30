@@ -80,8 +80,9 @@ function FoodForm({ food, bias, onClose, onSave, onDelete }: FoodEditDialogProps
                     <Field label="가게 이름"><input required {...text('name')} /></Field>
                     <Field label="종류 (지도 배지)">
                         <select value={draft.category} onChange={event => set('category', event.target.value as FoodCategory)}>
-                            <option value="restaurant">🍴 식당</option>
-                            <option value="cafe">☕ 카페·디저트</option>
+                            {/* 기본 선택상자 항목에는 SVG 를 넣을 수 없어 글자만 표시합니다. */}
+                            <option value="restaurant">식당</option>
+                            <option value="cafe">카페·디저트</option>
                         </select>
                     </Field>
                 </Row2>

@@ -2,6 +2,7 @@
 // 여행 데이터(useTrip) 상태를 받아 화면 영역과 모달에 나눠 주고, 데이터 변경 동작을 한곳에서 처리합니다.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowUpDown, ArrowUpRight, Check, Cloud, Pencil, Plus, Search, Settings, TriangleAlert } from 'lucide-react';
 import { AppHeader, headerButton } from '../components/AppHeader';
 import { BottomSheet, type SheetHeights, type SheetSnap } from '../components/BottomSheet';
 import { DayEditDialog, type DayFields } from '../components/DayEditDialog';
@@ -296,7 +297,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
         if (!commitValidated(next)) return;
         setEditDayId(undefined);
         selectDay(targetId);
-        toast(editDayId ? '날짜 정보를 저장했습니다.' : '새 날짜를 추가했습니다. ‘＋ 장소 추가’로 일정을 채우세요.');
+        toast(editDayId ? '날짜 정보를 저장했습니다.' : '새 날짜를 추가했습니다. ‘장소 추가’로 일정을 채우세요.');
     };
 
     const deleteDay = async () => {
@@ -354,10 +355,12 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                 // 실패 사유는 마우스를 올리면 보이게 합니다. (휴대폰에서는 공간이 좁아 숨김)
                 <span role="status" title={syncMessage || undefined} className={`text-[11px] max-tab:text-[10px] max-phone:hidden ${syncState === 'error' ? 'text-danger' : 'text-muted'}`}>
                     {saveStatus}
+                    {/* 클라우드 저장 완료면 초록 체크 SVG 아이콘 */}
+                    {syncState === 'saved' && <Check className="icon ml-0.5 text-green" />}
                 </span>
             )}
-            <button type="button" className={headerButton} onClick={() => setStorageOpen(true)}>☁ 저장·백업</button>
-            <button type="button" className={headerButton} onClick={onOpenSettings} aria-label="설정">⚙</button>
+            <button type="button" className={headerButton} onClick={() => setStorageOpen(true)}><Cloud className="icon" />저장·백업</button>
+            <button type="button" className={headerButton} onClick={onOpenSettings} aria-label="설정"><Settings className="icon" /></button>
         </AppHeader>
     );
 
@@ -365,7 +368,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     const introSection = (
         <section className="flex items-center justify-between gap-5 pt-10 pb-9 max-tab:py-[26px] print:py-[15px]">
             <div className="min-w-0">
-                <a href="#/" className="mb-3 inline-block text-[11px] text-muted no-underline print:hidden">← 여행 목록</a>
+                <a href="#/" className="mb-3 inline-block text-[11px] text-muted no-underline print:hidden"><ArrowLeft className="icon mr-0.5" />여행 목록</a>
                 <p className="eyebrow max-phone:text-[9px]">{[dateRange || '날짜 미정', trip.companion].filter(Boolean).join(' · ')}</p>
                 <h1 className="m-0 text-[clamp(25px,3vw,38px)] leading-[1.3] font-[550] tracking-[-1.8px] max-phone:text-[27px]">
                     {trip.title}
@@ -418,7 +421,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                 );
             })}
             <button type="button" onClick={() => setEditDayId(null)} className="shrink-0 px-4 py-4 text-[12px] font-semibold whitespace-nowrap text-green print:hidden" aria-label="날짜 추가">
-                ＋ 날짜
+                <Plus className="icon mr-0.5" />날짜
             </button>
         </nav>
     );
@@ -427,7 +430,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     const noDays = (
         <div className="my-10 rounded-xl border border-dashed border-line p-10 text-center">
             <p className="mb-4 text-muted">아직 날짜가 없습니다. 첫 날짜를 추가하고 장소와 맛집을 채워 보세요.</p>
-            <button type="button" className="btn btn-primary" onClick={() => setEditDayId(null)}>＋ 첫 날짜 추가</button>
+            <button type="button" className="btn btn-primary" onClick={() => setEditDayId(null)}><Plus className="icon" />첫 날짜 추가</button>
         </div>
     );
 
@@ -444,7 +447,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                     날짜 편집
                 </button>
                 <button type="button" className="btn btn-outline whitespace-nowrap max-phone:px-2.5 max-phone:py-2 max-phone:text-[11px]" onClick={() => openStopEdit(null)}>
-                    ＋ 장소 추가
+                    <Plus className="icon" />장소 추가
                 </button>
             </div>
         </div>
@@ -509,7 +512,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                     명
                 </label>
                 <button type="button" className="btn btn-text" onClick={() => setInfoOpen(true)}>
-                    여행 메모 편집 ↗
+                    여행 메모 편집<ArrowUpRight className="icon" />
                 </button>
             </div>
 
@@ -558,7 +561,8 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                     {/* 순서 편집 중에는 검색으로 일부만 보이면 순서가 헷갈리므로 검색칸을 숨깁니다. */}
                     {!reorder && (
                         <label className="flex items-center gap-1.5 rounded-[7px] bg-[#eceee7] px-2.5 py-1">
-                            <span aria-hidden>⌕</span>
+                            {/* 돋보기 SVG 아이콘 (장식용) */}
+                            <Search className="icon text-[12px] text-muted" />
                             <input
                                 type="search"
                                 placeholder={view === 'food' ? '맛집 검색' : '장소 검색'}
@@ -576,11 +580,19 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                             onClick={toggleReorder}
                             disabled={!reorder && day.stops.length < 2}
                         >
-                            {reorder ? '✓ 완료' : '↕ 순서 편집'}
+                            {reorder ? (
+                                <>
+                                    <Check className="icon" />완료
+                                </>
+                            ) : (
+                                <>
+                                    <ArrowUpDown className="icon" />순서 편집
+                                </>
+                            )}
                         </button>
                     ) : (
                         <button type="button" className="btn btn-mini whitespace-nowrap" onClick={() => setEditFoodId(null)}>
-                            ＋ 맛집
+                            <Plus className="icon" />맛집
                         </button>
                     )}
                 </div>
@@ -589,17 +601,17 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
             {view === 'food' ? (
                 filteredFoods.length ? (
                     <>
-                        <p className="mb-3 text-[11px] text-muted">맛집은 방문 후보입니다. 예산은 추정이며 휴무·대기시간을 확인하세요. 🍴·☕ 버튼을 누르면 지도에서 위치를 보여줍니다.</p>
+                        <p className="mb-3 text-[11px] text-muted">맛집은 방문 후보입니다. 예산은 추정이며 휴무·대기시간을 확인하세요. 식당·카페 배지를 누르면 지도에서 위치를 보여줍니다.</p>
                         {filteredFoods.map(food => (
                             <FoodCard key={food.id} food={food} selected={food.id === selectedId} onFocus={focusItem} onEdit={id => setEditFoodId(id)} />
                         ))}
                     </>
                 ) : (
-                    <Empty>{day.foods.length ? '검색된 맛집이 없습니다.' : '아직 맛집·카페가 없습니다. ‘＋ 맛집’으로 추가하세요.'}</Empty>
+                    <Empty>{day.foods.length ? '검색된 맛집이 없습니다.' : '아직 맛집·카페가 없습니다. ‘맛집’ 추가 버튼으로 추가하세요.'}</Empty>
                 )
             ) : reorder ? (
                 <>
-                    <p className="mb-3 text-[11px] text-muted">⠿ 손잡이를 끌어 순서를 바꾸세요. 바뀐 순서는 바로 저장됩니다.</p>
+                    <p className="mb-3 text-[11px] text-muted">왼쪽 손잡이를 끌어 순서를 바꾸세요. 바뀐 순서는 바로 저장됩니다.</p>
                     <SortableStopList stops={day.stops} onReorder={reorderStops} />
                 </>
             ) : filteredStops.length ? (
@@ -617,7 +629,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                     />
                 ))
             ) : (
-                <Empty>{day.stops.length ? '검색 결과가 없습니다.' : '아직 장소가 없습니다. ‘＋ 장소 추가’로 일정을 채우세요.'}</Empty>
+                <Empty>{day.stops.length ? '검색 결과가 없습니다.' : '아직 장소가 없습니다. ‘장소 추가’로 일정을 채우세요.'}</Empty>
             )}
         </section>
     );
@@ -661,20 +673,20 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
 
     // ── 휴대폰 구성: 낮은 상단 바 + 날짜 칩 고정, 남은 화면 전체가 지도, 목록은 지도 위 바텀시트 ──
     if (phoneLayout && day) {
-        /** 휴대폰 상단 바: ← 여행 목록 / 여행 제목(길면 …) / 충돌 알림 / 저장·백업 / 설정 */
+        /** 휴대폰 상단 바: 뒤로(여행 목록) / 여행 제목(길면 …) / 충돌 알림 / 저장·백업 / 설정. 아이콘은 모두 lucide SVG */
         const phoneHeader = (
             <header className="flex h-[52px] shrink-0 items-center gap-1 border-b border-line bg-paper px-1.5">
-                <a href="#/" aria-label="여행 목록으로" className={`${PHONE_ICON_BUTTON} text-[19px] text-ink no-underline`}>←</a>
+                <a href="#/" aria-label="여행 목록으로" className={`${PHONE_ICON_BUTTON} text-ink no-underline`}><ArrowLeft className="size-5" /></a>
                 {/* min-w-0 + truncate: 남는 폭만큼만 차지하고 넘치면 … 으로 줄입니다. */}
                 <strong className="min-w-0 flex-1 truncate text-[16px] font-semibold tracking-[-0.4px]">{trip.title}</strong>
                 {syncState === 'conflict' && (
                     // 충돌을 '나중에'로 미뤘을 때만 보이는 알림 (눌러서 선택창 다시 열기)
                     <button type="button" className="shrink-0 rounded-full px-2.5 py-1.5 text-[11px] font-semibold text-danger underline" onClick={() => requestConflictPrompt(trip.id)}>
-                        ⚠ 충돌
+                        <TriangleAlert className="icon mr-0.5" />충돌
                     </button>
                 )}
-                <button type="button" className={PHONE_ICON_BUTTON} onClick={() => setStorageOpen(true)} aria-label="저장·백업" title={saveStatus}>☁</button>
-                <button type="button" className={PHONE_ICON_BUTTON} onClick={onOpenSettings} aria-label="설정">⚙</button>
+                <button type="button" className={PHONE_ICON_BUTTON} onClick={() => setStorageOpen(true)} aria-label="저장·백업" title={saveStatus}><Cloud className="size-5" /></button>
+                <button type="button" className={PHONE_ICON_BUTTON} onClick={onOpenSettings} aria-label="설정"><Settings className="size-5" /></button>
             </header>
         );
 
@@ -711,12 +723,12 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                     className="shrink-0 rounded-full border border-dashed border-[#c9d0c4] px-3 py-[7px] text-[12px] font-semibold whitespace-nowrap text-green"
                     aria-label="날짜 추가"
                 >
-                    ＋ 날짜
+                    <Plus className="icon mr-0.5" />날짜
                 </button>
             </nav>
         );
 
-        /** 시트 머리: 경로 설명 1줄 + 날짜 제목 1줄(길면 …) + ✎ 날짜 편집 / ＋ 장소 추가 아이콘 버튼 */
+        /** 시트 머리: 경로 설명 1줄 + 날짜 제목 1줄(길면 …) + 연필(날짜 편집) / 더하기(장소 추가) 아이콘 버튼 */
         const eyebrow = [day.subtitle, day.hotel].filter(Boolean).join(' · ');
         const phoneDayHeading = (
             <div className="flex items-center gap-1.5 px-[15px] pb-2.5">
@@ -725,8 +737,8 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                     {eyebrow && <p className="eyebrow mb-0.5 truncate text-[9px]" title={eyebrow}>{eyebrow}</p>}
                     <h2 className="m-0 truncate text-[18px] leading-[1.35] font-semibold tracking-[-0.6px]" title={day.title}>{day.title}</h2>
                 </div>
-                <button type="button" className={`${PHONE_ICON_BUTTON} btn-outline`} onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집">✎</button>
-                <button type="button" className={`${PHONE_ICON_BUTTON} btn-outline text-[18px]`} onClick={() => openStopEdit(null)} aria-label="장소 추가" title="장소 추가">＋</button>
+                <button type="button" className={`${PHONE_ICON_BUTTON} btn-outline`} onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>
+                <button type="button" className={`${PHONE_ICON_BUTTON} btn-outline`} onClick={() => openStopEdit(null)} aria-label="장소 추가" title="장소 추가"><Plus className="size-5" /></button>
             </div>
         );
 

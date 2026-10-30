@@ -1,5 +1,5 @@
 // 앱 최상위 컴포넌트: 주소(#/…)에 따라 여행 목록 또는 여행 화면을 보여줍니다.
-// ⚙ 설정 모달과 동기화 관리(SyncCoordinator)는 두 화면이 함께 씁니다.
+// 설정 모달과 동기화 관리(SyncCoordinator)는 두 화면이 함께 씁니다.
 
 import { useEffect, useState } from 'react';
 import { AppHeader } from './components/AppHeader';

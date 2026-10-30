@@ -1,16 +1,17 @@
 // 하루 일정을 Google 지도에 표시하는 컴포넌트 (@vis.gl/react-google-maps).
 //  - 방문 장소: 번호 핀(초록 원) + 방문 순서를 잇는 점선
-//  - 맛집·카페: 다른 모양의 배지(🍴 식당 / ☕ 카페)
+//  - 맛집·카페: 다른 모양의 배지(포크·나이프 = 식당 / 커피잔 = 카페 SVG 아이콘)
 //  - API 키가 없거나 로드에 실패하면 지도 대신 안내를 보여줍니다.
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AdvancedMarker, APILoadingStatus, InfoWindow, Map, Polyline, useMap } from '@vis.gl/react-google-maps';
+import { LocateFixed, Settings } from 'lucide-react';
 import { formatTime } from '../lib/datetime';
 import { gmaps } from '../lib/links';
 import { useMaps } from '../hooks/useMaps';
 import { useToast } from '../hooks/useToast';
 import { ExternalLink } from './common';
-import { FOOD_BADGE, FoodIcon } from './FoodCard';
+import { FoodIcon } from './FoodCard';
 import type { Food, Stop } from '../types';
 
 /** 지도 포커스 요청. 같은 항목을 다시 눌러도 동작하도록 매번 다른 nonce 를 붙입니다. */
@@ -82,9 +83,9 @@ function MapPlaceholder({ status, onOpenSettings, fill }: { status: ReturnType<t
             <>
                 <strong className="text-[14px]">Google Maps API 키가 필요합니다</strong>
                 <p className="my-2 text-[12px] text-muted">
-                    ⚙ 설정에서 키를 입력하거나 .env.local 에 VITE_GOOGLE_MAPS_API_KEY 를 넣고 다시 실행하세요. 길찾기 버튼은 키 없이도 동작합니다.
+                    설정에서 키를 입력하거나 .env.local 에 VITE_GOOGLE_MAPS_API_KEY 를 넣고 다시 실행하세요. 길찾기 버튼은 키 없이도 동작합니다.
                 </p>
-                <button type="button" className="btn btn-primary" onClick={onOpenSettings}>⚙ 지도 설정</button>
+                <button type="button" className="btn btn-primary" onClick={onOpenSettings}><Settings className="icon" />지도 설정</button>
             </>
         );
     } else if (status === APILoadingStatus.FAILED || status === APILoadingStatus.AUTH_FAILURE) {
@@ -94,7 +95,7 @@ function MapPlaceholder({ status, onOpenSettings, fill }: { status: ReturnType<t
                 <p className="my-2 text-[12px] text-muted">
                     API 키, 허용 웹사이트(HTTP 리퍼러)에 지금 주소가 있는지, Maps JavaScript API 사용 설정을 확인하세요.
                 </p>
-                <button type="button" className="btn btn-outline" onClick={onOpenSettings}>⚙ 지도 설정</button>
+                <button type="button" className="btn btn-outline" onClick={onOpenSettings}><Settings className="icon" />지도 설정</button>
             </>
         );
     } else {
@@ -222,7 +223,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                 맛집
             </label>
             <button type="button" className="btn btn-mini" onClick={fitAll}>전체 보기</button>
-            <button type="button" className="btn btn-mini" onClick={locate} aria-label="내 위치 표시">◎ 내 위치</button>
+            <button type="button" className="btn btn-mini" onClick={locate} aria-label="내 위치 표시"><LocateFixed className="icon" />내 위치</button>
         </div>
     );
 
@@ -297,7 +298,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                                 zIndex={selected ? 1000 : 100}
                             >
                                 <span className={`food-badge food-badge-${item.food.category} ${selected ? 'food-badge-selected' : ''}`}>
-                                    <FoodIcon category={item.food.category} />
+                                    <FoodIcon category={item.food.category} className="size-4" />
                                 </span>
                             </AdvancedMarker>
                         );
@@ -325,7 +326,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
             {/* 범례: fill 모드는 바텀시트에 가려지므로 생략 */}
             {!fill && (
                 <div className="px-3.5 py-2.5 text-[10px] leading-[1.6] text-muted max-phone:text-[9px]">
-                    <span className="mr-[5px] inline-block h-1.5 w-1.5 rounded-full bg-gold" /> 숫자는 방문 순서 · 🍴 식당 · ☕ 카페 · 점선은 순서 안내이며 실제 도로 경로가 아닙니다.
+                    <span className="mr-[5px] inline-block h-1.5 w-1.5 rounded-full bg-gold" /> 숫자는 방문 순서 · <FoodIcon category="restaurant" /> 식당 · <FoodIcon category="cafe" /> 카페 · 점선은 순서 안내이며 실제 도로 경로가 아닙니다.
                     {hiddenFoods > 0 && ` 위치 없는 맛집 ${hiddenFoods}곳은 지도에 표시되지 않습니다.`}
                 </div>
             )}
@@ -353,7 +354,15 @@ function shiftForInset(map: google.maps.Map, position: google.maps.LatLngLiteral
 function InfoTitle({ item }: { item: MapItem }) {
     return (
         <strong className="map-info-title">
-            {item.type === 'stop' ? `${item.number}. ${item.stop.title}` : `${FOOD_BADGE[item.food.category].icon} ${item.food.name}`}
+            {item.type === 'stop' ? (
+                `${item.number}. ${item.stop.title}`
+            ) : (
+                // 맛집: 종류 아이콘(SVG) + 이름. 아이콘 색은 식당 주황 / 카페 갈색(배지와 같은 색)
+                <>
+                    <FoodIcon category={item.food.category} className={`mr-1 ${item.food.category === 'cafe' ? 'text-[#8a5a3c]' : 'text-[#e8743b]'}`} />
+                    {item.food.name}
+                </>
+            )}
         </strong>
     );
 }
@@ -369,7 +378,7 @@ function InfoContent({ item, onStopDetail, onFoodEdit }: { item: MapItem; onStop
                     {stop.duration && ` · ${stop.duration}`}
                 </p>
                 <div className="map-info-actions">
-                    <ExternalLink href={gmaps(stop.query, true, stop.mode)}>길찾기 ↗</ExternalLink>
+                    <ExternalLink href={gmaps(stop.query, true, stop.mode)}>길찾기</ExternalLink>
                     <button type="button" className="btn btn-mini" onClick={() => onStopDetail(stop.id)}>
                         자세히
                     </button>
@@ -384,8 +393,8 @@ function InfoContent({ item, onStopDetail, onFoodEdit }: { item: MapItem; onStop
         <div className="map-info">
             {summary && <p>{summary}</p>}
             <div className="map-info-actions">
-                <ExternalLink href={gmaps(food.query, true)}>길찾기 ↗</ExternalLink>
-                <ExternalLink href={gmaps(food.query, true, 'walking')}>도보 ↗</ExternalLink>
+                <ExternalLink href={gmaps(food.query, true)}>길찾기</ExternalLink>
+                <ExternalLink href={gmaps(food.query, true, 'walking')}>도보</ExternalLink>
                 <button type="button" className="btn btn-mini" onClick={() => onFoodEdit(food.id)}>
                     편집
                 </button>

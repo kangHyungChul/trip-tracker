@@ -1,4 +1,4 @@
-// 순서 편집 모드의 장소 목록: 손잡이(⠿)를 끌어 방문 순서를 바꿉니다. (@dnd-kit)
+// 순서 편집 모드의 장소 목록: 손잡이(점 6개 모양 아이콘)를 끌어 방문 순서를 바꿉니다. (@dnd-kit)
 // 마우스·터치·키보드(손잡이에 포커스 → Space 로 잡기 → 화살표로 이동 → Space 로 놓기) 모두 지원합니다.
 
 import {
@@ -6,6 +6,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
 import { formatTime } from '../lib/datetime';
 import type { Stop } from '../types';
 
@@ -71,7 +72,8 @@ function SortableRow({ stop, number }: { stop: Stop; number: number }) {
                 // touch-none: 손잡이를 끌 때 페이지가 스크롤되지 않게 합니다.
                 className="cursor-grab touch-none rounded-md px-2 py-1 text-[18px] leading-none text-muted active:cursor-grabbing"
             >
-                ⠿
+                {/* 손잡이 모양: 세로 점 6개 SVG 아이콘 */}
+                <GripVertical className="icon" />
             </button>
             <span className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-full bg-light text-[11px] font-bold text-green">{number}</span>
             <div className="min-w-0 flex-1">

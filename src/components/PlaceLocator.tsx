@@ -2,6 +2,7 @@
 // URL 이 아닌 장소 이름·주소를 입력해도 Google 장소 검색으로 찾습니다.
 
 import { useState } from 'react';
+import { MapPin, MapPinOff } from 'lucide-react';
 import { gmaps } from '../lib/links';
 import { resolveLocation, type FoundPlace, type LatLng } from '../lib/placeLookup';
 import { ExternalLink } from './common';
@@ -71,14 +72,16 @@ export function PlaceLocator({ lat, lng, onFound, bias, label = '구글지도 UR
             <p className="mt-1.5 mb-0 text-[11px]">
                 {hasCoords ? (
                     <>
-                        📍 현재 위치 {lat.toFixed(5)}, {lng.toFixed(5)} ·{' '}
-                        {/* 좌표를 구글지도에서 열어 맞는 위치인지 확인할 수 있게 합니다. */}
+                        <MapPin className="icon mr-1 text-green" />현재 위치 {lat.toFixed(5)}, {lng.toFixed(5)} ·{' '}
+                        {/* 좌표를 구글지도에서 열어 맞는 위치인지 확인할 수 있게 합니다. (↗ 아이콘은 ExternalLink 가 붙임) */}
                         <ExternalLink href={gmaps(`${lat},${lng}`)} className="text-green">
-                            지도에서 확인 ↗
+                            지도에서 확인
                         </ExternalLink>
                     </>
                 ) : (
-                    <span className="text-danger">📍 아직 위치가 없습니다.</span>
+                    <span className="text-danger">
+                        <MapPinOff className="icon mr-1" />아직 위치가 없습니다.
+                    </span>
                 )}
             </p>
         </div>

@@ -37,10 +37,10 @@ export function StopDetailDialog({ stop, checkedAt, onClose, onEdit, onDelete }:
                             <Fact label="검색">{stop.query}</Fact>
                         </div>
                         <div className="flex flex-wrap items-center gap-2.5">
-                            <ExternalLink href={gmaps(stop.query, true, stop.mode)} className="navlink">구글지도 길찾기 ↗</ExternalLink>
+                            <ExternalLink href={gmaps(stop.query, true, stop.mode)} className="navlink">구글지도 길찾기</ExternalLink>
                             {/* 주차장 검색어가 있을 때만 주차장 길찾기 제공 */}
                             {stop.parkingQuery && (
-                                <ExternalLink href={gmaps(stop.parkingQuery, true)} className="btn btn-outline">주차장 길찾기 ↗</ExternalLink>
+                                <ExternalLink href={gmaps(stop.parkingQuery, true)} className="btn btn-outline">주차장 길찾기</ExternalLink>
                             )}
                         </div>
                         <p className="mt-3 text-[11px] text-muted">

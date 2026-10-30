@@ -10,12 +10,12 @@ export function useSyncStatus(id: string): SyncStatus {
     return useSyncExternalStore(subscribeSyncStatus, getSnapshot);
 }
 
-/** 헤더에 보여줄 짧은 문구 */
+/** 헤더에 보여줄 짧은 문구 (저장 완료 체크 표시는 화면에서 SVG 아이콘으로 붙입니다) */
 export const SYNC_LABEL: Record<SyncState, string> = {
     local: '기기에만 저장 (Supabase 미설정)',
     pending: '저장 대기…',
     saving: '저장 중…',
-    saved: '클라우드에 저장됨 ✓',
+    saved: '클라우드에 저장됨',
     offline: '오프라인 · 연결되면 자동 저장',
     error: '저장 실패 · 자동 재시도',
     conflict: '충돌 · 눌러서 해결',
