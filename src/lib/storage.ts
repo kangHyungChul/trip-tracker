@@ -11,8 +11,12 @@ export const TRIP_INDEX_KEY = `${PREFIX}trips`;
 export const tripKey = (id: string) => `${PREFIX}trip:${id}`;
 /** 여행별 마지막으로 본 날짜 ID */
 export const lastDayKey = (id: string) => `${PREFIX}last-day:${id}`;
-/** 여행별 마지막으로 동기화한 클라우드 revision 정보 (충돌 방지용) */
+/** (예전) 로그인 방식 클라우드 저장의 동기화 기준. 지금은 쓰지 않고, 여행 삭제·이전 때 정리만 합니다. */
 export const cloudBaseKey = (id: string) => `${PREFIX}cloud-base:${id}`;
+/** 여행별 Supabase 동기화 상태 (마지막으로 맞춘 revision, 아직 올리지 않은 변경 여부) */
+export const syncKey = (id: string) => `${PREFIX}sync:${id}`;
+/** 오프라인 중에 삭제해 아직 Supabase 에 반영하지 못한 여행 ID 목록 */
+export const PENDING_DELETES_KEY = `${PREFIX}pending-deletes`;
 /** 화면에서 입력한 Supabase 연결 설정 (환경변수보다 우선) */
 export const SUPABASE_CONFIG_KEY = `${PREFIX}supabase-config`;
 /** 화면에서 입력한 Google Maps API 키·Map ID (환경변수보다 우선) */

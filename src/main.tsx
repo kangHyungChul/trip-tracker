@@ -6,13 +6,15 @@ import { createRoot } from 'react-dom/client';
 import 'react-datepicker/dist/react-datepicker.css';
 import './index.css';
 import App from './App';
+import { isCloudEnabled } from './lib/cloudTrips';
 import { initTripStore } from './lib/tripStore';
 import { ConfirmProvider } from './hooks/useConfirm';
 import { MapsProvider } from './hooks/useMaps';
 import { ToastProvider } from './hooks/useToast';
 
 // 처음 실행이면 예전(가고시마 전용) 데이터를 여행 목록으로 옮기거나 예시 여행을 넣습니다. (렌더링 전에 한 번)
-initTripStore();
+// Supabase 를 쓰면 클라우드 목록이 기준이므로 예시 여행을 자동으로 넣지 않습니다. (첫 화면에서 직접 추가 가능)
+initTripStore({ seedSample: !isCloudEnabled() });
 
 createRoot(document.getElementById('root')!).render(
     // StrictMode: 개발 중 effect 를 두 번 실행하는 등 잠재적 문제를 미리 드러내 줍니다. (배포 빌드에는 영향 없음)

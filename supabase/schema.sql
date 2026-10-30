@@ -1,57 +1,10 @@
--- Run once in Supabase SQL Editor. User data is protected by Auth + RLS.
-begin;
-create table if not exists public.travel_plans (
-    user_id uuid not null references auth.users(id) on delete cascade,
-    trip_key text not null,
-    payload jsonb not null,
-    revision integer not null default 1 check (revision > 0),
-    updated_at timestamptz not null default now(),
-    primary key (user_id, trip_key),
-    check (jsonb_typeof(payload) = 'object'),
-    check (octet_length(payload::text) <= 3000000)
-);
-alter table public.travel_plans enable row level security;
-revoke all on public.travel_plans from anon;
-grant select, insert, update, delete on public.travel_plans to authenticated;
-drop policy if exists own_travel_plans on public.travel_plans;
-create policy own_travel_plans on public.travel_plans
-    for all to authenticated
-    using ((select auth.uid()) = user_id)
-    with check ((select auth.uid()) = user_id);
-
--- Atomic optimistic save: a stale device never overwrites a newer revision.
-create or replace function public.save_travel_plan(
-    p_trip_key text,
-    p_payload jsonb,
-    p_expected_revision integer
-) returns integer
-language plpgsql
-security invoker
-set search_path = ''
-as $$
-declare
-    v_uid uuid := auth.uid();
-    v_revision integer;
-begin
-    if v_uid is null then raise exception 'authentication_required'; end if;
-    -- 여행 키: 앱의 여행 ID 규칙(영문·숫자·_·-, 1~100자)만 허용 (여러 여행 지원)
-    if p_trip_key is null or p_trip_key !~ '^[A-Za-z0-9_-]{1,100}$' or p_expected_revision is null or p_expected_revision < 0 then
-        raise exception 'invalid_request';
-    end if;
-    if p_expected_revision = 0 then
-        insert into public.travel_plans (user_id, trip_key, payload, revision)
-            values (v_uid, p_trip_key, p_payload, 1)
-            on conflict do nothing returning revision into v_revision;
-    else
-        update public.travel_plans
-            set payload = p_payload, revision = revision + 1, updated_at = now()
-            where user_id = v_uid and trip_key = p_trip_key and revision = p_expected_revision
-            returning revision into v_revision;
-    end if;
-    if v_revision is null then raise exception 'revision_conflict'; end if;
-    return v_revision;
-end;
-$$;
-revoke all on function public.save_travel_plan(text, jsonb, integer) from public, anon;
-grant execute on function public.save_travel_plan(text, jsonb, integer) to authenticated;
-commit;
+-- DB 스키마는 supabase/migrations/ 폴더의 파일들이 기준입니다.
+--
+-- 1) CLI (권장): npm run db:login → npm run db:link → npm run db:push
+--    적용 이력이 남아, 새 마이그레이션 파일만 골라 실행합니다.
+--
+-- 2) SQL Editor: supabase/migrations/ 의 .sql 파일을 "파일 이름 순서대로" 하나씩 붙여넣고 실행하세요.
+--    - 20261031000000_init_travel_plans.sql : (예전) 로그인 사용자별 travel_plans 테이블
+--    - 20261031010000_shared_trips.sql      : 공용 trips 테이블 + save_trip / delete_trip / restore_trip 함수
+--    모든 문장이 재실행 안전(if not exists / create or replace)이라 이미 실행한 파일을 다시 실행해도 데이터는 유지됩니다.
+--    단, SQL Editor 로 실행하면 CLI 적용 이력에는 남지 않으므로 둘 중 한 가지 방식만 쓰는 것을 권장합니다.

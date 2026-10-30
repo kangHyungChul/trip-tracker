@@ -6,7 +6,7 @@
 import seed from '../data/seed.json';
 import { clone, LEGACY_TRIP_ID, parseTrip, validateTrip } from './trip';
 import {
-    cloudBaseKey, LEGACY_KEYS, lastDayKey, readItem, removeItem, SUPABASE_CONFIG_KEY, TRIP_INDEX_KEY, tripKey, writeItem,
+    cloudBaseKey, LEGACY_KEYS, lastDayKey, readItem, removeItem, SUPABASE_CONFIG_KEY, syncKey, TRIP_INDEX_KEY, tripKey, writeItem,
 } from './storage';
 import type { Trip } from '../types';
 
@@ -60,12 +60,13 @@ export function writeTrip(trip: Trip): boolean {
     return saved;
 }
 
-/** 여행 삭제 (기기에서만. 클라우드 사본은 그대로 남음) */
+/** 기기 캐시에서 여행 삭제 (클라우드 삭제는 lib/sync.ts 의 removeTrip 이 담당) */
 export function deleteTrip(id: string): void {
     writeIds(listTripIds().filter(item => item !== id));
     removeItem(tripKey(id));
     removeItem(lastDayKey(id));
     removeItem(cloudBaseKey(id));
+    removeItem(syncKey(id)); // 동기화 기록도 함께 정리
 }
 
 /** 새 여행을 더 만들 수 있는지 */
@@ -74,8 +75,10 @@ export const canAddTrip = () => listTripIds().length < MAX_TRIPS;
 /**
  * 앱 시작 시 한 번 실행: 처음 실행이면 예전 데이터 이전 또는 예시 여행 추가.
  * 이미 목록 키가 있으면 아무것도 하지 않습니다.
+ * @param seedSample 예전 데이터가 없을 때 예시 여행을 넣을지.
+ *   Supabase 를 쓰면 클라우드 여행 목록이 기준이므로 false (새 기기마다 예시가 다시 올라가는 것을 막음)
  */
-export function initTripStore(): void {
+export function initTripStore({ seedSample }: { seedSample: boolean }): void {
     if (readItem(TRIP_INDEX_KEY) !== null) return;
 
     const legacyRaw = readItem(LEGACY_KEYS.trip);
@@ -93,13 +96,15 @@ export function initTripStore(): void {
         // 클라우드 동기화 기준 revision 도 같은 여행으로 이어 붙입니다.
         const cloudBase = readItem(LEGACY_KEYS.cloudBase);
         if (cloudBase) writeItem(cloudBaseKey(LEGACY_TRIP_ID), cloudBase);
-    } else {
+        writeIds([LEGACY_TRIP_ID]);
+    } else if (seedSample) {
         // 처음 쓰는 사람에게는 예시 여행을 보여줍니다.
         writeItem(tripKey(SAMPLE_TRIP.id), JSON.stringify(clone(SAMPLE_TRIP)));
+        writeIds([SAMPLE_TRIP.id]);
+    } else {
+        writeIds([]); // 빈 목록으로 시작 (클라우드 동기화가 채움)
     }
     // 화면에서 입력했던 Supabase 연결 설정도 새 키로 옮깁니다.
     const supabaseConfig = readItem(LEGACY_KEYS.supabaseConfig);
     if (supabaseConfig && readItem(SUPABASE_CONFIG_KEY) === null) writeItem(SUPABASE_CONFIG_KEY, supabaseConfig);
-
-    writeIds([LEGACY_TRIP_ID]);
 }

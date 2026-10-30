@@ -18,8 +18,8 @@ import { addDays, shortDate, weekdayOf } from '../lib/datetime';
 import { lastDayKey, readItem, writeItem } from '../lib/storage';
 import { clone, dayCost, foodMatches, newId, stopMatches, validateTrip } from '../lib/trip';
 import { formatDateRange } from '../lib/tripSummary';
+import { requestConflictPrompt } from '../lib/sync';
 import { useAutoLocateFoods } from '../hooks/useAutoLocateFoods';
-import type { Cloud } from '../hooks/useCloud';
 import { useConfirm } from '../hooks/useConfirm';
 import { useMapsReady } from '../hooks/useMaps';
 import { useToast } from '../hooks/useToast';
@@ -37,14 +37,13 @@ const errorMessage = (error: unknown) => (error instanceof Error ? error.message
 
 interface TripPageProps {
     initialTrip: Trip;
-    cloud: Cloud;
     onOpenSettings: () => void;
 }
 
-export function TripPage({ initialTrip, cloud, onOpenSettings }: TripPageProps) {
+export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     const toast = useToast();
     const confirm = useConfirm(); // 앱 자체 확인창 (브라우저 confirm() 대신)
-    const { trip, saveStatus, commit, update, replace, isSaveBlocked, getTrip } = useTrip(initialTrip);
+    const { trip, saveStatus, syncState, syncMessage, commit, update, replace, getTrip } = useTrip(initialTrip);
     // 좌표 없는 맛집이 있으면 지도 스크립트가 준비된 뒤 자동으로 위치를 찾아 채웁니다.
     useAutoLocateFoods(trip, update, useMapsReady(), toast);
 
@@ -284,9 +283,17 @@ export function TripPage({ initialTrip, cloud, onOpenSettings }: TripPageProps) 
     return (
         <>
             <AppHeader>
-                <span role="status" className="text-[11px] text-muted max-tab:text-[10px] max-phone:hidden">
-                    {saveStatus}
-                </span>
+                {syncState === 'conflict' ? (
+                    // 충돌을 '나중에'로 미뤘다면 여기를 눌러 선택창을 다시 엽니다.
+                    <button type="button" role="status" className="text-[11px] font-semibold text-danger underline max-tab:text-[10px]" onClick={() => requestConflictPrompt(trip.id)}>
+                        {saveStatus}
+                    </button>
+                ) : (
+                    // 실패 사유는 마우스를 올리면 보이게 합니다. (휴대폰에서는 공간이 좁아 숨김)
+                    <span role="status" title={syncMessage || undefined} className={`text-[11px] max-tab:text-[10px] max-phone:hidden ${syncState === 'error' ? 'text-danger' : 'text-muted'}`}>
+                        {saveStatus}
+                    </span>
+                )}
                 <button type="button" className={headerButton} onClick={() => setStorageOpen(true)}>☁ 저장·백업</button>
                 <button type="button" className={headerButton} onClick={onOpenSettings} aria-label="설정">⚙</button>
             </AppHeader>
@@ -539,7 +546,7 @@ export function TripPage({ initialTrip, cloud, onOpenSettings }: TripPageProps) 
             </main>
 
             <footer className="mx-[5%] mt-10 mb-5 border-t border-line pt-5 text-[10px] text-muted max-phone:text-[9px] print:hidden">
-                TRIP TRACKER <span className="mx-[9px]">·</span> 구글지도 길찾기 / 직접 편집 / 기기 자동 저장
+                TRIP TRACKER <span className="mx-[9px]">·</span> 구글지도 길찾기 / 직접 편집 / Supabase 자동 저장
             </footer>
 
             {/* ── 모달 ── */}
@@ -572,8 +579,7 @@ export function TripPage({ initialTrip, cloud, onOpenSettings }: TripPageProps) 
                 onClose={() => setStorageOpen(false)}
                 getTrip={getTrip}
                 replace={replace}
-                isSaveBlocked={isSaveBlocked}
-                cloud={cloud}
+                saveStatus={saveStatus}
             />
         </>
     );
