@@ -2,5 +2,7 @@ node_modules/
 dist/
 .env
 .env.local
+.env.*.local
 .vercel/
 .openai/
+*.tsbuildinfo

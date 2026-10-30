@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# 위 인코딩 선언: Python 3.9 이하에서 아주 긴 한글 줄을 잘못 읽는 토크나이저 문제를 피하기 위해 필요합니다.
+# 실행: py scripts/make-seed.py  →  src/data/seed.json 생성
 import json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
@@ -40,8 +43,9 @@ restaurant('후쿠후쿠 공항점','ふく福 鹿児島空港店','우동·소�
 }
 # Remove accidental punctuation from source URLs.
 R['chuo'][2]['source']=R['chuo'][2]['source'].rstrip(')')
-def p(id,time,title,jp,lat,lng,duration,fee,amount,unit,parking,note,source,food=None,kind='관광',mode='driving',parkq=''):
- return dict(id=id,time=time,title=title,query=jp,lat=lat,lng=lng,duration=duration,fee=fee,amount=amount,unit=unit,parking=parking,note=note,source=source,food=food or [],kind=kind,mode=mode,parkingQuery=parkq,done=False)
+# extra: 인원수와 무관하게 한 번만 더하는 추가 고정비(엔). 예) 센간엔 주차 ¥500/대
+def p(id,time,title,jp,lat,lng,duration,fee,amount,unit,parking,note,source,food=None,kind='관광',mode='driving',parkq='',extra=0):
+ return dict(id=id,time=time,title=title,query=jp,lat=lat,lng=lng,duration=duration,fee=fee,amount=amount,unit=unit,extraAmount=extra,parking=parking,note=note,source=source,food=food or [],kind=kind,mode=mode,parkingQuery=parkq,done=False)
 B='https://www.budgetrentacar.co.jp/shop/kagoshima/0006/'
 S='https://www.silk-inn.jp/rootaccess/'
 H='https://www.shiroyama-g.co.jp/access/'
@@ -69,7 +73,7 @@ pts={
 'foot':p('foot','12:20 선택','나기사 족욕 / 비지터센터','桜島 溶岩なぎさ公園 足湯',31.5904,130.5956,'15분·선택','족욕·비지터센터 무료',0,'adult','주변 방문객 주차 구역. 요금·이용시간 현장 확인.','12:35 복귀 페리 대기 목표. 밀리면 이 포인트부터 생략. 타월 지참.','https://visitor.sakurajima.gr.jp/',[],kind='선택'),
 'ferryback':p('ferryback','12:35','사쿠라지마항 · 복귀 페리','桜島フェリー 桜島港 車両乗船口',31.5937,130.5993,'대기＋항해 약30~45분','차3~4m＋성인2인 합계 ¥1,950 / 편도',1950,'vehicle','차량 대기 차선. 요금정산 후 안내대로 승선.','차4~5m이면 ¥2,600. 지도 연결선은 도로 경로가 아님. 구글지도에서 페리 경로를 직접 확인.',F,[],'페리'),
 'aqua':p('aqua','13:20','가고시마 수족관','いおワールドかごしま水族館 本港新町3-1',31.5967,130.5684,'85분','시외 성인 ¥2,000/인',2000,'adult','현영 제1~3주차장. 1시간 무료, 이후 1시간당¥200. 관람 할인 없음.','09:30~18:00·입장17시까지. 큰 수조 중심으로, 쇼 대기는 생략 가능.','https://ioworld.jp/faq',R['aquarium'],parkq='鹿児島県営 第1駐車場 本港新町'),
-'sengan':p('sengan','15:15','센간엔','仙巌園 鹿児島市吉野町9700-1',31.6178,130.5787,'80분','입장 ¥1,600/인＋주차¥500/대',1600,'adult','주차1일¥500/대. 총액 입장2인¥3,200＋주차¥500.','17시 폐장·입장16:30까지. 정원40분·저택30분 정도. 박물관·체험은 생략. 지연되면 차료 휴식 줄이기.','https://www.senganen.jp/faq/',R['sengan'],parkq='仙巌園 駐車場'),
+'sengan':p('sengan','15:15','센간엔','仙巌園 鹿児島市吉野町9700-1',31.6178,130.5787,'80분','입장 ¥1,600/인＋주차¥500/대',1600,'adult','주차1일¥500/대. 총액 입장2인¥3,200＋주차¥500.','17시 폐장·입장16:30까지. 정원40분·저택30분 정도. 박물관·체험은 생략. 지연되면 차료 휴식 줄이기.','https://www.senganen.jp/faq/',R['sengan'],parkq='仙巌園 駐車場',extra=500),
 'shiroyama':p('shiroyama','17:15','시로야마 · 체크인','SHIROYAMA HOTEL kagoshima 新照院町41-1',31.5968,130.5492,'체크인·저녁','주차 첫날 ¥1,300/대',1300,'vehicle','프런트 앞 지나 터널 후 입체 주차장. 직원 안내 우선.','15시부터 체크인. 밤축제 셔틀은 우회 운행·정류장 위치 확인. 호텔 저녁 또는 덴몬칸 사전 예약.',H,R['festival'][:3],'숙소'),
 'night':p('night','18:50~20:20','오하라 밤축제 · 덴몬칸','天文館通 おはら祭',31.5905,130.5556,'60~90분','관람 무료',0,'adult','차는 호텔에. 셔틀·택시＋도보. 18:00~21:00 차량 통제.','공식 축제18:50~20:20. 귀환 셔틀 위치 확인. 호텔까지 언덕 도보는 부모님과 비추천.',E,R['festival'],'축제','walking'),
 'morning':p('morning','06:30~09:15','시로야마 · 온천과 조식','SHIROYAMA HOTEL kagoshima 新照院町41-1',31.5968,130.5492,'온천·조식·체크아웃','조식 포함 여부 예약 확인',0,'adult','체크아웃 후13:30까지 주차·짐 보관 가능 여부 프런트 확인. 불가 시 통제 밖 유료주차로 이동.','조식06:30~10:00, 예약 시간제 가능. 09:15 전후 체크아웃 후 축제장 이동.',H,[],'숙소'),
@@ -80,18 +84,27 @@ pts={
 'budgetback':p('budgetback','15:00~15:30','버짓 공항점 · 차량 반납','バジェットレンタカー 鹿児島空港店 霧島市溝辺町麓1377-1',31.795,130.720,'반납·셔틀 30~40분','계약 정산',0,'vehicle','공항 터미널이 아니라 영업소에 반납→공항 셔틀.','주소:霧島市溝辺町麓1377-1 / 0995-58-3543. 예약 반납시각이 더 이르면 예약 우선.',B,[],'교통'),
 'airport':p('airport','16:00까지','가고시마공항 · 18시 귀국편','鹿児島空港 国際線ターミナル',31.8004,130.7191,'수속·출국','추가 식사·쇼핑 별도',0,'adult','렌터카 반납 완료 후 셔틀 하차.','18시 출발·국제선16시 도착 목표. 항공사 수속 마감 우선. 국내선 식당 이용은 수속·보안검색 전 시간 여유 있을 때만.','https://www.koj-ab.co.jp/',R['airport'],'공항')
 }
+# version 2 날짜 형식
+#  - id: 문자열 ID (날짜 추가·삭제가 가능하므로 순번과 분리)
+#  - tight: 빠듯한 날 강조 표시 여부
+#  - costNote: 비용 합계 아래에 덧붙이는 날짜별 안내
 days=[
- dict(id=1,date='10.31',weekday='토',title='도착, 가고시마의 첫 저녁',subtitle='공항 → 실크인 → 중앙역',hotel='실크인 가고시마',pace='가볍게',warning='15:30 한국 출발 기준. 실제 도착·렌터카 인수에 따라 첫날 시간을 조정하세요.',stops=[pts[k] for k in ['budget','silk','chuo','donki']]),
- dict(id=2,date='11.01',weekday='일',title='모래찜질과 남쪽 바다',subtitle='이부스키 5곳 · 이온몰 쇼핑',hotel='실크인 가고시마',pace='알찬 하루',warning='08시 출발. 사라쿠 대기가 길면 이케다호 카페·이온몰 체류시간을 줄이세요.',stops=[pts[k] for k in ['saraku','lunch','flower','ryugu','nishi','ikeda','aeon','silk2']]),
- dict(id=3,date='11.02',weekday='월',title='화산을 돌고, 축제 속으로',subtitle='사쿠라지마 일주 · 수족관 · 센간엔',hotel='시로야마 호텔',pace='매우 빠듯',warning='07시 출발. 전부 포함한 도전 일정입니다. 12:35 복귀 페리 대기·15:15 센간엔 입장을 목표로 하고 지연 시 족욕/전시/카페부터 줄이세요.',stops=[pts[k] for k in ['ferryout','yuno','kuro','arimura','akamizu','minato','foot','ferryback','aqua','sengan','shiroyama','night']]),
- dict(id=4,date='11.03',weekday='화 · 공휴일',title='본축제와 여유 있는 귀국',subtitle='시로야마 조식 · 본축제 · 공항',hotel='18:00 귀국편',pace='공항 시간 우선',warning='본축제는 오전만 관람. 체크아웃 후 호텔 주차 가능 여부 확인. 13:40 출발·15시대 버짓 반납·16시 공항 도착 목표.',stops=[pts[k] for k in ['morning','dayfest','cafe4','carreturn','gas','budgetback','airport']])]
+ dict(id='day-1',date='10.31',weekday='토',title='도착, 가고시마의 첫 저녁',subtitle='공항 → 실크인 → 중앙역',hotel='실크인 가고시마',pace='가볍게',warning='15:30 한국 출발 기준. 실제 도착·렌터카 인수에 따라 첫날 시간을 조정하세요.',tight=False,costNote='',stops=[pts[k] for k in ['budget','silk','chuo','donki']]),
+ dict(id='day-2',date='11.01',weekday='일',title='모래찜질과 남쪽 바다',subtitle='이부스키 5곳 · 이온몰 쇼핑',hotel='실크인 가고시마',pace='알찬 하루',warning='08시 출발. 사라쿠 대기가 길면 이케다호 카페·이온몰 체류시간을 줄이세요.',tight=False,costNote='',stops=[pts[k] for k in ['saraku','lunch','flower','ryugu','nishi','ikeda','aeon','silk2']]),
+ dict(id='day-3',date='11.02',weekday='월',title='화산을 돌고, 축제 속으로',subtitle='사쿠라지마 일주 · 수족관 · 센간엔',hotel='시로야마 호텔',pace='매우 빠듯',warning='07시 출발. 전부 포함한 도전 일정입니다. 12:35 복귀 페리 대기·15:15 센간엔 입장을 목표로 하고 지연 시 족욕/전시/카페부터 줄이세요.',tight=True,costNote='페리 차3~4m 기준·차4~5m은 왕복 ¥1,300 추가',stops=[pts[k] for k in ['ferryout','yuno','kuro','arimura','akamizu','minato','foot','ferryback','aqua','sengan','shiroyama','night']]),
+ dict(id='day-4',date='11.03',weekday='화 · 공휴일',title='본축제와 여유 있는 귀국',subtitle='시로야마 조식 · 본축제 · 공항',hotel='18:00 귀국편',pace='공항 시간 우선',warning='본축제는 오전만 관람. 체크아웃 후 호텔 주차 가능 여부 확인. 13:40 출발·15시대 버짓 반납·16시 공항 도착 목표.',tight=False,costNote='',stops=[pts[k] for k in ['morning','dayfest','cafe4','carreturn','gas','budgetback','airport']])]
 
 # Departure markers make each day's route readable without relying on yesterday's map.
 from copy import deepcopy
 for day_id,newid,time,title in [(2,'silk-depart2','08:00','실크인 · 이부스키로 출발'),(3,'silk-depart3','07:00','실크인 · 체크아웃')]:
     dep=deepcopy(pts['silk'])
-    dep.update(id=newid,time=time,title=title,duration='출발 준비',fee='추가 입장료 없음',amount=0,food=[],note='호텔 주차장에서 출발. 나가기 전 할인카드·짐을 확인하세요.')
+    dep.update(id=newid,time=time,title=title,duration='출발 준비',fee='추가 입장료 없음',amount=0,extraAmount=0,food=[],note='호텔 주차장에서 출발. 나가기 전 할인카드·짐을 확인하세요.')
     days[day_id-1]['stops'].insert(0,dep)
 
-seed=dict(version=1,title='가고시마, 함께 가는 4일',travelers=2,checkedAt='2026-10-30',days=days,notes='부모님과 2인 · 전 일정 렌터카 · 실크인 2박 / 시로야마 1박\n10/31 15:30 한국 출발 / 11/3 18:00 가고시마 출발\n금액은 엔화. 식당 예산은 추정이며 입장료 외 식비·숙박·렌트·톨비·유류·쇼핑은 합계에서 제외. 지도 핀 좌표는 대략적인 위치이며 실제 진입로는 구글지도 목적지로 확인.\n11/2 통제18~21시 / 11/3 통제09:30~16시. 축제 셔틀 우회·정류장 변경 확인.',restaurantGroups=R)
-(ROOT/'public'/'seed.js').write_text('window.TRIP_SEED = '+json.dumps(seed,ensure_ascii=False,indent=4)+';\n')
+# restaurantGroups(식당 원본 묶음)는 앱에서 쓰지 않으므로 출력하지 않습니다.
+seed=dict(version=2,title='가고시마, 함께 가는 4일',travelers=2,checkedAt='2026-10-30',days=days,notes='부모님과 2인 · 전 일정 렌터카 · 실크인 2박 / 시로야마 1박\n10/31 15:30 한국 출발 / 11/3 18:00 가고시마 출발\n금액은 엔화. 식당 예산은 추정이며 입장료 외 식비·숙박·렌트·톨비·유류·쇼핑은 합계에서 제외. 지도 핀 좌표는 대략적인 위치이며 실제 진입로는 구글지도 목적지로 확인.\n11/2 통제18~21시 / 11/3 통제09:30~16시. 축제 셔틀 우회·정류장 변경 확인.')
+# React 앱이 import 하는 JSON 파일로 출력합니다.
+# Windows 기본 인코딩(cp949)으로 저장되면 한글·일본어가 깨지므로 UTF-8을 명시합니다.
+out=ROOT/'src'/'data'/'seed.json'
+out.parent.mkdir(parents=True,exist_ok=True)
+out.write_text(json.dumps(seed,ensure_ascii=False,indent=4)+'\n',encoding='utf-8')

@@ -1,0 +1,164 @@
+/* Tailwind CSS v4 진입점.
+   기존 style.css 의 색상·폰트·반응형 기준을 테마 변수로 옮겨, 컴포넌트에서 bg-paper, text-muted 같은 유틸리티로 사용합니다. */
+@import "tailwindcss";
+
+@theme {
+    /* 색상: bg-*, text-*, border-* 유틸리티 이름이 됩니다. (예: bg-green, text-muted, border-line) */
+    --color-bg: #f6f5ef;
+    --color-paper: #fffefa;
+    --color-ink: #203c35;
+    --color-muted: #737e75;
+    --color-line: #dfe4da;
+    --color-green: #244e40;
+    --color-light: #e8eee5;
+    --color-gold: #b99459;
+    --color-danger: #a54b3c;
+
+    --shadow-card: 0 12px 38px #243f3010;
+    --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+
+    /* 반응형 기준점. 기존 CSS 의 max-width:850px / 480px 를 그대로 쓰기 위해
+       max-tab: (851px 미만 = 850px 이하), max-phone: (481px 미만 = 480px 이하) 변형으로 사용합니다. */
+    --breakpoint-phone: 30.0625rem; /* 481px */
+    --breakpoint-tab: 53.1875rem;   /* 851px */
+    --breakpoint-wide: 93.75rem;    /* 1500px */
+}
+
+/* 요소 기본 스타일 (Tailwind 기본 초기화 위에 기존 앱의 기본값을 다시 적용) */
+@layer base {
+    body {
+        @apply bg-bg font-sans text-[14px] leading-[1.65] text-ink;
+    }
+    button {
+        cursor: pointer;
+        color: var(--color-ink);
+    }
+    button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    summary:focus-visible {
+        outline: 3px solid #c6a866;
+        outline-offset: 3px;
+    }
+    input,
+    textarea,
+    select {
+        border: 1px solid #d3dcd0;
+        background: #fffefa;
+        border-radius: 7px;
+        padding: 10px;
+        color: var(--color-ink);
+    }
+    textarea {
+        resize: vertical;
+        line-height: 1.7;
+    }
+    /* Tailwind 초기화가 margin 을 0 으로 만들어 모달이 왼쪽 위로 붙는 것을 막기 위해 다시 가운데 정렬 */
+    dialog {
+        margin: auto;
+    }
+}
+
+/* 여러 곳에서 반복되는 버튼·입력 스타일 묶음.
+   components 레이어에 두면 JSX 에서 Tailwind 유틸리티로 일부 값을 덮어쓸 수 있습니다. */
+@layer components {
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border-radius: 9px;
+        padding: 10px 15px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .btn-primary {
+        background: var(--color-green);
+        color: #fff;
+    }
+    .btn-outline {
+        border: 1px solid #ced7ca;
+        background: var(--color-paper);
+    }
+    .btn-soft {
+        background: var(--color-light);
+    }
+    .btn-mini {
+        font-size: 12px;
+        padding: 5px 9px;
+        background: #f2f4ee;
+    }
+    .btn-text {
+        font-size: 12px;
+        padding: 5px 0;
+        color: var(--color-green);
+    }
+    .btn-danger {
+        color: var(--color-danger);
+        border: 1px solid #e9d4cc;
+    }
+    /* 초록색 길찾기 링크 버튼 */
+    .navlink {
+        border-radius: 7px;
+        background: var(--color-green);
+        padding: 7px 11px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #fff;
+        text-decoration: none;
+    }
+    /* 작은 대문자 머리말 */
+    .eyebrow {
+        margin: 0 0 8px;
+        font-size: 10px;
+        font-weight: 650;
+        letter-spacing: 1.8px;
+        color: #768377;
+    }
+    /* 모달 안의 입력 라벨: 라벨 텍스트 아래에 입력칸이 꽉 차게 배치 */
+    .field {
+        display: block;
+        margin: 0 0 14px;
+        font-size: 12px;
+    }
+    .field input:not([type='checkbox']),
+    .field textarea,
+    .field select {
+        display: block;
+        width: 100%;
+        margin-top: 5px;
+    }
+    /* 지도 번호 핀 (Leaflet divIcon 의 HTML 문자열에서 사용) */
+    .pin {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border: 3px solid #fff;
+        border-radius: 50%;
+        background: var(--color-green);
+        box-shadow: 0 3px 7px #0003;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .pin-selected {
+        background: #b38642;
+        transform: scale(1.15);
+    }
+}
+
+/* Leaflet 팝업 글꼴 보정. leaflet.css(레이어 없음)를 이기려면 이 규칙도 레이어 밖에 있어야 합니다. */
+.leaflet-popup-content {
+    font-family: inherit;
+    line-height: 1.8;
+}
+.leaflet-popup-content a {
+    color: var(--color-green);
+    font-weight: 650;
+}
