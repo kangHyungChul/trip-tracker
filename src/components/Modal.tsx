@@ -10,9 +10,11 @@ interface ModalProps {
     children: ReactNode;
     /** 모달 제목 요소의 id (화면 낭독기용) */
     labelledBy?: string;
+    /** 모달 너비: 기본(최대 680px) / 작게(최대 420px, 확인창용) */
+    size?: 'default' | 'small';
 }
 
-export function Modal({ open, onClose, children, labelledBy }: ModalProps) {
+export function Modal({ open, onClose, children, labelledBy, size = 'default' }: ModalProps) {
     const ref = useRef<HTMLDialogElement>(null);
 
     // open 값과 실제 dialog 열림 상태를 맞춥니다.
@@ -29,7 +31,7 @@ export function Modal({ open, onClose, children, labelledBy }: ModalProps) {
             // Esc 키로 닫으면 브라우저가 close 이벤트를 보냅니다. 부모 상태도 닫힘으로 맞춥니다.
             onClose={onClose}
             aria-labelledby={labelledBy}
-            className="max-h-[90dvh] w-[calc(100%-28px)] max-w-[680px] rounded-2xl border border-line bg-paper p-0 text-ink shadow-[0_20px_100px_#17291d30] backdrop:bg-[#102e2866] backdrop:backdrop-blur-[2px]"
+            className={`max-h-[90dvh] w-[calc(100%-28px)] ${size === 'small' ? 'max-w-[420px]' : 'max-w-[680px]'} rounded-2xl border border-line bg-paper p-0 text-ink shadow-[0_20px_100px_#17291d30] backdrop:bg-[#102e2866] backdrop:backdrop-blur-[2px]`}
         >
             {/* 닫혀 있을 때는 내용을 렌더링하지 않아, 다시 열 때마다 폼 상태가 새로 초기화됩니다. */}
             {open && children}

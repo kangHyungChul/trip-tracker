@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # 위 인코딩 선언: Python 3.9 이하에서 아주 긴 한글 줄을 잘못 읽는 토크나이저 문제를 피하기 위해 필요합니다.
-# 실행: py scripts/make-seed.py  →  src/data/seed.json 생성
+# 실행: py scripts/make-seed.py  →  src/data/seed.json 생성 (데이터 형식 version 3)
+# 맛집 좌표는 scripts/food-coords.json (npm run geocode 로 만든 캐시)에서 채웁니다.
 import json
+import re
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def restaurant(name,jp,menu,budget,kind,hours,parking,url):
@@ -84,15 +86,16 @@ pts={
 'budgetback':p('budgetback','15:00~15:30','버짓 공항점 · 차량 반납','バジェットレンタカー 鹿児島空港店 霧島市溝辺町麓1377-1',31.795,130.720,'반납·셔틀 30~40분','계약 정산',0,'vehicle','공항 터미널이 아니라 영업소에 반납→공항 셔틀.','주소:霧島市溝辺町麓1377-1 / 0995-58-3543. 예약 반납시각이 더 이르면 예약 우선.',B,[],'교통'),
 'airport':p('airport','16:00까지','가고시마공항 · 18시 귀국편','鹿児島空港 国際線ターミナル',31.8004,130.7191,'수속·출국','추가 식사·쇼핑 별도',0,'adult','렌터카 반납 완료 후 셔틀 하차.','18시 출발·국제선16시 도착 목표. 항공사 수속 마감 우선. 국내선 식당 이용은 수속·보안검색 전 시간 여유 있을 때만.','https://www.koj-ab.co.jp/',R['airport'],'공항')
 }
-# version 2 날짜 형식
+# 날짜 형식
 #  - id: 문자열 ID (날짜 추가·삭제가 가능하므로 순번과 분리)
+#  - date: ISO 날짜(YYYY-MM-DD). 요일은 앱이 자동 계산 / dateNote: 날짜 옆 메모(공휴일 등)
 #  - tight: 빠듯한 날 강조 표시 여부
 #  - costNote: 비용 합계 아래에 덧붙이는 날짜별 안내
 days=[
- dict(id='day-1',date='10.31',weekday='토',title='도착, 가고시마의 첫 저녁',subtitle='공항 → 실크인 → 중앙역',hotel='실크인 가고시마',pace='가볍게',warning='15:30 한국 출발 기준. 실제 도착·렌터카 인수에 따라 첫날 시간을 조정하세요.',tight=False,costNote='',stops=[pts[k] for k in ['budget','silk','chuo','donki']]),
- dict(id='day-2',date='11.01',weekday='일',title='모래찜질과 남쪽 바다',subtitle='이부스키 5곳 · 이온몰 쇼핑',hotel='실크인 가고시마',pace='알찬 하루',warning='08시 출발. 사라쿠 대기가 길면 이케다호 카페·이온몰 체류시간을 줄이세요.',tight=False,costNote='',stops=[pts[k] for k in ['saraku','lunch','flower','ryugu','nishi','ikeda','aeon','silk2']]),
- dict(id='day-3',date='11.02',weekday='월',title='화산을 돌고, 축제 속으로',subtitle='사쿠라지마 일주 · 수족관 · 센간엔',hotel='시로야마 호텔',pace='매우 빠듯',warning='07시 출발. 전부 포함한 도전 일정입니다. 12:35 복귀 페리 대기·15:15 센간엔 입장을 목표로 하고 지연 시 족욕/전시/카페부터 줄이세요.',tight=True,costNote='페리 차3~4m 기준·차4~5m은 왕복 ¥1,300 추가',stops=[pts[k] for k in ['ferryout','yuno','kuro','arimura','akamizu','minato','foot','ferryback','aqua','sengan','shiroyama','night']]),
- dict(id='day-4',date='11.03',weekday='화 · 공휴일',title='본축제와 여유 있는 귀국',subtitle='시로야마 조식 · 본축제 · 공항',hotel='18:00 귀국편',pace='공항 시간 우선',warning='본축제는 오전만 관람. 체크아웃 후 호텔 주차 가능 여부 확인. 13:40 출발·15시대 버짓 반납·16시 공항 도착 목표.',tight=False,costNote='',stops=[pts[k] for k in ['morning','dayfest','cafe4','carreturn','gas','budgetback','airport']])]
+ dict(id='day-1',date='2026-10-31',dateNote='',title='도착, 가고시마의 첫 저녁',subtitle='공항 → 실크인 → 중앙역',hotel='실크인 가고시마',pace='가볍게',warning='15:30 한국 출발 기준. 실제 도착·렌터카 인수에 따라 첫날 시간을 조정하세요.',tight=False,costNote='',stops=[pts[k] for k in ['budget','silk','chuo','donki']]),
+ dict(id='day-2',date='2026-11-01',dateNote='',title='모래찜질과 남쪽 바다',subtitle='이부스키 5곳 · 이온몰 쇼핑',hotel='실크인 가고시마',pace='알찬 하루',warning='08시 출발. 사라쿠 대기가 길면 이케다호 카페·이온몰 체류시간을 줄이세요.',tight=False,costNote='',stops=[pts[k] for k in ['saraku','lunch','flower','ryugu','nishi','ikeda','aeon','silk2']]),
+ dict(id='day-3',date='2026-11-02',dateNote='',title='화산을 돌고, 축제 속으로',subtitle='사쿠라지마 일주 · 수족관 · 센간엔',hotel='시로야마 호텔',pace='매우 빠듯',warning='07시 출발. 전부 포함한 도전 일정입니다. 12:35 복귀 페리 대기·15:15 센간엔 입장을 목표로 하고 지연 시 족욕/전시/카페부터 줄이세요.',tight=True,costNote='페리 차3~4m 기준·차4~5m은 왕복 ¥1,300 추가',stops=[pts[k] for k in ['ferryout','yuno','kuro','arimura','akamizu','minato','foot','ferryback','aqua','sengan','shiroyama','night']]),
+ dict(id='day-4',date='2026-11-03',dateNote='공휴일',title='본축제와 여유 있는 귀국',subtitle='시로야마 조식 · 본축제 · 공항',hotel='18:00 귀국편',pace='공항 시간 우선',warning='본축제는 오전만 관람. 체크아웃 후 호텔 주차 가능 여부 확인. 13:40 출발·15시대 버짓 반납·16시 공항 도착 목표.',tight=False,costNote='',stops=[pts[k] for k in ['morning','dayfest','cafe4','carreturn','gas','budgetback','airport']])]
 
 # Departure markers make each day's route readable without relying on yesterday's map.
 from copy import deepcopy
@@ -101,8 +104,44 @@ for day_id,newid,time,title in [(2,'silk-depart2','08:00','실크인 · 이부�
     dep.update(id=newid,time=time,title=title,duration='출발 준비',fee='추가 입장료 없음',amount=0,extraAmount=0,food=[],note='호텔 주차장에서 출발. 나가기 전 할인카드·짐을 확인하세요.')
     days[day_id-1]['stops'].insert(0,dep)
 
+# ── version 3 변환 ──
+# 카페로 표시할 가게 (지도에서 식당과 다른 배지)
+CAFES={'danken COFFEE 이케다코 PAX','MINATO CAFE','센간엔 차료','잔보모치점','덴몬칸 무자키 본점','가카시요코초·차보 카카코'}
+coords_file=ROOT/'scripts'/'food-coords.json'
+coords=json.loads(coords_file.read_text(encoding='utf-8')) if coords_file.exists() else {}
+
+def split_time(text):
+    """'17:45 예상' → ('17:45','','예상'), '18:50~20:20' → ('18:50','20:20',''). 앱의 splitTimeText 와 같은 규칙."""
+    m=re.match(r'^(\d{1,2}:\d{2})?\s*(?:[~〜-]\s*(\d{1,2}:\d{2}))?\s*([\s\S]*)$',text.strip())
+    norm=lambda t: t.zfill(5) if t else ''
+    return norm(m.group(1)),norm(m.group(2)),m.group(3).strip()
+
+for day in days:
+    foods=[]
+    seen=set()
+    stops=[]
+    for stop in day['stops']:
+        stop=deepcopy(stop)
+        # 장소마다 붙어 있던 식당 후보를 그날의 별도 목록으로 옮깁니다. (같은 검색어는 한 번만)
+        for f in stop.pop('food'):
+            if f['query'] in seen: continue
+            seen.add(f['query'])
+            c=coords.get(f['query'])
+            foods.append(dict(id='%s-food-%d'%(day['id'],len(foods)+1),category='cafe' if f['name'] in CAFES else 'restaurant',
+                              name=f['name'],query=f['query'],lat=c['lat'] if c else None,lng=c['lng'] if c else None,
+                              menu=f['menu'],budget=f['budget'],kind=f['kind'],hours=f['hours'],parking=f['parking'],source=f['source']))
+        start,end,note=split_time(stop.pop('time'))
+        stop.update(start=start,end=end,timeNote=note)
+        stops.append(stop)
+    day['stops']=stops
+    day['foods']=foods
+
 # restaurantGroups(식당 원본 묶음)는 앱에서 쓰지 않으므로 출력하지 않습니다.
-seed=dict(version=2,title='가고시마, 함께 가는 4일',travelers=2,checkedAt='2026-10-30',days=days,notes='부모님과 2인 · 전 일정 렌터카 · 실크인 2박 / 시로야마 1박\n10/31 15:30 한국 출발 / 11/3 18:00 가고시마 출발\n금액은 엔화. 식당 예산은 추정이며 입장료 외 식비·숙박·렌트·톨비·유류·쇼핑은 합계에서 제외. 지도 핀 좌표는 대략적인 위치이며 실제 진입로는 구글지도 목적지로 확인.\n11/2 통제18~21시 / 11/3 통제09:30~16시. 축제 셔틀 우회·정류장 변경 확인.')
+# companion·tagline·highlight·highlightSub: 첫 화면 소개 문구 (예전에는 화면에 고정돼 있던 값)
+seed=dict(version=3,id='kagoshima-2026',title='가고시마, 함께 가는 4일',
+          companion='부모님과 둘이',tagline='따뜻한 온천, 바다 너머 화산, 그리고 가을 축제.',
+          highlight='전 일정 렌터카',highlightSub='실크인 2박 → 시로야마 1박',
+          travelers=2,currency='JPY',checkedAt='2026-10-30',days=days,notes='부모님과 2인 · 전 일정 렌터카 · 실크인 2박 / 시로야마 1박\n10/31 15:30 한국 출발 / 11/3 18:00 가고시마 출발\n금액은 엔화. 식당 예산은 추정이며 입장료 외 식비·숙박·렌트·톨비·유류·쇼핑은 합계에서 제외. 지도 핀 좌표는 대략적인 위치이며 실제 진입로는 구글지도 목적지로 확인.\n11/2 통제18~21시 / 11/3 통제09:30~16시. 축제 셔틀 우회·정류장 변경 확인.')
 # React 앱이 import 하는 JSON 파일로 출력합니다.
 # Windows 기본 인코딩(cp949)으로 저장되면 한글·일본어가 깨지므로 UTF-8을 명시합니다.
 out=ROOT/'src'/'data'/'seed.json'

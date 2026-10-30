@@ -34,7 +34,8 @@ declare
     v_revision integer;
 begin
     if v_uid is null then raise exception 'authentication_required'; end if;
-    if p_trip_key <> 'kagoshima-2026' or p_expected_revision is null or p_expected_revision < 0 then
+    -- 여행 키: 앱의 여행 ID 규칙(영문·숫자·_·-, 1~100자)만 허용 (여러 여행 지원)
+    if p_trip_key is null or p_trip_key !~ '^[A-Za-z0-9_-]{1,100}$' or p_expected_revision is null or p_expected_revision < 0 then
         raise exception 'invalid_request';
     end if;
     if p_expected_revision = 0 then

@@ -1,58 +1,67 @@
-// 여행 데이터 검증·변환·계산 테스트. (기존 scripts/check.mjs 의 검사 항목 + 새 기능)
+// 여행 데이터 검증·변환·계산 테스트.
 // 실행: npm test
 
 import { describe, expect, it } from 'vitest';
 import seed from '../data/seed.json';
+import { allowsDecimals, currencySymbol, formatMoney, isCurrencyCode, normalizeCurrency } from './currency';
 import { gmaps, safeURL } from './links';
 import { checkPublicKey, normalizeSupabaseURL } from './supabaseKey';
-import { clone, dayCost, foodMatches, migrateV1, parseTrip, stopMatches, validateTrip } from './trip';
+import { clone, createTrip, dayCost, foodMatches, guessCategory, LEGACY_TRIP_ID, migrateV1, parseTrip, stopMatches, validateTrip } from './trip';
 import type { Trip } from '../types';
 
 /** 테스트마다 원본을 건드리지 않도록 검증된 복사본을 만듭니다. */
 const freshSeed = (): Trip => validateTrip(clone(seed));
 
-/** version 2 시드를 version 1 형식으로 되돌린 데이터 (마이그레이션 테스트용) */
-function toV1(trip: Trip): Record<string, unknown> {
-    return {
-        ...trip,
-        version: 1,
-        days: trip.days.map((day, index) => ({
-            id: index + 1,
-            date: day.date, weekday: day.weekday, title: day.title, subtitle: day.subtitle,
-            hotel: day.hotel, pace: day.pace, warning: day.warning,
-            // v1 에는 extraAmount 가 없었습니다.
-            stops: day.stops.map(({ extraAmount: _extra, ...stop }) => stop),
-        })),
-    };
-}
+/** 예전 버전(v1·v2)의 장소 1개 (시간은 자유 문구, 식당은 장소 안에) */
+const legacyStop = (id: string, extra: Record<string, unknown> = {}) => ({
+    id, time: '17:45 예상', title: `장소 ${id}`, query: `검색 ${id}`, lat: 31.5, lng: 130.5, duration: '1시간', fee: '무료',
+    amount: 100, unit: 'adult', parking: '주차', parkingQuery: '', note: '', source: '', food: [], kind: '관광', mode: 'driving', done: false,
+    ...extra,
+});
 
-describe('추천 일정 시드', () => {
+/** 예전 버전의 식당 1개 */
+const legacyFood = (name: string, query: string) => ({ name, query, menu: '메뉴', budget: '¥1,000', kind: '설명', hours: '', parking: '', source: '' });
+
+describe('예시 여행 시드 (version 3)', () => {
     it('검증을 통과한다', () => {
         expect(() => freshSeed()).not.toThrow();
+        expect(freshSeed().id).toBe(LEGACY_TRIP_ID);
     });
 
-    it('모든 장소·식당의 길찾기 링크가 검색어를 정확히 인코딩한다', () => {
+    it('모든 장소·맛집의 길찾기 링크가 검색어를 정확히 인코딩한다', () => {
         for (const day of freshSeed().days) {
             for (const stop of day.stops) {
                 const url = new URL(gmaps(stop.query, true, stop.mode));
                 expect(url.hostname).toBe('www.google.com');
                 expect(url.searchParams.get('destination')).toBe(stop.query);
-                // 비용·주차 안내가 비어 있지 않아야 합니다.
                 expect(stop.parking.trim()).not.toBe('');
                 expect(stop.fee.trim()).not.toBe('');
-                for (const food of stop.food) {
-                    expect(new URL(gmaps(food.query, true)).searchParams.get('destination')).toBe(food.query);
-                    expect(safeURL(food.source)).not.toBe('');
-                }
+            }
+            for (const food of day.foods) {
+                expect(new URL(gmaps(food.query, true)).searchParams.get('destination')).toBe(food.query);
+                expect(safeURL(food.source)).not.toBe('');
             }
         }
     });
 
-    it('요청한 핵심 장소가 포함되어 있다', () => {
+    it('맛집은 날짜별 목록으로 분리돼 있고 모두 지도 좌표가 있다', () => {
+        const trip = freshSeed();
+        const foods = trip.days.flatMap(day => day.foods);
+        expect(foods.length).toBeGreaterThan(20);
+        expect(foods.every(food => food.lat !== null && food.lng !== null)).toBe(true);
+        expect(foods.some(food => food.category === 'cafe')).toBe(true);
+        // 같은 날 같은 검색어는 한 번만
+        for (const day of trip.days) expect(new Set(day.foods.map(food => food.query)).size).toBe(day.foods.length);
+    });
+
+    it('요청한 핵심 장소와 시간 분해가 들어 있다', () => {
         const trip = freshSeed();
         const day3 = trip.days[2].stops.map(stop => stop.id);
         for (const id of ['yuno', 'kuro', 'arimura', 'akamizu', 'aqua', 'sengan', 'night']) expect(day3).toContain(id);
         expect(trip.days[3].stops.some(stop => stop.id === 'budgetback')).toBe(true);
+        const night = trip.days[2].stops.find(stop => stop.id === 'night')!;
+        expect([night.start, night.end]).toEqual(['18:50', '20:20']);
+        expect(trip.days.map(day => day.date)).toEqual(['2026-10-31', '2026-11-01', '2026-11-02', '2026-11-03']);
     });
 });
 
@@ -63,11 +72,18 @@ describe('validateTrip: 잘못된 데이터 거부', () => {
         ['음수 금액', trip => { trip.days[0].stops[0].amount = -1; }],
         ['음수 추가 고정비', trip => { trip.days[0].stops[0].extraAmount = -1; }],
         ['장소 ID 중복', trip => { trip.days[0].stops.push(trip.days[0].stops[0]); }],
-        ['식당 형식 오류', trip => { (trip.days[0].stops[0] as unknown as { food: string }).food = 'invalid'; }],
+        ['장소·맛집 ID 중복', trip => { trip.days[0].foods[0].id = trip.days[0].stops[0].id; }],
+        ['맛집 좌표 한쪽만', trip => { trip.days[0].foods[0].lng = null; }],
+        ['맛집 종류 오류', trip => { (trip.days[0].foods[0] as unknown as { category: string }).category = 'bar'; }],
+        ['시각 형식 오류', trip => { trip.days[0].stops[0].start = '25:00'; }],
+        ['날짜 형식 오류', trip => { trip.days[0].date = '10.31'; }],
+        ['없는 날짜', trip => { trip.days[0].date = '2026-02-30'; }],
         ['인원 0명', trip => { trip.travelers = 0; }],
-        ['날짜 0개', trip => { trip.days = []; }],
         ['날짜 ID 중복', trip => { trip.days[1].id = trip.days[0].id; }],
+        ['여행 ID 형식', trip => { trip.id = '한글 아이디'; }],
         ['알 수 없는 이동수단', trip => { (trip.days[0].stops[0] as unknown as { mode: string }).mode = 'flying'; }],
+        ['통화 코드 소문자', trip => { trip.currency = 'krw'; }],
+        ['통화 코드 길이', trip => { trip.currency = 'KR'; }],
     ];
     it.each(breakers)('%s', (_name, breakTrip) => {
         const trip = freshSeed();
@@ -75,13 +91,18 @@ describe('validateTrip: 잘못된 데이터 거부', () => {
         expect(() => validateTrip(trip)).toThrow();
     });
 
-    it('날짜를 4일이 아닌 개수로 바꿔도 허용한다 (4일 고정 해제)', () => {
-        const trip = freshSeed();
-        trip.days = trip.days.slice(0, 2);
-        expect(validateTrip(trip).days).toHaveLength(2);
+    it('날짜 0개(새 여행)부터 여러 날까지 허용한다', () => {
+        expect(createTrip('새 여행').days).toHaveLength(0);
         const longer = freshSeed();
-        longer.days.push({ ...clone(longer.days[0]), id: 'day-extra', stops: [] });
+        longer.days.push({ ...clone(longer.days[0]), id: 'day-extra', stops: [], foods: [] });
         expect(validateTrip(longer).days).toHaveLength(5);
+    });
+
+    it('맛집 위치 미정(null)을 허용한다', () => {
+        const trip = freshSeed();
+        trip.days[0].foods[0].lat = null;
+        trip.days[0].foods[0].lng = null;
+        expect(validateTrip(trip).days[0].foods[0].lat).toBeNull();
     });
 
     it('알 수 없는 키는 제거한다', () => {
@@ -90,29 +111,100 @@ describe('validateTrip: 잘못된 데이터 거부', () => {
     });
 });
 
-describe('version 1 → 2 변환', () => {
-    it('기존 하드코딩 동작을 데이터 필드로 옮긴다', () => {
-        const migrated = parseTrip(toV1(freshSeed()));
-        expect(migrated.version).toBe(2);
-        expect(migrated.days.map(day => day.id)).toEqual(['day-1', 'day-2', 'day-3', 'day-4']);
-        // 3일차만 빠듯함 강조 + 페리 안내
-        expect(migrated.days.map(day => day.tight)).toEqual([false, false, true, false]);
-        expect(migrated.days[2].costNote).toContain('페리');
-        // 센간엔에만 주차비 500
-        const sengan = migrated.days[2].stops.find(stop => stop.id === 'sengan');
-        expect(sengan?.extraAmount).toBe(500);
-        expect(migrated.days[0].stops.every(stop => stop.extraAmount === 0)).toBe(true);
+describe('통화', () => {
+    it('통화가 없는 예전 데이터는 엔화(JPY)로 본다', () => {
+        // currency 필드를 빼고 검증 → 기존 데이터는 모두 엔화로 작성되었으므로 JPY
+        const { currency: _omit, ...withoutCurrency } = freshSeed();
+        expect(validateTrip(withoutCurrency).currency).toBe('JPY');
     });
 
-    it('변환 결과가 새 시드와 같다', () => {
-        const original = freshSeed();
-        expect(parseTrip(toV1(original))).toEqual(original);
+    it('새 여행은 원화(KRW)로 시작한다', () => {
+        expect(createTrip('새 여행').currency).toBe('KRW');
     });
 
-    it('version 이 1·2 가 아니면 거부한다', () => {
-        expect(() => parseTrip({ ...freshSeed(), version: 3 })).toThrow();
+    it('통화 코드 정규화·검사', () => {
+        expect(normalizeCurrency(' usd ')).toBe('USD');
+        expect(isCurrencyCode('USD')).toBe(true);
+        expect(isCurrencyCode('usd')).toBe(false); // 저장 형식은 대문자만
+        expect(isCurrencyCode('US')).toBe(false);
+    });
+
+    it('통화별 기호·소수 자릿수로 금액을 표시한다', () => {
+        expect(formatMoney(19500, 'KRW')).toBe('₩19,500');
+        expect(formatMoney(1950, 'JPY')).toBe('¥1,950');
+        expect(formatMoney(19.5, 'USD')).toBe('$19.5');
+        expect(currencySymbol('KRW')).toBe('₩');
+        expect(allowsDecimals('KRW')).toBe(false);
+        expect(allowsDecimals('USD')).toBe(true);
+    });
+});
+
+describe('예전 버전 → version 3 변환', () => {
+    it('v1: 하드코딩 동작(3일차 강조·센간엔 주차)을 데이터로 옮긴다', () => {
+        const v1 = {
+            version: 1, title: '가고시마', travelers: 2, checkedAt: '2026-10-30', notes: '',
+            days: [1, 2, 3].map(n => ({
+                id: n, date: `11.0${n}`, weekday: '월', title: `${n}일차`, subtitle: '', hotel: '', pace: '', warning: '',
+                stops: n === 3 ? [legacyStop('sengan'), legacyStop('x3')] : [legacyStop(`s${n}`)],
+            })),
+        };
+        const trip = parseTrip(v1);
+        expect(trip.version).toBe(3);
+        expect(trip.id).toBe(LEGACY_TRIP_ID);
+        expect(trip.days.map(day => day.id)).toEqual(['day-1', 'day-2', 'day-3']);
+        expect(trip.days.map(day => day.tight)).toEqual([false, false, true]);
+        expect(trip.days[2].costNote).toContain('페리');
+        expect(trip.days[2].stops.find(stop => stop.id === 'sengan')?.extraAmount).toBe(500);
+        expect(trip.days[0].stops[0].extraAmount).toBe(0);
+    });
+
+    it('v2: 날짜·시간·맛집을 새 구조로 바꾸고 예시 데이터의 맛집 좌표를 채운다', () => {
+        const knownQuery = '仙巌園茶寮'; // 예시 여행에 있는 카페 (좌표·종류를 알고 있음)
+        const v2 = {
+            version: 2, title: '가고시마', travelers: 2, checkedAt: '2026-10-30', notes: '',
+            days: [
+                {
+                    id: 'day-1', date: '11.03', weekday: '화 · 공휴일', title: 'd1', subtitle: '', hotel: '', pace: '', warning: '', tight: false, costNote: '',
+                    stops: [
+                        legacyStop('a', { time: '18:50~20:20', extraAmount: 0, food: [legacyFood('센간엔 차료', knownQuery), legacyFood('새 식당', '新しい店')] }),
+                        // 같은 식당이 다른 장소에도 있으면 한 번만 옮깁니다.
+                        legacyStop('b', { time: '시간 미정', extraAmount: 0, food: [legacyFood('센간엔 차료', knownQuery)] }),
+                    ],
+                },
+            ],
+        };
+        const trip = parseTrip(v2);
+        const day = trip.days[0];
+        expect(day.date).toBe('2026-11-03');
+        expect(day.dateNote).toBe('공휴일');
+        expect([day.stops[0].start, day.stops[0].end, day.stops[0].timeNote]).toEqual(['18:50', '20:20', '']);
+        expect([day.stops[1].start, day.stops[1].timeNote]).toEqual(['', '시간 미정']);
+        expect(day.foods.map(food => food.name)).toEqual(['센간엔 차료', '새 식당']);
+        expect(day.foods[0].category).toBe('cafe');
+        expect(day.foods[0].lat).not.toBeNull(); // 예시 데이터에서 찾은 좌표
+        expect(day.foods[1].lat).toBeNull();     // 모르는 가게는 위치 미정 → 앱에서 자동 조회
+        expect(trip.companion).toBe('부모님과 둘이'); // 예전 화면 고정 문구 보존
+    });
+
+    it('v2: 12월 → 1월로 넘어가면 다음 해로 계산한다', () => {
+        const day = (id: string, date: string) => ({ id, date, weekday: '', title: id, subtitle: '', hotel: '', pace: '', warning: '', tight: false, costNote: '', stops: [] });
+        const trip = parseTrip({ version: 2, title: '연말', travelers: 1, checkedAt: '2026-12-01', notes: '', days: [day('a', '12.31'), day('b', '01.01')] });
+        expect(trip.days.map(item => item.date)).toEqual(['2026-12-31', '2027-01-01']);
+    });
+
+    it('ID 를 지정하면 그 값으로 고정한다 (클라우드 trip_key)', () => {
+        expect(parseTrip(freshSeed(), { id: 'other-trip' }).id).toBe('other-trip');
+    });
+
+    it('알 수 없는 버전은 거부한다', () => {
+        expect(() => parseTrip({ ...freshSeed(), version: 4 })).toThrow();
         expect(() => parseTrip(null)).toThrow();
         expect(() => migrateV1({ version: 1 })).toThrow();
+    });
+
+    it('카페 여부 추측', () => {
+        expect(guessCategory({ name: 'danken COFFEE' })).toBe('cafe');
+        expect(guessCategory({ name: '라멘집', menu: '돈코츠 라멘' })).toBe('restaurant');
     });
 });
 
@@ -121,26 +213,28 @@ describe('비용 계산', () => {
         const day = freshSeed().days[2];
         const expected = day.stops.reduce((sum, stop) => sum + (stop.unit === 'adult' ? stop.amount * 3 : stop.amount) + stop.extraAmount, 0);
         expect(dayCost(day, 3)).toBe(expected);
-        // 기존 앱과 같은 결과인지: 센간엔 주차 500 이 포함되어야 함
+        // 센간엔 주차 500 이 포함되어야 함
         const withoutExtra = day.stops.reduce((sum, stop) => sum + (stop.unit === 'adult' ? stop.amount * 2 : stop.amount), 0);
         expect(dayCost(day, 2)).toBe(withoutExtra + 500);
     });
 });
 
 describe('검색', () => {
-    const stop = freshSeed().days[2].stops.find(item => item.id === 'sengan')!;
+    const trip = freshSeed();
+    const stop = trip.days[2].stops.find(item => item.id === 'sengan')!;
+    const food = trip.days[2].foods.find(item => item.name === '센간엔 차료')!;
 
-    it('이름·메모·식당 이름으로 찾는다', () => {
+    it('장소는 이름·메모로, 맛집은 이름·메뉴로 찾는다', () => {
         expect(stopMatches(stop, '센간엔')).toBe(true);
-        expect(stopMatches(stop, '차료')).toBe(true); // 딸린 식당 이름
         expect(stopMatches(stop, '')).toBe(true);
+        expect(foodMatches(food, '시로쿠마')).toBe(true);
     });
 
     it('URL·좌표 문자열에는 걸리지 않는다', () => {
         expect(stopMatches(stop, 'https')).toBe(false);
         expect(stopMatches(stop, 'senganen.jp')).toBe(false);
         expect(stopMatches(stop, String(stop.lat))).toBe(false);
-        expect(foodMatches(stop.food[0], 'https')).toBe(false);
+        expect(foodMatches(food, 'https')).toBe(false);
     });
 });
 

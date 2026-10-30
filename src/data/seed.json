@@ -1,13 +1,19 @@
 {
-    "version": 2,
+    "version": 3,
+    "id": "kagoshima-2026",
     "title": "가고시마, 함께 가는 4일",
+    "companion": "부모님과 둘이",
+    "tagline": "따뜻한 온천, 바다 너머 화산, 그리고 가을 축제.",
+    "highlight": "전 일정 렌터카",
+    "highlightSub": "실크인 2박 → 시로야마 1박",
     "travelers": 2,
+    "currency": "JPY",
     "checkedAt": "2026-10-30",
     "days": [
         {
             "id": "day-1",
-            "date": "10.31",
-            "weekday": "토",
+            "date": "2026-10-31",
+            "dateNote": "",
             "title": "도착, 가고시마의 첫 저녁",
             "subtitle": "공항 → 실크인 → 중앙역",
             "hotel": "실크인 가고시마",
@@ -18,7 +24,6 @@
             "stops": [
                 {
                     "id": "budget",
-                    "time": "17:45 예상",
                     "title": "버짓 공항점 · 차량 인수",
                     "query": "バジェットレンタカー 鹿児島空港店 霧島市溝辺町麓1377-1",
                     "lat": 31.795,
@@ -31,36 +36,16 @@
                     "parking": "영업소에서 차량 인수. 공항 도착층에서 셔틀 요청.",
                     "note": "15:30 한국 출발 기준 인수시각은 임시 추정. 예약 도착시각에 맞게 수정. 국제선 출구3→밖 약20m, 전화 0995-58-3543. 전화가 어려우면 공항 안내소에 요청.",
                     "source": "https://www.budgetrentacar.co.jp/shop/kagoshima/0006/",
-                    "food": [
-                        {
-                            "name": "오조라 식당",
-                            "query": "鹿児島空港 大空食堂",
-                            "menu": "계반·흑돼지 정식·향토요리",
-                            "budget": "1인 약 ¥1,000~2,000",
-                            "kind": "공항 향토식·빠른 식사",
-                            "hours": "10:00~20:30, 당일 변경 확인",
-                            "parking": "국내선 2층·보안검색 전. 국제선 수속 이동시간 별도.",
-                            "source": "https://www.koj-ab.co.jp/shops/ozorashokudo.html"
-                        },
-                        {
-                            "name": "후쿠후쿠 공항점",
-                            "query": "ふく福 鹿児島空港店",
-                            "menu": "우동·소바·정식",
-                            "budget": "1인 약 ¥1,000~2,000",
-                            "kind": "지역 외식 브랜드",
-                            "hours": "당일 공항 영업 안내 확인",
-                            "parking": "국내선 3층·보안검색 전",
-                            "source": "https://www.koj-ab.co.jp/spend.html"
-                        }
-                    ],
                     "kind": "교통",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "17:45",
+                    "end": "",
+                    "timeNote": "예상"
                 },
                 {
                     "id": "silk",
-                    "time": "19:00",
                     "title": "실크인 · 체크인",
                     "query": "シルクイン鹿児島 上之園町19-30",
                     "lat": 31.5804,
@@ -73,46 +58,16 @@
                     "parking": "제1코인 또는 호텔 부지. 먼저 주차→프런트 할인카드. 15:00~익일11:00, 시간외 별도. 출차할 때마다 할인카드 필요.",
                     "note": "첫날은 숙소 주차 후 중앙역 주변 도보. 숙박비 별도.",
                     "source": "https://www.silk-inn.jp/rootaccess/",
-                    "food": [
-                        {
-                            "name": "쿠로카츠테이 중앙역 본점",
-                            "query": "黒かつ亭 中央駅本店 鹿児島市中央町16-9",
-                            "menu": "흑돼지 로스·히레 돈카츠",
-                            "budget": "1인 약 ¥1,800~3,000",
-                            "kind": "관광객 인기·흑돼지 전문",
-                            "hours": "17:00~22:30 / LO 22:00",
-                            "parking": "실크인에 주차하고 도보 추천. 점포 주차는 소수.",
-                            "source": "https://www.kurokatutei.net/"
-                        },
-                        {
-                            "name": "이치니이산 아뮤플라자점",
-                            "query": "いちにぃさん アミュプラザ鹿児島店",
-                            "menu": "소바 육수 흑돼지 샤부샤부",
-                            "budget": "1인 약 ¥2,500~5,000",
-                            "kind": "지역 브랜드·부모님 식사",
-                            "hours": "11:00~22:00 / LO 21:00",
-                            "parking": "아뮤플라자 유료·구매 할인 조건 확인",
-                            "source": "https://ichiniisan.jp/access/amu/"
-                        },
-                        {
-                            "name": "자봉 라멘 중앙역점",
-                            "query": "ざぼんラーメン 鹿児島中央駅店",
-                            "menu": "채소를 곁들인 가고시마 돈코츠 라멘",
-                            "budget": "1인 약 ¥1,000~1,500",
-                            "kind": "지역에서 오래 사랑받는 라멘",
-                            "hours": "10:00~21:30 / 음식 LO 20:30",
-                            "parking": "역 주변 유료. 호텔에서 도보 추천.",
-                            "source": "https://www.jrkagoshimacity.com/floor/detail/?cd=000320"
-                        }
-                    ],
                     "kind": "숙소",
                     "mode": "driving",
                     "parkingQuery": "シルクイン第1駐車場",
-                    "done": false
+                    "done": false,
+                    "start": "19:00",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "chuo",
-                    "time": "19:30",
                     "title": "중앙역 · 저녁과 산책",
                     "query": "鹿児島中央駅",
                     "lat": 31.5837,
@@ -125,46 +80,16 @@
                     "parking": "호텔에 주차 유지. 역 주차는 유료·구매 할인 조건 확인.",
                     "note": "아뮤 일반매장 20시 마감. 도착이 늦으면 식사 후 돈키로. 아뮤란은 그날 최종탑승 시간 확인.",
                     "source": "https://www.jrkagoshimacity.com/information/hours/",
-                    "food": [
-                        {
-                            "name": "쿠로카츠테이 중앙역 본점",
-                            "query": "黒かつ亭 中央駅本店 鹿児島市中央町16-9",
-                            "menu": "흑돼지 로스·히레 돈카츠",
-                            "budget": "1인 약 ¥1,800~3,000",
-                            "kind": "관광객 인기·흑돼지 전문",
-                            "hours": "17:00~22:30 / LO 22:00",
-                            "parking": "실크인에 주차하고 도보 추천. 점포 주차는 소수.",
-                            "source": "https://www.kurokatutei.net/"
-                        },
-                        {
-                            "name": "이치니이산 아뮤플라자점",
-                            "query": "いちにぃさん アミュプラザ鹿児島店",
-                            "menu": "소바 육수 흑돼지 샤부샤부",
-                            "budget": "1인 약 ¥2,500~5,000",
-                            "kind": "지역 브랜드·부모님 식사",
-                            "hours": "11:00~22:00 / LO 21:00",
-                            "parking": "아뮤플라자 유료·구매 할인 조건 확인",
-                            "source": "https://ichiniisan.jp/access/amu/"
-                        },
-                        {
-                            "name": "자봉 라멘 중앙역점",
-                            "query": "ざぼんラーメン 鹿児島中央駅店",
-                            "menu": "채소를 곁들인 가고시마 돈코츠 라멘",
-                            "budget": "1인 약 ¥1,000~1,500",
-                            "kind": "지역에서 오래 사랑받는 라멘",
-                            "hours": "10:00~21:30 / 음식 LO 20:30",
-                            "parking": "역 주변 유료. 호텔에서 도보 추천.",
-                            "source": "https://www.jrkagoshimacity.com/floor/detail/?cd=000320"
-                        }
-                    ],
                     "kind": "식사",
                     "mode": "walking",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "19:30",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "donki",
-                    "time": "20:45",
                     "title": "돈키호테 중앙 이치방가이점",
                     "query": "ドン・キホーテ 鹿児島中央一番街店",
                     "lat": 31.5822,
@@ -177,18 +102,92 @@
                     "parking": "호텔 주차 유지·도보",
                     "note": "큰 쇼핑은 둘째 날 이온몰. 여기서는 간식·필요한 물건 위주. 지점별 영업시간 확인.",
                     "source": "https://www.donki.com/",
-                    "food": [],
                     "kind": "쇼핑",
                     "mode": "walking",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "20:45",
+                    "end": "",
+                    "timeNote": ""
+                }
+            ],
+            "foods": [
+                {
+                    "id": "day-1-food-1",
+                    "category": "restaurant",
+                    "name": "오조라 식당",
+                    "query": "鹿児島空港 大空食堂",
+                    "lat": 31.80167,
+                    "lng": 130.715678,
+                    "menu": "계반·흑돼지 정식·향토요리",
+                    "budget": "1인 약 ¥1,000~2,000",
+                    "kind": "공항 향토식·빠른 식사",
+                    "hours": "10:00~20:30, 당일 변경 확인",
+                    "parking": "국내선 2층·보안검색 전. 국제선 수속 이동시간 별도.",
+                    "source": "https://www.koj-ab.co.jp/shops/ozorashokudo.html"
+                },
+                {
+                    "id": "day-1-food-2",
+                    "category": "restaurant",
+                    "name": "후쿠후쿠 공항점",
+                    "query": "ふく福 鹿児島空港店",
+                    "lat": 31.801356,
+                    "lng": 130.715721,
+                    "menu": "우동·소바·정식",
+                    "budget": "1인 약 ¥1,000~2,000",
+                    "kind": "지역 외식 브랜드",
+                    "hours": "당일 공항 영업 안내 확인",
+                    "parking": "국내선 3층·보안검색 전",
+                    "source": "https://www.koj-ab.co.jp/spend.html"
+                },
+                {
+                    "id": "day-1-food-3",
+                    "category": "restaurant",
+                    "name": "쿠로카츠테이 중앙역 본점",
+                    "query": "黒かつ亭 中央駅本店 鹿児島市中央町16-9",
+                    "lat": 31.58169,
+                    "lng": 130.54504,
+                    "menu": "흑돼지 로스·히레 돈카츠",
+                    "budget": "1인 약 ¥1,800~3,000",
+                    "kind": "관광객 인기·흑돼지 전문",
+                    "hours": "17:00~22:30 / LO 22:00",
+                    "parking": "실크인에 주차하고 도보 추천. 점포 주차는 소수.",
+                    "source": "https://www.kurokatutei.net/"
+                },
+                {
+                    "id": "day-1-food-4",
+                    "category": "restaurant",
+                    "name": "이치니이산 아뮤플라자점",
+                    "query": "いちにぃさん アミュプラザ鹿児島店",
+                    "lat": 31.584403,
+                    "lng": 130.542636,
+                    "menu": "소바 육수 흑돼지 샤부샤부",
+                    "budget": "1인 약 ¥2,500~5,000",
+                    "kind": "지역 브랜드·부모님 식사",
+                    "hours": "11:00~22:00 / LO 21:00",
+                    "parking": "아뮤플라자 유료·구매 할인 조건 확인",
+                    "source": "https://ichiniisan.jp/access/amu/"
+                },
+                {
+                    "id": "day-1-food-5",
+                    "category": "restaurant",
+                    "name": "자봉 라멘 중앙역점",
+                    "query": "ざぼんラーメン 鹿児島中央駅店",
+                    "lat": 31.584011,
+                    "lng": 130.541203,
+                    "menu": "채소를 곁들인 가고시마 돈코츠 라멘",
+                    "budget": "1인 약 ¥1,000~1,500",
+                    "kind": "지역에서 오래 사랑받는 라멘",
+                    "hours": "10:00~21:30 / 음식 LO 20:30",
+                    "parking": "역 주변 유료. 호텔에서 도보 추천.",
+                    "source": "https://www.jrkagoshimacity.com/floor/detail/?cd=000320"
                 }
             ]
         },
         {
             "id": "day-2",
-            "date": "11.01",
-            "weekday": "일",
+            "date": "2026-11-01",
+            "dateNote": "",
             "title": "모래찜질과 남쪽 바다",
             "subtitle": "이부스키 5곳 · 이온몰 쇼핑",
             "hotel": "실크인 가고시마",
@@ -199,7 +198,6 @@
             "stops": [
                 {
                     "id": "silk-depart2",
-                    "time": "08:00",
                     "title": "실크인 · 이부스키로 출발",
                     "query": "シルクイン鹿児島 上之園町19-30",
                     "lat": 31.5804,
@@ -212,15 +210,16 @@
                     "parking": "제1코인 또는 호텔 부지. 먼저 주차→프런트 할인카드. 15:00~익일11:00, 시간외 별도. 출차할 때마다 할인카드 필요.",
                     "note": "호텔 주차장에서 출발. 나가기 전 할인카드·짐을 확인하세요.",
                     "source": "https://www.silk-inn.jp/rootaccess/",
-                    "food": [],
                     "kind": "숙소",
                     "mode": "driving",
                     "parkingQuery": "シルクイン第1駐車場",
-                    "done": false
+                    "done": false,
+                    "start": "08:00",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "saraku",
-                    "time": "09:30",
                     "title": "사라쿠 · 모래찜질",
                     "query": "砂むし会館 砂楽 指宿市湯の浜5-25-18",
                     "lat": 31.2297,
@@ -233,56 +232,16 @@
                     "parking": "무료 주차 약90대. 혼잡 시 대기.",
                     "note": "모래찜질·대욕장·유카타 기본. 타월 지참 여부로 요금 선택. 운영·기상 공지는 방문 전 확인.",
                     "source": "https://www.ibusuki-saraku.jp/guide.html",
-                    "food": [
-                        {
-                            "name": "아오바",
-                            "query": "黒豚と郷土料理 青葉 指宿市湊1-2-11",
-                            "menu": "흑돼지 온타마란동·돈카츠·향토요리",
-                            "budget": "1인 약 ¥1,200~2,500",
-                            "kind": "관광객 대표·향토요리",
-                            "hours": "11:00~15:00 / LO 14:30, 수 휴무",
-                            "parking": "전용 주차장 있음. 진입로가 좁을 수 있어 현장 표지 확인.",
-                            "source": "https://aoba-ibusuki.com/"
-                        },
-                        {
-                            "name": "TAKETORA",
-                            "query": "TAKETORA 指宿市大牟礼1-1-13",
-                            "menu": "가쓰오 풍미 라멘",
-                            "budget": "1인 약 ¥1,000~1,500",
-                            "kind": "지역 라멘 수상점·현지/관광객",
-                            "hours": "일 11:30~14:30·17:30~20:00 / 품절 종료",
-                            "parking": "전용 약 20대. 대기 길면 아오바 등으로 변경.",
-                            "source": "https://taketora-ibusuki.jp/about"
-                        },
-                        {
-                            "name": "신슈안",
-                            "query": "信州庵 指宿市西方4393-1",
-                            "menu": "소바·장어·흑돼지·일식 정식",
-                            "budget": "1인 약 ¥1,500~3,000",
-                            "kind": "지역 일식·메뉴 선택 폭",
-                            "hours": "점심 11:00~14:30 / LO 14:00, 휴무 달력 확인",
-                            "parking": "전용 주차장 이용. 당일 안내 확인.",
-                            "source": "https://shinshuan.com/"
-                        },
-                        {
-                            "name": "쿠리야 식당여관",
-                            "query": "くり屋食堂旅館 指宿 山川",
-                            "menu": "가다랑어 타타키·해산물",
-                            "budget": "1인 약 ¥1,200~2,500",
-                            "kind": "지역 해산물·관광협회 소개",
-                            "hours": "당일 영업 확인 필요",
-                            "parking": "주차 가능 여부·구역 현장 확인",
-                            "source": "https://www.jrkyushu.co.jp/train/kagonmarvelous/area/index.php"
-                        }
-                    ],
                     "kind": "관광",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "09:30",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "lunch",
-                    "time": "11:15",
                     "title": "이부스키역 · 점심",
                     "query": "黒豚と郷土料理 青葉 指宿市湊1-2-11",
                     "lat": 31.2355,
@@ -295,56 +254,16 @@
                     "parking": "아오바 전용 주차장. 식당 선택 시 주차 링크도 확인.",
                     "note": "기본 목적지는 아오바. TAKETORA 선택 시 11:30 오픈·대기 고려.",
                     "source": "https://aoba-ibusuki.com/",
-                    "food": [
-                        {
-                            "name": "아오바",
-                            "query": "黒豚と郷土料理 青葉 指宿市湊1-2-11",
-                            "menu": "흑돼지 온타마란동·돈카츠·향토요리",
-                            "budget": "1인 약 ¥1,200~2,500",
-                            "kind": "관광객 대표·향토요리",
-                            "hours": "11:00~15:00 / LO 14:30, 수 휴무",
-                            "parking": "전용 주차장 있음. 진입로가 좁을 수 있어 현장 표지 확인.",
-                            "source": "https://aoba-ibusuki.com/"
-                        },
-                        {
-                            "name": "TAKETORA",
-                            "query": "TAKETORA 指宿市大牟礼1-1-13",
-                            "menu": "가쓰오 풍미 라멘",
-                            "budget": "1인 약 ¥1,000~1,500",
-                            "kind": "지역 라멘 수상점·현지/관광객",
-                            "hours": "일 11:30~14:30·17:30~20:00 / 품절 종료",
-                            "parking": "전용 약 20대. 대기 길면 아오바 등으로 변경.",
-                            "source": "https://taketora-ibusuki.jp/about"
-                        },
-                        {
-                            "name": "신슈안",
-                            "query": "信州庵 指宿市西方4393-1",
-                            "menu": "소바·장어·흑돼지·일식 정식",
-                            "budget": "1인 약 ¥1,500~3,000",
-                            "kind": "지역 일식·메뉴 선택 폭",
-                            "hours": "점심 11:00~14:30 / LO 14:00, 휴무 달력 확인",
-                            "parking": "전용 주차장 이용. 당일 안내 확인.",
-                            "source": "https://shinshuan.com/"
-                        },
-                        {
-                            "name": "쿠리야 식당여관",
-                            "query": "くり屋食堂旅館 指宿 山川",
-                            "menu": "가다랑어 타타키·해산물",
-                            "budget": "1인 약 ¥1,200~2,500",
-                            "kind": "지역 해산물·관광협회 소개",
-                            "hours": "당일 영업 확인 필요",
-                            "parking": "주차 가능 여부·구역 현장 확인",
-                            "source": "https://www.jrkyushu.co.jp/train/kagonmarvelous/area/index.php"
-                        }
-                    ],
                     "kind": "식사",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "11:15",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "flower",
-                    "time": "12:45",
                     "title": "플라워파크 가고시마",
                     "query": "フラワーパークかごしま 山川岡児ケ水1611",
                     "lat": 31.1668,
@@ -357,15 +276,16 @@
                     "parking": "무료 주차 약525대.",
                     "note": "09:00~17:00·입장16:30까지. 주요 구역 위주. 원내버스 고령자 우선·카트1시간¥1,000(대수 제한, 운전면허·운영 여부 확인).",
                     "source": "https://www.fp-k.org/information/",
-                    "food": [],
                     "kind": "관광",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "12:45",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "ryugu",
-                    "time": "14:25",
                     "title": "용궁신사 · 나가사키바나",
                     "query": "龍宮神社 指宿市山川岡児ケ水1581-34",
                     "lat": 31.1584,
@@ -378,15 +298,16 @@
                     "parking": "시영 무료주차장과 민영 유료가 섞임. 시영 長崎鼻公園駐車場 표지 확인·신사까지 도보.",
                     "note": "신사만 15~25분. 등대 방향까지 40~60분. 주차장 간판을 확인해 무료/구매조건부 구역 구분.",
                     "source": "https://www.kagoshima-kankou.com/guide/50237",
-                    "food": [],
                     "kind": "관광",
                     "mode": "driving",
                     "parkingQuery": "長崎鼻公園 駐車場",
-                    "done": false
+                    "done": false,
+                    "start": "14:25",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "nishi",
-                    "time": "15:25",
                     "title": "니시오야마역",
                     "query": "JR西大山駅 指宿市山川大山602-8",
                     "lat": 31.1905,
@@ -399,15 +320,16 @@
                     "parking": "역 앞 소규모 주차장 약10대. 요금 현장 확인.",
                     "note": "가이몬다케·노란 우체통 사진. 기차를 기다리지 않는 기준.",
                     "source": "https://www.ibusuki.or.jp/tourism/view/jrnishioyama/",
-                    "food": [],
                     "kind": "관광",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "15:25",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "ikeda",
-                    "time": "16:10",
                     "title": "이케다호 · PAX 카페",
                     "query": "IKEDAKO PAX 指宿市池田5123-7",
                     "lat": 31.234,
@@ -420,36 +342,16 @@
                     "parking": "PAX 무료 주차 약46대.",
                     "note": "카페09:00~18:00. 이날 마지막 전망·휴식. 니시오야마역에서 약20~25분 추정.",
                     "source": "https://ikedakopax.jp/",
-                    "food": [
-                        {
-                            "name": "danken COFFEE 이케다코 PAX",
-                            "query": "danken COFFEE いけだ湖パクス 指宿市池田5123-7",
-                            "menu": "호수 전망·커피·크루아상 토스트·디저트",
-                            "budget": "1인 약 ¥600~1,500",
-                            "kind": "풍경 카페·공식 관광 소개",
-                            "hours": "09:00~18:00, 연중무휴",
-                            "parking": "PAX 무료 주차장 약 46대",
-                            "source": "https://ikedakopax.jp/"
-                        },
-                        {
-                            "name": "도센쿄 소멘나가시",
-                            "query": "市営唐船峡そうめん流し",
-                            "menu": "회전식 소멘·생선 요리",
-                            "budget": "1인 약 ¥1,000~2,000",
-                            "kind": "지역 명물 체험",
-                            "hours": "계절별 단축 운영. 오후 늦게는 영업 확인 필요",
-                            "parking": "주차장 있음. 이번 코스에서는 카페 대신 또는 점심 교체용.",
-                            "source": "https://visit-ibusuki.com/course/316/"
-                        }
-                    ],
                     "kind": "카페",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "16:10",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "aeon",
-                    "time": "18:15",
                     "title": "이온몰 · 유니클로·GU·마트",
                     "query": "イオンモール鹿児島 鹿児島市東開町7",
                     "lat": 31.5274,
@@ -462,15 +364,16 @@
                     "parking": "모든 주차장 무료. 층·구역 사진을 남겨두기.",
                     "note": "중앙역 이온과 다른 남쪽 대형몰. 전문점21시 마감·식품매장23시(변경 가능). 주류매장도 함께 보기.",
                     "source": "https://kagoshimabay.aeon-kyushu.info/access",
-                    "food": [],
                     "kind": "쇼핑",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "18:15",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "silk2",
-                    "time": "20:45",
                     "title": "실크인 · 두 번째 밤",
                     "query": "シルクイン鹿児島 上之園町19-30",
                     "lat": 31.5804,
@@ -483,18 +386,106 @@
                     "parking": "첫날과 동일. 출차마다 할인카드 필요.",
                     "note": "다음 날 이른 출발 준비. 조식 시간 전 출발이면 아침 별도 준비.",
                     "source": "https://www.silk-inn.jp/rootaccess/",
-                    "food": [],
                     "kind": "숙소",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "20:45",
+                    "end": "",
+                    "timeNote": ""
+                }
+            ],
+            "foods": [
+                {
+                    "id": "day-2-food-1",
+                    "category": "restaurant",
+                    "name": "아오바",
+                    "query": "黒豚と郷土料理 青葉 指宿市湊1-2-11",
+                    "lat": 31.238181,
+                    "lng": 130.642726,
+                    "menu": "흑돼지 온타마란동·돈카츠·향토요리",
+                    "budget": "1인 약 ¥1,200~2,500",
+                    "kind": "관광객 대표·향토요리",
+                    "hours": "11:00~15:00 / LO 14:30, 수 휴무",
+                    "parking": "전용 주차장 있음. 진입로가 좁을 수 있어 현장 표지 확인.",
+                    "source": "https://aoba-ibusuki.com/"
+                },
+                {
+                    "id": "day-2-food-2",
+                    "category": "restaurant",
+                    "name": "TAKETORA",
+                    "query": "TAKETORA 指宿市大牟礼1-1-13",
+                    "lat": 31.239298,
+                    "lng": 130.642108,
+                    "menu": "가쓰오 풍미 라멘",
+                    "budget": "1인 약 ¥1,000~1,500",
+                    "kind": "지역 라멘 수상점·현지/관광객",
+                    "hours": "일 11:30~14:30·17:30~20:00 / 품절 종료",
+                    "parking": "전용 약 20대. 대기 길면 아오바 등으로 변경.",
+                    "source": "https://taketora-ibusuki.jp/about"
+                },
+                {
+                    "id": "day-2-food-3",
+                    "category": "restaurant",
+                    "name": "신슈안",
+                    "query": "信州庵 指宿市西方4393-1",
+                    "lat": 31.271494,
+                    "lng": 130.626433,
+                    "menu": "소바·장어·흑돼지·일식 정식",
+                    "budget": "1인 약 ¥1,500~3,000",
+                    "kind": "지역 일식·메뉴 선택 폭",
+                    "hours": "점심 11:00~14:30 / LO 14:00, 휴무 달력 확인",
+                    "parking": "전용 주차장 이용. 당일 안내 확인.",
+                    "source": "https://shinshuan.com/"
+                },
+                {
+                    "id": "day-2-food-4",
+                    "category": "restaurant",
+                    "name": "쿠리야 식당여관",
+                    "query": "くり屋食堂旅館 指宿 山川",
+                    "lat": 31.210377,
+                    "lng": 130.629283,
+                    "menu": "가다랑어 타타키·해산물",
+                    "budget": "1인 약 ¥1,200~2,500",
+                    "kind": "지역 해산물·관광협회 소개",
+                    "hours": "당일 영업 확인 필요",
+                    "parking": "주차 가능 여부·구역 현장 확인",
+                    "source": "https://www.jrkyushu.co.jp/train/kagonmarvelous/area/index.php"
+                },
+                {
+                    "id": "day-2-food-5",
+                    "category": "cafe",
+                    "name": "danken COFFEE 이케다코 PAX",
+                    "query": "danken COFFEE いけだ湖パクス 指宿市池田5123-7",
+                    "lat": 31.249159,
+                    "lng": 130.548893,
+                    "menu": "호수 전망·커피·크루아상 토스트·디저트",
+                    "budget": "1인 약 ¥600~1,500",
+                    "kind": "풍경 카페·공식 관광 소개",
+                    "hours": "09:00~18:00, 연중무휴",
+                    "parking": "PAX 무료 주차장 약 46대",
+                    "source": "https://ikedakopax.jp/"
+                },
+                {
+                    "id": "day-2-food-6",
+                    "category": "restaurant",
+                    "name": "도센쿄 소멘나가시",
+                    "query": "市営唐船峡そうめん流し",
+                    "lat": 31.220117,
+                    "lng": 130.542774,
+                    "menu": "회전식 소멘·생선 요리",
+                    "budget": "1인 약 ¥1,000~2,000",
+                    "kind": "지역 명물 체험",
+                    "hours": "계절별 단축 운영. 오후 늦게는 영업 확인 필요",
+                    "parking": "주차장 있음. 이번 코스에서는 카페 대신 또는 점심 교체용.",
+                    "source": "https://visit-ibusuki.com/course/316/"
                 }
             ]
         },
         {
             "id": "day-3",
-            "date": "11.02",
-            "weekday": "월",
+            "date": "2026-11-02",
+            "dateNote": "",
             "title": "화산을 돌고, 축제 속으로",
             "subtitle": "사쿠라지마 일주 · 수족관 · 센간엔",
             "hotel": "시로야마 호텔",
@@ -505,7 +496,6 @@
             "stops": [
                 {
                     "id": "silk-depart3",
-                    "time": "07:00",
                     "title": "실크인 · 체크아웃",
                     "query": "シルクイン鹿児島 上之園町19-30",
                     "lat": 31.5804,
@@ -518,15 +508,16 @@
                     "parking": "제1코인 또는 호텔 부지. 먼저 주차→프런트 할인카드. 15:00~익일11:00, 시간외 별도. 출차할 때마다 할인카드 필요.",
                     "note": "호텔 주차장에서 출발. 나가기 전 할인카드·짐을 확인하세요.",
                     "source": "https://www.silk-inn.jp/rootaccess/",
-                    "food": [],
                     "kind": "숙소",
                     "mode": "driving",
                     "parkingQuery": "シルクイン第1駐車場",
-                    "done": false
+                    "done": false,
+                    "start": "07:00",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "ferryout",
-                    "time": "07:30",
                     "title": "가고시마항 · 차량 페리",
                     "query": "桜島フェリー 鹿児島港 乗り場",
                     "lat": 31.5966,
@@ -539,15 +530,16 @@
                     "parking": "차량 승선 대기 차선. 주차 후 도보 승선이 아니라 차량째 승선.",
                     "note": "차4~5m이면 ¥2,350＋동승자¥250=¥2,600/편도. 운전자1명 포함. 실제 렌트차 길이 확인·표준 요금 기준. 요금은 사쿠라지마항 쪽에서 지불.",
                     "source": "https://www.city.kagoshima.lg.jp/sakurajima-ferry/unchin/unchin.html",
-                    "food": [],
                     "kind": "페리",
                     "mode": "driving",
                     "parkingQuery": "桜島フェリー 鹿児島港 車両乗船口",
-                    "done": false
+                    "done": false,
+                    "start": "07:30",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "yuno",
-                    "time": "08:25",
                     "title": "유노히라 전망대",
                     "query": "湯之平展望所 桜島小池町1025",
                     "lat": 31.5914,
@@ -560,15 +552,16 @@
                     "parking": "무료 주차. 산길·커브 주의.",
                     "note": "전망 구역은 관람 자유, 매점09:00~17:00. 이른 도착 시 매점·시설 미개방 가능.",
                     "source": "https://www.sakurajima.gr.jp/spot/4089.html",
-                    "food": [],
                     "kind": "관광",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "08:25",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "kuro",
-                    "time": "09:40",
                     "title": "구로카미 매몰 도리이",
                     "query": "黒神埋没鳥居 黒神町647",
                     "lat": 31.5844,
@@ -581,15 +574,16 @@
                     "parking": "인근 관람객 주차장 있음. 요금·이용 구역 현장 확인.",
                     "note": "유노히라에서 내려와 북쪽 해안으로 일주. 이동45~50분 추정.",
                     "source": "https://www.sakurajima.gr.jp/spot/4099.html",
-                    "food": [],
                     "kind": "관광",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "09:40",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "arimura",
-                    "time": "10:20",
                     "title": "아리무라 용암 전망소",
                     "query": "有村溶岩展望所 有村町952",
                     "lat": 31.5552,
@@ -602,15 +596,16 @@
                     "parking": "관광객 주차장 있음. 현장 요금 표지 확인.",
                     "note": "용암 산책은 가까운 구간 중심. 화산 활동·강풍·비에 따라 통제 확인.",
                     "source": "https://visitor.sakurajima.gr.jp/guide.html",
-                    "food": [],
                     "kind": "관광",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "10:20",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "akamizu",
-                    "time": "11:15",
                     "title": "아카미즈 전망광장",
                     "query": "赤水展望広場 叫びの肖像",
                     "lat": 31.57,
@@ -623,15 +618,16 @@
                     "parking": "광장 주차장 이용. 요금 현장 확인.",
                     "note": "조형물·바다 사진을 짧게. 뒤 일정이 밀리면 차창/짧은 사진 위주.",
                     "source": "https://www.sakurajima.gr.jp/",
-                    "food": [],
                     "kind": "관광",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "11:15",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "minato",
-                    "time": "11:40",
                     "title": "사쿠라지마항 · 점심",
                     "query": "MINATO CAFE 桜島港フェリーターミナル3階",
                     "lat": 31.5937,
@@ -644,36 +640,16 @@
                     "parking": "카페 주차 약4대. 만차 시 직원 안내.",
                     "note": "메구미칸 식당은 월요일 휴무라 제외. 점심 대기 시 페리 우동/수족관 식당으로 대체.",
                     "source": "https://www.sakurajima.gr.jp/spot/4104.html",
-                    "food": [
-                        {
-                            "name": "MINATO CAFE",
-                            "query": "MINATO CAFE 桜島港 フェリーターミナル3階",
-                            "menu": "사쿠라지마 카레·디저트·항구 전망",
-                            "budget": "1인 약 ¥1,000~1,800",
-                            "kind": "지역 관광 포털 추천",
-                            "hours": "11:00~16:00 / 점심 14:30까지. 임시휴무 확인",
-                            "parking": "약 4대. 만차 시 주차 위치 직원 문의.",
-                            "source": "https://www.sakurajima.gr.jp/spot/4104.html"
-                        },
-                        {
-                            "name": "야부킨 페리 우동",
-                            "query": "桜島フェリー やぶ金",
-                            "menu": "짧은 뱃길에서 먹는 우동",
-                            "budget": "1인 약 ¥600~1,000",
-                            "kind": "지역 페리 명물",
-                            "hours": "선박·운항편별 운영. 식사 대체보다 간식",
-                            "parking": "승선 차량 안에 주차. 항해 약 15분으로 빠듯.",
-                            "source": "https://www.city.kagoshima.lg.jp/sakurajima-ferry/kanko/documents/kankoguide1.pdf"
-                        }
-                    ],
                     "kind": "식사",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "11:40",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "foot",
-                    "time": "12:20 선택",
                     "title": "나기사 족욕 / 비지터센터",
                     "query": "桜島 溶岩なぎさ公園 足湯",
                     "lat": 31.5904,
@@ -686,15 +662,16 @@
                     "parking": "주변 방문객 주차 구역. 요금·이용시간 현장 확인.",
                     "note": "12:35 복귀 페리 대기 목표. 밀리면 이 포인트부터 생략. 타월 지참.",
                     "source": "https://visitor.sakurajima.gr.jp/",
-                    "food": [],
                     "kind": "선택",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "12:20",
+                    "end": "",
+                    "timeNote": "선택"
                 },
                 {
                     "id": "ferryback",
-                    "time": "12:35",
                     "title": "사쿠라지마항 · 복귀 페리",
                     "query": "桜島フェリー 桜島港 車両乗船口",
                     "lat": 31.5937,
@@ -707,15 +684,16 @@
                     "parking": "차량 대기 차선. 요금정산 후 안내대로 승선.",
                     "note": "차4~5m이면 ¥2,600. 지도 연결선은 도로 경로가 아님. 구글지도에서 페리 경로를 직접 확인.",
                     "source": "https://www.city.kagoshima.lg.jp/sakurajima-ferry/unchin/unchin.html",
-                    "food": [],
                     "kind": "페리",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "12:35",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "aqua",
-                    "time": "13:20",
                     "title": "가고시마 수족관",
                     "query": "いおワールドかごしま水族館 本港新町3-1",
                     "lat": 31.5967,
@@ -728,36 +706,16 @@
                     "parking": "현영 제1~3주차장. 1시간 무료, 이후 1시간당¥200. 관람 할인 없음.",
                     "note": "09:30~18:00·입장17시까지. 큰 수조 중심으로, 쇼 대기는 생략 가능.",
                     "source": "https://ioworld.jp/faq",
-                    "food": [
-                        {
-                            "name": "수족관의 카지츠도",
-                            "query": "水族館の果実堂 かごしま水族館",
-                            "menu": "식사·과일 디저트·음료",
-                            "budget": "1인 약 ¥1,000~2,000",
-                            "kind": "동선 좋은 관내 식당",
-                            "hours": "월 11:00~16:00 / 음식 LO 15:00·음료 15:30",
-                            "parking": "수족관과 동일. 별도 주차 할인 없음.",
-                            "source": "https://ioworld.jp/facilities/shop"
-                        },
-                        {
-                            "name": "멧케몬 돌핀포트점",
-                            "query": "廻る寿司 めっけもん ドルフィンポート店 鹿児島市住吉町10-1",
-                            "menu": "가고시마 생선 회전초밥",
-                            "budget": "1인 약 ¥2,000~4,000",
-                            "kind": "지역 회전초밥·관광객 인기",
-                            "hours": "11:00~15:00 LO 14:30 / 저녁 17:00~, 예약 불가",
-                            "parking": "별도 이동·주차 필요. 대기가 길어 셋째 날에는 시간 여유 시만.",
-                            "source": "https://www.jf-group.co.jp/brand/mekkemon/mekkemon-shops/"
-                        }
-                    ],
                     "kind": "관광",
                     "mode": "driving",
                     "parkingQuery": "鹿児島県営 第1駐車場 本港新町",
-                    "done": false
+                    "done": false,
+                    "start": "13:20",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "sengan",
-                    "time": "15:15",
                     "title": "센간엔",
                     "query": "仙巌園 鹿児島市吉野町9700-1",
                     "lat": 31.6178,
@@ -770,46 +728,16 @@
                     "parking": "주차1일¥500/대. 총액 입장2인¥3,200＋주차¥500.",
                     "note": "17시 폐장·입장16:30까지. 정원40분·저택30분 정도. 박물관·체험은 생략. 지연되면 차료 휴식 줄이기.",
                     "source": "https://www.senganen.jp/faq/",
-                    "food": [
-                        {
-                            "name": "센간엔 차료",
-                            "query": "仙巌園茶寮",
-                            "menu": "차·화과자·시로쿠마",
-                            "budget": "1인 약 ¥600~1,500",
-                            "kind": "정원 카페",
-                            "hours": "09:00~17:00 / LO 16:30",
-                            "parking": "센간엔 주차 ¥500/대. 입장료 별도.",
-                            "source": "https://www.senganen.jp/food/sengan-en-matcha-cafe/"
-                        },
-                        {
-                            "name": "잔보모치점",
-                            "query": "仙巌園 両棒餅屋",
-                            "menu": "작은 꼬치떡·차",
-                            "budget": "1인 약 ¥500~1,000",
-                            "kind": "가고시마 전통 간식",
-                            "hours": "09:00~17:00 / LO 16:50",
-                            "parking": "센간엔과 동일",
-                            "source": "https://www.senganen.jp/food/"
-                        },
-                        {
-                            "name": "오카테이",
-                            "query": "仙巌園 桜華亭",
-                            "menu": "흑돼지·향토요리 정식",
-                            "budget": "1인 ¥2,300~3,800대",
-                            "kind": "전망 좋은 향토요리",
-                            "hours": "11:00~16:00 / LO 15:30",
-                            "parking": "센간엔과 동일. 이번 도착시간에는 간식이 더 현실적.",
-                            "source": "https://www.senganen.jp/food/ohkatei-restaurant/"
-                        }
-                    ],
                     "kind": "관광",
                     "mode": "driving",
                     "parkingQuery": "仙巌園 駐車場",
-                    "done": false
+                    "done": false,
+                    "start": "15:15",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "shiroyama",
-                    "time": "17:15",
                     "title": "시로야마 · 체크인",
                     "query": "SHIROYAMA HOTEL kagoshima 新照院町41-1",
                     "lat": 31.5968,
@@ -822,46 +750,16 @@
                     "parking": "프런트 앞 지나 터널 후 입체 주차장. 직원 안내 우선.",
                     "note": "15시부터 체크인. 밤축제 셔틀은 우회 운행·정류장 위치 확인. 호텔 저녁 또는 덴몬칸 사전 예약.",
                     "source": "https://www.shiroyama-g.co.jp/access/",
-                    "food": [
-                        {
-                            "name": "이치니이산 덴몬칸점",
-                            "query": "いちにぃさん 天文館店",
-                            "menu": "소바 육수 흑돼지 샤부샤부",
-                            "budget": "1인 약 ¥2,500~5,000",
-                            "kind": "지역 브랜드·부모님 식사",
-                            "hours": "축제일 영업·예약 확인",
-                            "parking": "축제장은 도보 이동. 호텔 주차 활용 권장.",
-                            "source": "https://ichiniisan.jp/"
-                        },
-                        {
-                            "name": "와카나 덴몬칸 본점",
-                            "query": "吾愛人 天文館本店",
-                            "menu": "흑돼지·사쓰마아게 등 향토요리",
-                            "budget": "1인 약 ¥3,000~6,000",
-                            "kind": "가고시마 향토요리 대표",
-                            "hours": "저녁 방문 후보. 축제일 예약 권장",
-                            "parking": "주변 유료. 축제 통제 구간 진입 피하기.",
-                            "source": "https://www.kagoshima-yokanavi.jp/downloads/media/11935.pdf"
-                        },
-                        {
-                            "name": "쿠마소테이",
-                            "query": "熊襲亭 鹿児島",
-                            "menu": "향토요리 정식·코스",
-                            "budget": "1인 약 ¥2,500~6,000",
-                            "kind": "전통 향토요리·관광객",
-                            "hours": "점심/저녁 영업·예약은 방문 전 확인",
-                            "parking": "덴몬칸 주변 유료. 축제장 도보 이용.",
-                            "source": "https://www.kagoshima-yokanavi.jp/downloads/media/11935.pdf"
-                        }
-                    ],
                     "kind": "숙소",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "17:15",
+                    "end": "",
+                    "timeNote": ""
                 },
                 {
                     "id": "night",
-                    "time": "18:50~20:20",
                     "title": "오하라 밤축제 · 덴몬칸",
                     "query": "天文館通 おはら祭",
                     "lat": 31.5905,
@@ -874,89 +772,218 @@
                     "parking": "차는 호텔에. 셔틀·택시＋도보. 18:00~21:00 차량 통제.",
                     "note": "공식 축제18:50~20:20. 귀환 셔틀 위치 확인. 호텔까지 언덕 도보는 부모님과 비추천.",
                     "source": "https://www.kagoshima-yokanavi.jp/event/10001",
-                    "food": [
-                        {
-                            "name": "이치니이산 덴몬칸점",
-                            "query": "いちにぃさん 天文館店",
-                            "menu": "소바 육수 흑돼지 샤부샤부",
-                            "budget": "1인 약 ¥2,500~5,000",
-                            "kind": "지역 브랜드·부모님 식사",
-                            "hours": "축제일 영업·예약 확인",
-                            "parking": "축제장은 도보 이동. 호텔 주차 활용 권장.",
-                            "source": "https://ichiniisan.jp/"
-                        },
-                        {
-                            "name": "와카나 덴몬칸 본점",
-                            "query": "吾愛人 天文館本店",
-                            "menu": "흑돼지·사쓰마아게 등 향토요리",
-                            "budget": "1인 약 ¥3,000~6,000",
-                            "kind": "가고시마 향토요리 대표",
-                            "hours": "저녁 방문 후보. 축제일 예약 권장",
-                            "parking": "주변 유료. 축제 통제 구간 진입 피하기.",
-                            "source": "https://www.kagoshima-yokanavi.jp/downloads/media/11935.pdf"
-                        },
-                        {
-                            "name": "쿠마소테이",
-                            "query": "熊襲亭 鹿児島",
-                            "menu": "향토요리 정식·코스",
-                            "budget": "1인 약 ¥2,500~6,000",
-                            "kind": "전통 향토요리·관광객",
-                            "hours": "점심/저녁 영업·예약은 방문 전 확인",
-                            "parking": "덴몬칸 주변 유료. 축제장 도보 이용.",
-                            "source": "https://www.kagoshima-yokanavi.jp/downloads/media/11935.pdf"
-                        },
-                        {
-                            "name": "고무라사키 덴몬칸점",
-                            "query": "こむらさき 天文館店 鹿児島市東千石町11-19",
-                            "menu": "채소·버섯을 올린 지역 라멘",
-                            "budget": "1인 약 ¥1,000~1,800",
-                            "kind": "지역 노포 라멘",
-                            "hours": "월~수 11:00~18:00. 마지막 날 점심 후보",
-                            "parking": "전용 주차 확인 필요. 축제장에서 도보.",
-                            "source": "https://www.kagoshimakomurasaki.com/shop.html"
-                        },
-                        {
-                            "name": "돈토로 덴몬칸 본점",
-                            "query": "鹿児島ラーメン豚とろ 天文館本店",
-                            "menu": "부드러운 차슈·진한 돈코츠",
-                            "budget": "1인 약 ¥1,000~1,600",
-                            "kind": "관광객 인기 라멘",
-                            "hours": "일별 영업 차이. 점심 또는 밤축제 후 후보",
-                            "parking": "주변 유료. 도보 접근 추천.",
-                            "source": "https://www.kagoshima-yokanavi.jp/gourmet/10265"
-                        },
-                        {
-                            "name": "덴몬칸 무자키 본점",
-                            "query": "天文館むじゃき 本店",
-                            "menu": "시로쿠마 빙수",
-                            "budget": "1인 약 ¥800~1,500",
-                            "kind": "관광객 대표 디저트",
-                            "hours": "11:00~19:00 / 빙수·음료 LO 18:30",
-                            "parking": "축제장 도보. 긴 대기 시 대체 카페.",
-                            "source": "https://mujyaki.co.jp/business-information/"
-                        },
-                        {
-                            "name": "가카시요코초·차보 카카코",
-                            "query": "薩摩蒸氣屋 菓々子横丁 茶房珈花子",
-                            "menu": "구운 도넛·가스타돈·커피",
-                            "budget": "1인 약 ¥300~1,200",
-                            "kind": "지역 과자·휴식",
-                            "hours": "1층 09:00~20:00 / 2층 10:00~19:30 LO 19:00",
-                            "parking": "전용 주차 없음. 축제장에서 도보.",
-                            "source": "https://www.jokiya.co.jp/shops/002.html"
-                        }
-                    ],
                     "kind": "축제",
                     "mode": "walking",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "18:50",
+                    "end": "20:20",
+                    "timeNote": ""
+                }
+            ],
+            "foods": [
+                {
+                    "id": "day-3-food-1",
+                    "category": "cafe",
+                    "name": "MINATO CAFE",
+                    "query": "MINATO CAFE 桜島港 フェリーターミナル3階",
+                    "lat": 31.592315,
+                    "lng": 130.599934,
+                    "menu": "사쿠라지마 카레·디저트·항구 전망",
+                    "budget": "1인 약 ¥1,000~1,800",
+                    "kind": "지역 관광 포털 추천",
+                    "hours": "11:00~16:00 / 점심 14:30까지. 임시휴무 확인",
+                    "parking": "약 4대. 만차 시 주차 위치 직원 문의.",
+                    "source": "https://www.sakurajima.gr.jp/spot/4104.html"
+                },
+                {
+                    "id": "day-3-food-2",
+                    "category": "restaurant",
+                    "name": "야부킨 페리 우동",
+                    "query": "桜島フェリー やぶ金",
+                    "lat": 31.596557,
+                    "lng": 130.562768,
+                    "menu": "짧은 뱃길에서 먹는 우동",
+                    "budget": "1인 약 ¥600~1,000",
+                    "kind": "지역 페리 명물",
+                    "hours": "선박·운항편별 운영. 식사 대체보다 간식",
+                    "parking": "승선 차량 안에 주차. 항해 약 15분으로 빠듯.",
+                    "source": "https://www.city.kagoshima.lg.jp/sakurajima-ferry/kanko/documents/kankoguide1.pdf"
+                },
+                {
+                    "id": "day-3-food-3",
+                    "category": "restaurant",
+                    "name": "수족관의 카지츠도",
+                    "query": "水族館の果実堂 かごしま水族館",
+                    "lat": 31.596289,
+                    "lng": 130.564472,
+                    "menu": "식사·과일 디저트·음료",
+                    "budget": "1인 약 ¥1,000~2,000",
+                    "kind": "동선 좋은 관내 식당",
+                    "hours": "월 11:00~16:00 / 음식 LO 15:00·음료 15:30",
+                    "parking": "수족관과 동일. 별도 주차 할인 없음.",
+                    "source": "https://ioworld.jp/facilities/shop"
+                },
+                {
+                    "id": "day-3-food-4",
+                    "category": "restaurant",
+                    "name": "멧케몬 돌핀포트점",
+                    "query": "廻る寿司 めっけもん ドルフィンポート店 鹿児島市住吉町10-1",
+                    "lat": 31.590524,
+                    "lng": 130.562298,
+                    "menu": "가고시마 생선 회전초밥",
+                    "budget": "1인 약 ¥2,000~4,000",
+                    "kind": "지역 회전초밥·관광객 인기",
+                    "hours": "11:00~15:00 LO 14:30 / 저녁 17:00~, 예약 불가",
+                    "parking": "별도 이동·주차 필요. 대기가 길어 셋째 날에는 시간 여유 시만.",
+                    "source": "https://www.jf-group.co.jp/brand/mekkemon/mekkemon-shops/"
+                },
+                {
+                    "id": "day-3-food-5",
+                    "category": "cafe",
+                    "name": "센간엔 차료",
+                    "query": "仙巌園茶寮",
+                    "lat": 31.618164,
+                    "lng": 130.578879,
+                    "menu": "차·화과자·시로쿠마",
+                    "budget": "1인 약 ¥600~1,500",
+                    "kind": "정원 카페",
+                    "hours": "09:00~17:00 / LO 16:30",
+                    "parking": "센간엔 주차 ¥500/대. 입장료 별도.",
+                    "source": "https://www.senganen.jp/food/sengan-en-matcha-cafe/"
+                },
+                {
+                    "id": "day-3-food-6",
+                    "category": "cafe",
+                    "name": "잔보모치점",
+                    "query": "仙巌園 両棒餅屋",
+                    "lat": 31.6177,
+                    "lng": 130.577816,
+                    "menu": "작은 꼬치떡·차",
+                    "budget": "1인 약 ¥500~1,000",
+                    "kind": "가고시마 전통 간식",
+                    "hours": "09:00~17:00 / LO 16:50",
+                    "parking": "센간엔과 동일",
+                    "source": "https://www.senganen.jp/food/"
+                },
+                {
+                    "id": "day-3-food-7",
+                    "category": "restaurant",
+                    "name": "오카테이",
+                    "query": "仙巌園 桜華亭",
+                    "lat": 31.618301,
+                    "lng": 130.579001,
+                    "menu": "흑돼지·향토요리 정식",
+                    "budget": "1인 ¥2,300~3,800대",
+                    "kind": "전망 좋은 향토요리",
+                    "hours": "11:00~16:00 / LO 15:30",
+                    "parking": "센간엔과 동일. 이번 도착시간에는 간식이 더 현실적.",
+                    "source": "https://www.senganen.jp/food/ohkatei-restaurant/"
+                },
+                {
+                    "id": "day-3-food-8",
+                    "category": "restaurant",
+                    "name": "이치니이산 덴몬칸점",
+                    "query": "いちにぃさん 天文館店",
+                    "lat": 31.591401,
+                    "lng": 130.553995,
+                    "menu": "소바 육수 흑돼지 샤부샤부",
+                    "budget": "1인 약 ¥2,500~5,000",
+                    "kind": "지역 브랜드·부모님 식사",
+                    "hours": "축제일 영업·예약 확인",
+                    "parking": "축제장은 도보 이동. 호텔 주차 활용 권장.",
+                    "source": "https://ichiniisan.jp/"
+                },
+                {
+                    "id": "day-3-food-9",
+                    "category": "restaurant",
+                    "name": "와카나 덴몬칸 본점",
+                    "query": "吾愛人 天文館本店",
+                    "lat": 31.591262,
+                    "lng": 130.553912,
+                    "menu": "흑돼지·사쓰마아게 등 향토요리",
+                    "budget": "1인 약 ¥3,000~6,000",
+                    "kind": "가고시마 향토요리 대표",
+                    "hours": "저녁 방문 후보. 축제일 예약 권장",
+                    "parking": "주변 유료. 축제 통제 구간 진입 피하기.",
+                    "source": "https://www.kagoshima-yokanavi.jp/downloads/media/11935.pdf"
+                },
+                {
+                    "id": "day-3-food-10",
+                    "category": "restaurant",
+                    "name": "쿠마소테이",
+                    "query": "熊襲亭 鹿児島",
+                    "lat": 31.591963,
+                    "lng": 130.553457,
+                    "menu": "향토요리 정식·코스",
+                    "budget": "1인 약 ¥2,500~6,000",
+                    "kind": "전통 향토요리·관광객",
+                    "hours": "점심/저녁 영업·예약은 방문 전 확인",
+                    "parking": "덴몬칸 주변 유료. 축제장 도보 이용.",
+                    "source": "https://www.kagoshima-yokanavi.jp/downloads/media/11935.pdf"
+                },
+                {
+                    "id": "day-3-food-11",
+                    "category": "restaurant",
+                    "name": "고무라사키 덴몬칸점",
+                    "query": "こむらさき 天文館店 鹿児島市東千石町11-19",
+                    "lat": 31.59111,
+                    "lng": 130.554199,
+                    "menu": "채소·버섯을 올린 지역 라멘",
+                    "budget": "1인 약 ¥1,000~1,800",
+                    "kind": "지역 노포 라멘",
+                    "hours": "월~수 11:00~18:00. 마지막 날 점심 후보",
+                    "parking": "전용 주차 확인 필요. 축제장에서 도보.",
+                    "source": "https://www.kagoshimakomurasaki.com/shop.html"
+                },
+                {
+                    "id": "day-3-food-12",
+                    "category": "restaurant",
+                    "name": "돈토로 덴몬칸 본점",
+                    "query": "鹿児島ラーメン豚とろ 天文館本店",
+                    "lat": 31.588024,
+                    "lng": 130.553313,
+                    "menu": "부드러운 차슈·진한 돈코츠",
+                    "budget": "1인 약 ¥1,000~1,600",
+                    "kind": "관광객 인기 라멘",
+                    "hours": "일별 영업 차이. 점심 또는 밤축제 후 후보",
+                    "parking": "주변 유료. 도보 접근 추천.",
+                    "source": "https://www.kagoshima-yokanavi.jp/gourmet/10265"
+                },
+                {
+                    "id": "day-3-food-13",
+                    "category": "cafe",
+                    "name": "덴몬칸 무자키 본점",
+                    "query": "天文館むじゃき 本店",
+                    "lat": 31.589238,
+                    "lng": 130.555969,
+                    "menu": "시로쿠마 빙수",
+                    "budget": "1인 약 ¥800~1,500",
+                    "kind": "관광객 대표 디저트",
+                    "hours": "11:00~19:00 / 빙수·음료 LO 18:30",
+                    "parking": "축제장 도보. 긴 대기 시 대체 카페.",
+                    "source": "https://mujyaki.co.jp/business-information/"
+                },
+                {
+                    "id": "day-3-food-14",
+                    "category": "cafe",
+                    "name": "가카시요코초·차보 카카코",
+                    "query": "薩摩蒸氣屋 菓々子横丁 茶房珈花子",
+                    "lat": 31.590902,
+                    "lng": 130.554571,
+                    "menu": "구운 도넛·가스타돈·커피",
+                    "budget": "1인 약 ¥300~1,200",
+                    "kind": "지역 과자·휴식",
+                    "hours": "1층 09:00~20:00 / 2층 10:00~19:30 LO 19:00",
+                    "parking": "전용 주차 없음. 축제장에서 도보.",
+                    "source": "https://www.jokiya.co.jp/shops/002.html"
                 }
             ]
         },
         {
             "id": "day-4",
-            "date": "11.03",
-            "weekday": "화 · 공휴일",
+            "date": "2026-11-03",
+            "dateNote": "공휴일",
             "title": "본축제와 여유 있는 귀국",
             "subtitle": "시로야마 조식 · 본축제 · 공항",
             "hotel": "18:00 귀국편",
@@ -967,7 +994,6 @@
             "stops": [
                 {
                     "id": "morning",
-                    "time": "06:30~09:15",
                     "title": "시로야마 · 온천과 조식",
                     "query": "SHIROYAMA HOTEL kagoshima 新照院町41-1",
                     "lat": 31.5968,
@@ -980,15 +1006,16 @@
                     "parking": "체크아웃 후13:30까지 주차·짐 보관 가능 여부 프런트 확인. 불가 시 통제 밖 유료주차로 이동.",
                     "note": "조식06:30~10:00, 예약 시간제 가능. 09:15 전후 체크아웃 후 축제장 이동.",
                     "source": "https://www.shiroyama-g.co.jp/access/",
-                    "food": [],
                     "kind": "숙소",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "06:30",
+                    "end": "09:15",
+                    "timeNote": ""
                 },
                 {
                     "id": "dayfest",
-                    "time": "10:20~12:00",
                     "title": "오하라 본축제",
                     "query": "天文館通 おはら祭",
                     "lat": 31.5905,
@@ -1001,86 +1028,16 @@
                     "parking": "09:30~16:00 중심도로 통제. 차량은 호텔 또는 통제 밖 주차.",
                     "note": "본축제10:20~15:25 중 오전 관람. 비행 때문에 끝까지 보지 않기. 돌아갈 셔틀 위치·시간 전날 확인.",
                     "source": "https://www.kagoshima-yokanavi.jp/event/10001",
-                    "food": [
-                        {
-                            "name": "이치니이산 덴몬칸점",
-                            "query": "いちにぃさん 天文館店",
-                            "menu": "소바 육수 흑돼지 샤부샤부",
-                            "budget": "1인 약 ¥2,500~5,000",
-                            "kind": "지역 브랜드·부모님 식사",
-                            "hours": "축제일 영업·예약 확인",
-                            "parking": "축제장은 도보 이동. 호텔 주차 활용 권장.",
-                            "source": "https://ichiniisan.jp/"
-                        },
-                        {
-                            "name": "와카나 덴몬칸 본점",
-                            "query": "吾愛人 天文館本店",
-                            "menu": "흑돼지·사쓰마아게 등 향토요리",
-                            "budget": "1인 약 ¥3,000~6,000",
-                            "kind": "가고시마 향토요리 대표",
-                            "hours": "저녁 방문 후보. 축제일 예약 권장",
-                            "parking": "주변 유료. 축제 통제 구간 진입 피하기.",
-                            "source": "https://www.kagoshima-yokanavi.jp/downloads/media/11935.pdf"
-                        },
-                        {
-                            "name": "쿠마소테이",
-                            "query": "熊襲亭 鹿児島",
-                            "menu": "향토요리 정식·코스",
-                            "budget": "1인 약 ¥2,500~6,000",
-                            "kind": "전통 향토요리·관광객",
-                            "hours": "점심/저녁 영업·예약은 방문 전 확인",
-                            "parking": "덴몬칸 주변 유료. 축제장 도보 이용.",
-                            "source": "https://www.kagoshima-yokanavi.jp/downloads/media/11935.pdf"
-                        },
-                        {
-                            "name": "고무라사키 덴몬칸점",
-                            "query": "こむらさき 天文館店 鹿児島市東千石町11-19",
-                            "menu": "채소·버섯을 올린 지역 라멘",
-                            "budget": "1인 약 ¥1,000~1,800",
-                            "kind": "지역 노포 라멘",
-                            "hours": "월~수 11:00~18:00. 마지막 날 점심 후보",
-                            "parking": "전용 주차 확인 필요. 축제장에서 도보.",
-                            "source": "https://www.kagoshimakomurasaki.com/shop.html"
-                        },
-                        {
-                            "name": "돈토로 덴몬칸 본점",
-                            "query": "鹿児島ラーメン豚とろ 天文館本店",
-                            "menu": "부드러운 차슈·진한 돈코츠",
-                            "budget": "1인 약 ¥1,000~1,600",
-                            "kind": "관광객 인기 라멘",
-                            "hours": "일별 영업 차이. 점심 또는 밤축제 후 후보",
-                            "parking": "주변 유료. 도보 접근 추천.",
-                            "source": "https://www.kagoshima-yokanavi.jp/gourmet/10265"
-                        },
-                        {
-                            "name": "덴몬칸 무자키 본점",
-                            "query": "天文館むじゃき 本店",
-                            "menu": "시로쿠마 빙수",
-                            "budget": "1인 약 ¥800~1,500",
-                            "kind": "관광객 대표 디저트",
-                            "hours": "11:00~19:00 / 빙수·음료 LO 18:30",
-                            "parking": "축제장 도보. 긴 대기 시 대체 카페.",
-                            "source": "https://mujyaki.co.jp/business-information/"
-                        },
-                        {
-                            "name": "가카시요코초·차보 카카코",
-                            "query": "薩摩蒸氣屋 菓々子横丁 茶房珈花子",
-                            "menu": "구운 도넛·가스타돈·커피",
-                            "budget": "1인 약 ¥300~1,200",
-                            "kind": "지역 과자·휴식",
-                            "hours": "1층 09:00~20:00 / 2층 10:00~19:30 LO 19:00",
-                            "parking": "전용 주차 없음. 축제장에서 도보.",
-                            "source": "https://www.jokiya.co.jp/shops/002.html"
-                        }
-                    ],
                     "kind": "축제",
                     "mode": "walking",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "10:20",
+                    "end": "12:00",
+                    "timeNote": ""
                 },
                 {
                     "id": "cafe4",
-                    "time": "12:00~12:50",
                     "title": "덴몬칸 · 점심 / 간식",
                     "query": "薩摩蒸氣屋 菓々子横丁 東千石町13-14",
                     "lat": 31.5916,
@@ -1093,56 +1050,16 @@
                     "parking": "축제장에서 도보. 차는 기존 주차장 유지.",
                     "note": "조식이 든든하면 가카시요코초 차·과자. 점심은 고무라사키 등. 긴 대기 피하고13시대 차량 회수.",
                     "source": "https://www.jokiya.co.jp/shops/002.html",
-                    "food": [
-                        {
-                            "name": "고무라사키 덴몬칸점",
-                            "query": "こむらさき 天文館店 鹿児島市東千石町11-19",
-                            "menu": "채소·버섯을 올린 지역 라멘",
-                            "budget": "1인 약 ¥1,000~1,800",
-                            "kind": "지역 노포 라멘",
-                            "hours": "월~수 11:00~18:00. 마지막 날 점심 후보",
-                            "parking": "전용 주차 확인 필요. 축제장에서 도보.",
-                            "source": "https://www.kagoshimakomurasaki.com/shop.html"
-                        },
-                        {
-                            "name": "돈토로 덴몬칸 본점",
-                            "query": "鹿児島ラーメン豚とろ 天文館本店",
-                            "menu": "부드러운 차슈·진한 돈코츠",
-                            "budget": "1인 약 ¥1,000~1,600",
-                            "kind": "관광객 인기 라멘",
-                            "hours": "일별 영업 차이. 점심 또는 밤축제 후 후보",
-                            "parking": "주변 유료. 도보 접근 추천.",
-                            "source": "https://www.kagoshima-yokanavi.jp/gourmet/10265"
-                        },
-                        {
-                            "name": "덴몬칸 무자키 본점",
-                            "query": "天文館むじゃき 本店",
-                            "menu": "시로쿠마 빙수",
-                            "budget": "1인 약 ¥800~1,500",
-                            "kind": "관광객 대표 디저트",
-                            "hours": "11:00~19:00 / 빙수·음료 LO 18:30",
-                            "parking": "축제장 도보. 긴 대기 시 대체 카페.",
-                            "source": "https://mujyaki.co.jp/business-information/"
-                        },
-                        {
-                            "name": "가카시요코초·차보 카카코",
-                            "query": "薩摩蒸氣屋 菓々子横丁 茶房珈花子",
-                            "menu": "구운 도넛·가스타돈·커피",
-                            "budget": "1인 약 ¥300~1,200",
-                            "kind": "지역 과자·휴식",
-                            "hours": "1층 09:00~20:00 / 2층 10:00~19:30 LO 19:00",
-                            "parking": "전용 주차 없음. 축제장에서 도보.",
-                            "source": "https://www.jokiya.co.jp/shops/002.html"
-                        }
-                    ],
                     "kind": "식사",
                     "mode": "walking",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "12:00",
+                    "end": "12:50",
+                    "timeNote": ""
                 },
                 {
                     "id": "carreturn",
-                    "time": "13:00~13:40",
                     "title": "호텔 복귀 · 차량·짐 회수",
                     "query": "SHIROYAMA HOTEL kagoshima 新照院町41-1",
                     "lat": 31.5968,
@@ -1155,15 +1072,16 @@
                     "parking": "호텔이 체크아웃 후 주차 허용한 경우의 기본안. 불가 시 실제 주차장으로 목적지 수정.",
                     "note": "늦어도14시 전 공항 방향 출발 목표. 축제 통제구간을 피하는 경로 확인.",
                     "source": "https://www.shiroyama-g.co.jp/access/",
-                    "food": [],
                     "kind": "교통",
                     "mode": "walking",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "13:00",
+                    "end": "13:40",
+                    "timeNote": ""
                 },
                 {
                     "id": "gas",
-                    "time": "14:40~15:00",
                     "title": "공항 근처 주유",
                     "query": "ガソリンスタンド 鹿児島空港 レンタカー",
                     "lat": 31.792,
@@ -1176,15 +1094,16 @@
                     "parking": "반납 전 주유. 특정 점포 미지정·구글지도에서 영업 중인 곳 선택.",
                     "note": "렌트계약 유종 확인·영수증 보관. 지도 위치는 공항 주변 대표 위치.",
                     "source": "https://www.budgetrentacar.co.jp/shop/kagoshima/0006/",
-                    "food": [],
                     "kind": "교통",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "14:40",
+                    "end": "15:00",
+                    "timeNote": ""
                 },
                 {
                     "id": "budgetback",
-                    "time": "15:00~15:30",
                     "title": "버짓 공항점 · 차량 반납",
                     "query": "バジェットレンタカー 鹿児島空港店 霧島市溝辺町麓1377-1",
                     "lat": 31.795,
@@ -1197,15 +1116,16 @@
                     "parking": "공항 터미널이 아니라 영업소에 반납→공항 셔틀.",
                     "note": "주소:霧島市溝辺町麓1377-1 / 0995-58-3543. 예약 반납시각이 더 이르면 예약 우선.",
                     "source": "https://www.budgetrentacar.co.jp/shop/kagoshima/0006/",
-                    "food": [],
                     "kind": "교통",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "15:00",
+                    "end": "15:30",
+                    "timeNote": ""
                 },
                 {
                     "id": "airport",
-                    "time": "16:00까지",
                     "title": "가고시마공항 · 18시 귀국편",
                     "query": "鹿児島空港 国際線ターミナル",
                     "lat": 31.8004,
@@ -1218,32 +1138,141 @@
                     "parking": "렌터카 반납 완료 후 셔틀 하차.",
                     "note": "18시 출발·국제선16시 도착 목표. 항공사 수속 마감 우선. 국내선 식당 이용은 수속·보안검색 전 시간 여유 있을 때만.",
                     "source": "https://www.koj-ab.co.jp/",
-                    "food": [
-                        {
-                            "name": "오조라 식당",
-                            "query": "鹿児島空港 大空食堂",
-                            "menu": "계반·흑돼지 정식·향토요리",
-                            "budget": "1인 약 ¥1,000~2,000",
-                            "kind": "공항 향토식·빠른 식사",
-                            "hours": "10:00~20:30, 당일 변경 확인",
-                            "parking": "국내선 2층·보안검색 전. 국제선 수속 이동시간 별도.",
-                            "source": "https://www.koj-ab.co.jp/shops/ozorashokudo.html"
-                        },
-                        {
-                            "name": "후쿠후쿠 공항점",
-                            "query": "ふく福 鹿児島空港店",
-                            "menu": "우동·소바·정식",
-                            "budget": "1인 약 ¥1,000~2,000",
-                            "kind": "지역 외식 브랜드",
-                            "hours": "당일 공항 영업 안내 확인",
-                            "parking": "국내선 3층·보안검색 전",
-                            "source": "https://www.koj-ab.co.jp/spend.html"
-                        }
-                    ],
                     "kind": "공항",
                     "mode": "driving",
                     "parkingQuery": "",
-                    "done": false
+                    "done": false,
+                    "start": "16:00",
+                    "end": "",
+                    "timeNote": "까지"
+                }
+            ],
+            "foods": [
+                {
+                    "id": "day-4-food-1",
+                    "category": "restaurant",
+                    "name": "이치니이산 덴몬칸점",
+                    "query": "いちにぃさん 天文館店",
+                    "lat": 31.591401,
+                    "lng": 130.553995,
+                    "menu": "소바 육수 흑돼지 샤부샤부",
+                    "budget": "1인 약 ¥2,500~5,000",
+                    "kind": "지역 브랜드·부모님 식사",
+                    "hours": "축제일 영업·예약 확인",
+                    "parking": "축제장은 도보 이동. 호텔 주차 활용 권장.",
+                    "source": "https://ichiniisan.jp/"
+                },
+                {
+                    "id": "day-4-food-2",
+                    "category": "restaurant",
+                    "name": "와카나 덴몬칸 본점",
+                    "query": "吾愛人 天文館本店",
+                    "lat": 31.591262,
+                    "lng": 130.553912,
+                    "menu": "흑돼지·사쓰마아게 등 향토요리",
+                    "budget": "1인 약 ¥3,000~6,000",
+                    "kind": "가고시마 향토요리 대표",
+                    "hours": "저녁 방문 후보. 축제일 예약 권장",
+                    "parking": "주변 유료. 축제 통제 구간 진입 피하기.",
+                    "source": "https://www.kagoshima-yokanavi.jp/downloads/media/11935.pdf"
+                },
+                {
+                    "id": "day-4-food-3",
+                    "category": "restaurant",
+                    "name": "쿠마소테이",
+                    "query": "熊襲亭 鹿児島",
+                    "lat": 31.591963,
+                    "lng": 130.553457,
+                    "menu": "향토요리 정식·코스",
+                    "budget": "1인 약 ¥2,500~6,000",
+                    "kind": "전통 향토요리·관광객",
+                    "hours": "점심/저녁 영업·예약은 방문 전 확인",
+                    "parking": "덴몬칸 주변 유료. 축제장 도보 이용.",
+                    "source": "https://www.kagoshima-yokanavi.jp/downloads/media/11935.pdf"
+                },
+                {
+                    "id": "day-4-food-4",
+                    "category": "restaurant",
+                    "name": "고무라사키 덴몬칸점",
+                    "query": "こむらさき 天文館店 鹿児島市東千石町11-19",
+                    "lat": 31.59111,
+                    "lng": 130.554199,
+                    "menu": "채소·버섯을 올린 지역 라멘",
+                    "budget": "1인 약 ¥1,000~1,800",
+                    "kind": "지역 노포 라멘",
+                    "hours": "월~수 11:00~18:00. 마지막 날 점심 후보",
+                    "parking": "전용 주차 확인 필요. 축제장에서 도보.",
+                    "source": "https://www.kagoshimakomurasaki.com/shop.html"
+                },
+                {
+                    "id": "day-4-food-5",
+                    "category": "restaurant",
+                    "name": "돈토로 덴몬칸 본점",
+                    "query": "鹿児島ラーメン豚とろ 天文館本店",
+                    "lat": 31.588024,
+                    "lng": 130.553313,
+                    "menu": "부드러운 차슈·진한 돈코츠",
+                    "budget": "1인 약 ¥1,000~1,600",
+                    "kind": "관광객 인기 라멘",
+                    "hours": "일별 영업 차이. 점심 또는 밤축제 후 후보",
+                    "parking": "주변 유료. 도보 접근 추천.",
+                    "source": "https://www.kagoshima-yokanavi.jp/gourmet/10265"
+                },
+                {
+                    "id": "day-4-food-6",
+                    "category": "cafe",
+                    "name": "덴몬칸 무자키 본점",
+                    "query": "天文館むじゃき 本店",
+                    "lat": 31.589238,
+                    "lng": 130.555969,
+                    "menu": "시로쿠마 빙수",
+                    "budget": "1인 약 ¥800~1,500",
+                    "kind": "관광객 대표 디저트",
+                    "hours": "11:00~19:00 / 빙수·음료 LO 18:30",
+                    "parking": "축제장 도보. 긴 대기 시 대체 카페.",
+                    "source": "https://mujyaki.co.jp/business-information/"
+                },
+                {
+                    "id": "day-4-food-7",
+                    "category": "cafe",
+                    "name": "가카시요코초·차보 카카코",
+                    "query": "薩摩蒸氣屋 菓々子横丁 茶房珈花子",
+                    "lat": 31.590902,
+                    "lng": 130.554571,
+                    "menu": "구운 도넛·가스타돈·커피",
+                    "budget": "1인 약 ¥300~1,200",
+                    "kind": "지역 과자·휴식",
+                    "hours": "1층 09:00~20:00 / 2층 10:00~19:30 LO 19:00",
+                    "parking": "전용 주차 없음. 축제장에서 도보.",
+                    "source": "https://www.jokiya.co.jp/shops/002.html"
+                },
+                {
+                    "id": "day-4-food-8",
+                    "category": "restaurant",
+                    "name": "오조라 식당",
+                    "query": "鹿児島空港 大空食堂",
+                    "lat": 31.80167,
+                    "lng": 130.715678,
+                    "menu": "계반·흑돼지 정식·향토요리",
+                    "budget": "1인 약 ¥1,000~2,000",
+                    "kind": "공항 향토식·빠른 식사",
+                    "hours": "10:00~20:30, 당일 변경 확인",
+                    "parking": "국내선 2층·보안검색 전. 국제선 수속 이동시간 별도.",
+                    "source": "https://www.koj-ab.co.jp/shops/ozorashokudo.html"
+                },
+                {
+                    "id": "day-4-food-9",
+                    "category": "restaurant",
+                    "name": "후쿠후쿠 공항점",
+                    "query": "ふく福 鹿児島空港店",
+                    "lat": 31.801356,
+                    "lng": 130.715721,
+                    "menu": "우동·소바·정식",
+                    "budget": "1인 약 ¥1,000~2,000",
+                    "kind": "지역 외식 브랜드",
+                    "hours": "당일 공항 영업 안내 확인",
+                    "parking": "국내선 3층·보안검색 전",
+                    "source": "https://www.koj-ab.co.jp/spend.html"
                 }
             ]
         }

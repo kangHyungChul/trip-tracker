@@ -1,7 +1,9 @@
 // 일정 목록의 장소 카드 1개.
 
+import { formatTime } from '../lib/datetime';
 import { gmaps } from '../lib/links';
 import { ExternalLink, Fact } from './common';
+import { isInteractiveTarget } from './FoodCard';
 import type { Stop } from '../types';
 
 interface StopCardProps {
@@ -20,9 +22,13 @@ export function StopCard({ stop, number, selected, onFocus, onToggleDone, onDeta
     return (
         <article
             // id 는 지도 핀 클릭 시 이 카드로 스크롤하기 위해 사용합니다.
-            id={`stop-${stop.id}`}
+            id={`item-${stop.id}`}
+            // 카드 아무 곳이나 누르면 지도에서 위치 보기 (안의 링크·버튼·체크박스는 각자 동작)
+            onClick={event => {
+                if (!isInteractiveTarget(event.target)) onFocus(stop.id);
+            }}
             className={[
-                'mb-3 scroll-mt-[15px] rounded-xl border bg-paper p-[18px] shadow-[0_2px_8px_#24452b03] max-tab:p-[17px] print:break-inside-avoid print:shadow-none',
+                'mb-3 cursor-pointer scroll-mt-[15px] rounded-xl border bg-paper p-[18px] shadow-[0_2px_8px_#24452b03] max-tab:p-[17px] print:break-inside-avoid print:shadow-none',
                 selected ? 'border-[#abbd9d] shadow-[0_0_0_2px_#e1e8d9]' : 'border-line',
                 stop.done ? 'opacity-[0.66]' : '',
             ].join(' ')}
@@ -38,7 +44,8 @@ export function StopCard({ stop, number, selected, onFocus, onToggleDone, onDeta
                 </button>
                 <div className="min-w-0 flex-1">
                     <div className="mb-[3px] flex items-center gap-2 text-[10px] text-muted max-phone:flex-wrap">
-                        <span className="font-[650] text-green">{stop.time}</span>
+                        {/* 시작~종료 + 메모를 한 줄로 (예: "18:50~20:20", "17:45 예상") */}
+                        <span className="font-[650] text-green">{formatTime(stop.start, stop.end, stop.timeNote)}</span>
                         <span>· {stop.duration}</span>
                         <span className="rounded bg-[#f2f0e7] px-1.5 py-px text-[9px] text-[#8b7753]">{stop.kind}</span>
                     </div>
@@ -62,18 +69,12 @@ export function StopCard({ stop, number, selected, onFocus, onToggleDone, onDeta
             <div className="mt-3.5 flex flex-wrap items-center gap-[7px] max-phone:gap-1.5 print:hidden">
                 <ExternalLink href={gmaps(stop.query, true, stop.mode)} className="navlink">구글지도 길찾기 ↗</ExternalLink>
                 <button type="button" onClick={() => onDetail(stop.id)} className="rounded-[7px] border border-line px-2.5 py-1.5 text-[11px]">
-                    자세히{stop.food.length ? ` · 맛집 ${stop.food.length}` : ''}
+                    자세히
                 </button>
                 <button type="button" onClick={() => onEdit(stop.id)} className="ml-auto px-[3px] py-1.5 text-[11px] text-muted">
                     편집
                 </button>
             </div>
-            {stop.food.length > 0 && (
-                <div className="mt-[11px] border-t border-[#eff0e9] pt-[9px] text-[10px] text-[#798773]">
-                    추천 · {stop.food.slice(0, 3).map(food => food.name).join(' / ')}
-                    {stop.food.length > 3 ? ' 외' : ''}
-                </div>
-            )}
         </article>
     );
 }

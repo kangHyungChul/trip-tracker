@@ -1,122 +1,134 @@
-# 가고시마, 함께 가는 4일
+# TRIP TRACKER
 
-부모님과 2인, 2026.10.31~11.03. 버짓 가고시마공항점 렌터카, 실크인 2박·시로야마 1박.
+여러 여행 일정을 지도·맛집·주차·비용과 함께 정리하고 직접 편집하는 여행 플래너입니다.
+첫 화면에서 여행을 고르거나 새로 만들고, 여행마다 날짜·장소·맛집/카페를 관리합니다.
+기존 ‘가고시마, 함께 가는 4일’ 일정은 첫 번째 여행(예시)으로 들어 있습니다.
 
 ## 사용법
 
-- 날짜 선택 → 지도 번호 또는 장소의 ‘자세히’ → 구글지도 길찾기.
-- ‘편집’으로 시간·장소·좌표·비용·주차·식당 후보 수정, ‘자세히’에서 순서 이동·삭제.
-- 날짜 탭 끝의 ‘＋ 날짜’로 날짜 추가, ‘날짜 편집’으로 날짜 정보 수정·삭제(최소 1일, 최대 30일).
+- **여행 목록(첫 화면):** ‘＋ 새 여행’(이름만 입력) → 여행 화면에서 ‘＋ 날짜’로 날짜를 추가합니다. 카드의 🗑로 삭제(기기에서만 삭제, 클라우드 사본은 유지).
+- **날짜:** 달력(날짜 선택기)으로 고르고, 비워 두면 ‘날짜 미정’. 요일은 자동 계산, ‘공휴일’ 같은 메모는 날짜 메모 칸에.
+- **장소 추가/편집:** 구글지도 앱·웹에서 장소를 연 뒤 *공유 → 링크 복사*(또는 주소창 URL)를 붙여넣고 ‘위치 가져오기’를 누르면 좌표·이름이 채워집니다. 가게 이름만 입력해도 Google 장소 검색으로 찾습니다. 좌표 직접 수정은 접어 둔 ‘좌표 직접 수정’에서.
+- **시간:** 시작·종료 시각을 선택기(5분 단위)로 고르고, ‘예상’ 같은 메모는 시간 메모 칸에.
+- **순서 편집:** 일정 탭의 ‘↕ 순서 편집’ → ⠿ 손잡이를 끌어 같은 날 안에서 순서 변경(키보드: 손잡이 포커스 → Space → 화살표 → Space). ‘✓ 완료’로 종료.
+- **맛집·카페:** 장소와 별개로 날짜별 ‘맛집·카페’ 탭에서 추가·편집합니다. 지도에는 번호 핀(●)과 다른 사각 배지(🍴 식당 / ☕ 카페)로 표시되며, ‘맛집’ 체크박스로 숨길 수 있습니다.
+- **여행 정보:** 제목 옆 ‘여행 정보 편집’에서 제목·동행·소개 문구·오른쪽 강조 문구·통화·여행 메모를 수정합니다.
+- **통화:** 여행마다 하나씩 정합니다. 새 여행은 원화(₩ KRW), 예전 데이터는 엔화(¥ JPY)로 시작합니다. 목록(KRW·JPY·USD·EUR·CNY·TWD·THB·VND 등)에 없으면 ‘직접 입력…’으로 ISO 4217 세 글자 코드를 넣습니다. 통화를 바꿔도 입력한 금액 숫자는 그대로이며 환율 환산은 하지 않습니다.
+- **삭제·덮어쓰기 확인:** 장소·맛집·날짜·여행 삭제, 백업/클라우드로 덮어쓰기, 초기화, 키 삭제는 앱 안의 확인 창에서 한 번 더 확인합니다.
 - 수정 내용은 기기에 자동 저장됩니다. 이동 전 ‘저장·백업 → JSON 백업’을 권장합니다.
-- 새 장소는 일본어 장소명/주소와 위도·경도를 함께 입력하세요. 목적지 검색어가 실제 길찾기에 사용되고 좌표는 앱 지도에 사용됩니다.
-- 식당 후보는 대안이며 전부 방문하는 일정이 아닙니다. 음식 예산·이동시간은 추정입니다.
+
+## Google 지도 설정
+
+앱 지도·장소 검색에 Google Maps Platform 키가 필요합니다. (키가 없으면 지도 자리에 안내만 표시되고 나머지 기능은 동작합니다. 길찾기 버튼은 키 없이 구글지도 앱/웹으로 연결됩니다.)
+
+1. [Google Cloud 콘솔](https://console.cloud.google.com/google/maps-apis)에서 **Maps JavaScript API**, **Places API (New)** 를 사용 설정합니다.
+2. API 키를 만들고 반드시 제한을 겁니다.
+   - 애플리케이션 제한: **웹사이트(HTTP 리퍼러)** — `http://localhost:5173/*`, `https://배포주소.vercel.app/*`
+   - API 제한: Maps JavaScript API, Places API (New)
+3. 키를 넣는 방법(둘 중 하나, 앱 설정이 우선):
+   - `.env.local`(Git 업로드 금지) 또는 Vercel 환경변수 `VITE_GOOGLE_MAPS_API_KEY`
+   - 앱 ⚙ 설정에 입력 → 이 기기 브라우저에만 저장
+4. 선택: 지도 스타일용 Map ID는 `VITE_GOOGLE_MAPS_MAP_ID` 또는 ⚙ 설정. 비우면 Google의 `DEMO_MAP_ID`를 사용합니다.
+
+브라우저용 키는 어떤 방식이든 페이지에서 볼 수 있으므로 위 제한이 보안의 핵심입니다. 사용량은 Google Cloud 결제 계정에 청구될 수 있으니 예산 알림도 설정하세요.
+
+### 짧은 공유 링크(maps.app.goo.gl)
+
+짧은 링크는 브라우저에서 바로 풀 수 없어 서버 함수 `api/resolve-maps-url.ts`가 리다이렉트를 따라가 원래 URL을 알려 줍니다. Google·단축 링크 도메인만 허용합니다.
+- `npm run dev`: Vite 개발 서버가 같은 함수를 실행합니다.
+- Vercel 배포: 자동으로 서버리스 함수가 됩니다.
+- `npm run preview`(정적 미리보기)에서는 동작하지 않습니다. 이때는 긴 URL이나 가게 이름을 사용하세요.
 
 ## 개발 구조
 
-React 19 + TypeScript + Vite + Tailwind CSS v4 정적 앱입니다. 지도는 react-leaflet, 클라우드는 `@supabase/supabase-js`를 npm으로 사용합니다. Node.js 20.19 이상이 필요합니다.
+React 19 + TypeScript + Vite + Tailwind CSS v4. 지도 `@vis.gl/react-google-maps`, 날짜·시간 `react-datepicker`(+ date-fns 한국어), 드래그 `@dnd-kit`, 클라우드 `@supabase/supabase-js`. Node.js 20.19 이상.
 
 ```
+api/resolve-maps-url.ts   짧은 구글지도 링크 해석 (Vercel 함수 + 개발 서버 미들웨어)
 src/
-  main.tsx              진입점
-  App.tsx               화면 조립 + 일정/날짜 편집 동작
-  index.css             Tailwind 테마(색상·반응형 기준)와 공통 스타일
-  types.ts              여행 데이터 타입 (version 2)
-  data/seed.json        원래 추천 일정 (scripts/make-seed.py 로 생성)
-  lib/trip.ts           검증·v1→v2 변환·비용 계산·검색
-  lib/links.ts          구글지도 링크·안전한 URL
-  lib/supabase*.ts      Supabase 연결·공개 키 검사
-  lib/storage.ts        localStorage 키·안전한 읽기/쓰기
-  hooks/                useTrip(기기 저장) · useCloud(클라우드) · useToast(알림)
-  components/           지도·카드·모달 컴포넌트
+  main.tsx                진입점 (저장소 준비 · 지도 Provider)
+  App.tsx                 #/ (여행 목록) · #/trip/<id> (여행 화면) 라우팅
+  pages/                  HomePage(여행 목록) · TripPage(여행 화면)
+  types.ts                여행 데이터 타입 (version 3)
+  data/seed.json          예시 여행 (scripts/make-seed.py 로 생성)
+  lib/trip.ts             검증 · v1/v2→v3 변환 · 비용 · 검색
+  lib/tripStore.ts        여러 여행 저장(목록·읽기·쓰기·삭제) · 예전 데이터 이전
+  lib/datetime.ts         날짜·시각 문자열 도우미
+  lib/mapsUrl.ts          구글지도 URL에서 좌표·이름 추출
+  lib/placeLookup.ts      URL/이름 → 위치 (Places API)
+  lib/googleMaps.ts       Google 키 설정(환경변수·기기)
+  lib/storage.ts          localStorage 키 · 안전한 읽기/쓰기
+  lib/currency.ts         통화 목록 · 코드 검사 · 금액 표시(Intl)
+  hooks/                  useTrip · useCloud · useMaps · useAutoLocateFoods · useToast · useConfirm(확인 창) …
+  components/             지도 · 카드 · 모달 · 날짜/시간 입력 · 순서 편집 목록
+scripts/
+  make-seed.py            예시 여행 seed.json 생성
+  geocode-foods.mjs       예시 맛집 좌표 조회 → scripts/food-coords.json
 ```
 
 ```sh
 npm install
-npm run dev       # 개발 서버 http://localhost:5173
-npm test          # Vitest: 데이터·링크·키 검사, v1 변환 테스트
+npm run dev       # 개발 서버 http://localhost:5173 (짧은 링크 API 포함)
+npm test          # Vitest: 데이터 검증·변환·URL 해석·시간 분해 등
 npm run build     # 타입 검사 + dist/ 생성
-npm run preview   # 빌드 결과 확인
-npm run seed      # scripts/make-seed.py 실행 → src/data/seed.json 재생성 (Python 3)
+npm run preview   # 빌드 결과 확인 (/api 없음)
+npm run geocode   # (선택) 예시 맛집 좌표 다시 조회. .env.local 의 키 사용
+npm run seed      # food-coords.json 반영해 src/data/seed.json 재생성 (Python 3)
 ```
 
-### 데이터 형식 (version 2)
+### 데이터 형식 (version 3)
 
-기존 버전(version 1)에서 코드에 고정돼 있던 값을 데이터 필드로 옮겼습니다.
+- 여행: `id`(영문·숫자·`_`·`-`), `title`, `companion`, `tagline`, `highlight`, `highlightSub`, `currency`(ISO 4217 대문자 3글자, 없으면 `JPY`로 간주), `travelers`, `notes`, `days`. 금액(`amount`·`extraAmount`)은 여행 통화 기준입니다.
+- 날짜: `date`(`YYYY-MM-DD` 또는 빈 값), `dateNote`, `stops`, `foods`. 요일은 저장하지 않고 계산합니다. 날짜 0개도 허용.
+- 장소: `start`/`end`(`HH:mm` 또는 빈 값) + `timeNote`. 식당 목록은 더 이상 장소 안에 없습니다.
+- 맛집: 날짜의 `foods` 배열. `category`(`restaurant`/`cafe`), `lat`/`lng`(위치 미정이면 `null`).
+- version 1·2(기존 가고시마 앱) 데이터는 불러올 때 자동 변환됩니다: 날짜 `"11.03"` → `2026-11-03`(확인일 기준 연도), 시간 `"18:50~20:20"` → 시작·종료, 장소별 식당 → 날짜별 맛집(중복 제거). 예시 일정에 있던 맛집은 좌표가 채워지고, 모르는 가게는 지도 키가 있을 때 앱이 자동으로 위치를 조회합니다.
+- 변환 후 저장하면 version 3으로 기록되므로 이전 버전 앱에서는 읽을 수 없습니다.
 
-- 날짜 `id`는 문자열(`day-1` 등), `tight`(빠듯한 날 강조), `costNote`(비용 합계 아래 안내).
-- 장소 `extraAmount`: 인원과 무관하게 1회 더하는 추가 고정비(예: 센간엔 주차 ¥500).
-- 기기 저장·JSON 백업·클라우드의 version 1 데이터는 불러올 때 자동 변환됩니다. 변환 후 저장하면 version 2로 기록되므로 이전 버전 앱에서는 읽을 수 없습니다.
+### 기기 저장 키
+
+`trip-tracker:trips`(여행 ID 목록), `trip-tracker:trip:<id>`, `trip-tracker:last-day:<id>`, `trip-tracker:cloud-base:<id>`, `trip-tracker:supabase-config`, `trip-tracker:google-maps`.
+처음 실행 시 예전 키(`kagoshima-trip-v1` 등)의 데이터를 첫 여행으로 옮기며, 예전 키는 백업으로 남겨 둡니다.
 
 ## Vercel 배포
 
 1. 이 폴더를 본인 GitHub 저장소에 업로드합니다. `.env`, `.env.local`은 업로드하지 마세요.
-2. Vercel에서 해당 저장소를 Import합니다. Framework는 `Vite`, Build Command는 `npm run build`, Output Directory는 `dist`입니다. `vercel.json`에도 설정되어 있습니다.
-3. Supabase 없이 먼저 배포해도 기기 저장·편집·백업·지도 기능이 동작합니다.
-4. 클라우드 저장을 쓰려면 아래 Supabase 설정 후 Vercel Environment Variables에 두 공개 값을 설정하고 재배포합니다.
+2. Vercel에서 Import합니다. Framework `Vite`, Build Command `npm run build`, Output `dist` (`vercel.json`에도 설정). `api/` 폴더는 자동으로 함수가 됩니다.
+3. Environment Variables:
 
 | 변수 | 값 |
 |---|---|
+| `VITE_GOOGLE_MAPS_API_KEY` | 리퍼러·API 제한을 건 브라우저용 키 |
+| `VITE_GOOGLE_MAPS_MAP_ID` | (선택) Map ID |
 | `VITE_SUPABASE_URL` | `https://프로젝트.supabase.co` |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase의 `sb_publishable_...` 공개 키 |
 
-구형 공개 anon JWT는 `VITE_SUPABASE_ANON_KEY`로 지원합니다. `VITE_` 값은 브라우저 번들에 그대로 포함되므로 service_role / `sb_secret_`는 절대 사용하지 마세요. 빌드(`vite.config.ts`)가 거부합니다.
-이전 버전의 `SUPABASE_URL` 등 변수명을 쓰고 있었다면 Vercel에서 `VITE_` 접두사 이름으로 바꿔야 합니다.
-앱 ‘저장·백업 → Supabase 연결 설정’에 공개 URL·키를 넣어 개별 브라우저에 연결하는 방식도 가능합니다. Vercel 환경변수 방식이 여러 기기에서 편합니다.
+구형 공개 anon JWT는 `VITE_SUPABASE_ANON_KEY`로 지원합니다. `VITE_` 값은 브라우저 번들에 포함되므로 service_role / `sb_secret_`는 절대 사용하지 마세요(빌드가 거부합니다).
 
-## Supabase 설정
+## Supabase 설정 (선택)
 
-1. 본인의 Supabase 프로젝트를 만듭니다.
-2. SQL Editor에서 `supabase/schema.sql`을 실행합니다. `travel_plans` 테이블과 RLS, 충돌 방지 저장 함수를 만듭니다.
-3. Authentication → Providers에서 Email을 활성화합니다.
-4. Authentication → URL Configuration의 Site URL에 Vercel URL을, Redirect URLs에도 실제 사용하는 앱 주소를 등록합니다. 로컬 테스트 시 `http://localhost:5173/`도 추가합니다.
-5. 앱 ‘저장·백업’에서 이메일 로그인 링크를 받습니다. 같은 브라우저에서 링크를 엽니다. Supabase의 이메일 템플릿이 인증 코드를 제공하도록 구성되어 있으면 코드 입력도 지원합니다.
-6. 로그인 후 ‘클라우드에 저장’을 누르면 내 계정의 일정 1개가 저장됩니다. 다른 기기에서는 같은 이메일로 로그인한 뒤 ‘클라우드 불러오기’를 누릅니다.
+1. Supabase 프로젝트를 만들고 SQL Editor에서 `supabase/schema.sql`을 실행합니다. **이전 버전에서 이미 실행했다면 다시 한 번 실행하세요.** 저장 함수가 여러 여행 키를 허용하도록 바뀌었습니다(기존 데이터 유지).
+2. Authentication → Providers에서 Email 활성화, URL Configuration에 배포 주소와 `http://localhost:5173/` 등록.
+3. 앱 ‘저장·백업’에서 이메일 로그인 → 여행 화면의 ‘클라우드에 저장’은 **그 여행 1개**를 여행 ID로 저장합니다. 다른 기기에서는 첫 화면 ‘저장·백업’에서 클라우드 여행 목록을 보고 가져옵니다.
 
-### 저장 동작
+- **충돌:** 클라우드 revision을 비교해 오래된 기기가 새 데이터를 덮어쓰지 못하도록 합니다.
+- **접근:** RLS로 자신의 사용자 ID 행만 접근합니다.
 
-- **기기 저장:** 편집·체크·순서 변경 시 자동 저장. 네트워크 불필요.
-- **클라우드 저장:** 로그인 후 버튼으로 저장. 자동 업로드하지 않습니다.
-- **백업:** JSON 내보내기·불러오기. 파일은 검증 후 적용하고 교체 전 확인합니다.
-- **충돌:** 클라우드 revision을 비교해 오래된 기기가 새 데이터를 덮어쓰지 못하도록 합니다. 충돌하면 현재 내용을 백업하고 클라우드를 불러온 뒤 수정합니다.
-- **접근:** RLS로 자신의 Auth 사용자 ID에 해당하는 행만 접근합니다. 데이터베이스·메일 발송 설정은 본인 계정에서 실제 확인해야 합니다.
+## 예시 여행(가고시마) 기준
 
-## 일정·비용 기준
+- 부모님과 2인, 2026.10.31~11.03, 버짓 가고시마공항점 렌터카, 실크인 2박·시로야마 1박. 출처 확인일 2026.10.30.
+- 첫날 15:30은 한국 출발 가정, 도착/인수시각은 ‘예상’. 11/2는 사쿠라지마 일주·수족관·센간엔·밤축제를 모두 넣은 빠듯한 일정.
+- 페리 기본금액은 차량 3~4m + 성인 2명 편도 ¥1,950(4~5m ¥2,600). 비용 합계는 입력된 기본금액(×인원 또는 1회) + 추가 고정비이며 식비·숙박·렌트·유류·톨비·쇼핑은 제외.
+- 맛집 좌표는 `npm run geocode`(Places API)로 조회한 값입니다. 진입로·주차장 입구는 구글지도 길찾기로 확인하세요.
 
-- 첫날 15:30은 한국 출발로 가정했습니다. 도착/버짓 인수시각은 미정이어서 ‘예상’으로 표시했습니다.
-- 11/1: 사라쿠, 플라워파크, 용궁신사·나가사키바나, 니시오야마역, 이케다호, 이온몰.
-- 11/2: 요청한 사쿠라지마 일주 핵심 명소, 수족관, 센간엔, 밤축제를 모두 넣은 빠듯한 일정. 교통·대기·화산 통제에 따라 조정이 필요합니다.
-- 11/3: 호텔 조식·온천, 본축제 오전 관람, 점심·차량 회수, 주유, 버짓 영업소 반납·셔틀, 16시 공항 도착·18시 귀국편.
-- 체크아웃 후 호텔 주차·짐 보관은 미확정입니다. 체크인 때 가능 여부와 추가요금을 확인하세요. 불가하면 통제 구간 밖 주차장을 이용하고 앱 목적지도 수정하세요.
-- 페리 기본금액은 **차량 3~4m + 성인 2명 = 편도 ¥1,950**입니다. 4~5m 차량은 편도 ¥2,600. 운전자 1명은 차량 요금에 포함됩니다. 렌트차 길이를 확인 후 앱 금액을 바꾸세요.
-- 앱 비용 합계는 입력된 기본금액×인원 또는 차량요금 + 장소별 추가 고정비(센간엔 주차¥500 등)입니다. 식비·숙박비·렌트·유류·톨비·쇼핑·변동 주차는 제외합니다. 페리는 2인 기본 설정이므로 인원을 바꾸면 차량·동승자 합계도 직접 수정하세요.
-- 출처 확인일 2026.10.30. 주차 무료 여부를 확정하지 못한 곳은 ‘현장 확인’으로 표시했습니다.
-- 지도 좌표는 대략적인 방문 위치이며 정확한 차량 진입로·주차장 입구를 보장하지 않습니다. 구글지도 목적지명·주소를 확인하고 이동하세요.
+주요 출처: [버짓 공항점](https://www.budgetrentacar.co.jp/shop/kagoshima/0006/) · [실크인 주차](https://www.silk-inn.jp/rootaccess/) · [시로야마](https://www.shiroyama-g.co.jp/access/) · [축제](https://www.kagoshima-yokanavi.jp/event/10001) · [센간엔](https://www.senganen.jp/faq/) · [수족관](https://ioworld.jp/faq) · [페리 요금](https://www.city.kagoshima.lg.jp/sakurajima-ferry/unchin/unchin.html)
 
-## 주요 출처
+## 라이선스·약관
 
-각 포인트·식당 카드에도 공식·참고 원문 링크가 있습니다.
-
-- 버짓 공항점: https://www.budgetrentacar.co.jp/shop/kagoshima/0006/
-- 실크인 주차: https://www.silk-inn.jp/rootaccess/
-- 시로야마: https://www.shiroyama-g.co.jp/access/
-- 축제: https://www.kagoshima-yokanavi.jp/event/10001
-- 사라쿠: https://www.ibusuki-saraku.jp/guide.html
-- 플라워파크: https://www.fp-k.org/information/
-- 수족관 요금: https://ioworld.jp/faq
-- 수족관 주차: https://ioworld.jp/access
-- 센간엔 요금: https://www.senganen.jp/faq/
-- 센간엔 주차: https://www.senganen.jp/about/
-- 페리 요금: https://www.city.kagoshima.lg.jp/sakurajima-ferry/unchin/unchin.html
-- Supabase RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
-- Vercel 설정: https://vercel.com/docs/project-configuration
-
-## 지도와 라이선스
-
-- Leaflet 1.9.4: BSD-2-Clause, https://leafletjs.com/ / react-leaflet: Hippocratic-2.1, https://react-leaflet.js.org/
-- Supabase JS: MIT, https://github.com/supabase/supabase-js
-- 배경지도: 국토지리원 지리원 타일(일본), https://maps.gsi.go.jp/development/ichiran.html . 출처를 지도에 표시합니다. 실시간 타일 호출 방식이며 Google Maps API나 유료 지도 API 키를 사용하지 않습니다. 지도 제공처 조건 변경 시 소스의 타일 URL·출처를 함께 변경하세요.
-- 구글지도 링크는 Maps URLs 규격을 사용하며 유료 Google Maps API를 호출하지 않습니다.
+- 지도·장소 데이터: Google Maps Platform 이용약관을 따릅니다. 지도 안의 Google 로고·저작권 표시는 가리지 마세요.
+- react-datepicker, @dnd-kit, @vis.gl/react-google-maps, Supabase JS: MIT.
 
 ## 검증 범위
 
-`npm test`: 일정 데이터·길찾기 링크 인코딩·잘못된 데이터 거부·외부 링크 안전처리·공개 키 검사·v1 변환·비용 계산·검색 범위 검사. 브라우저에서 지도 타일·날짜 전환·지도 번호 포커스·상세/편집 모달·편집 저장·v1 저장 데이터 자동 변환·날짜 추가/삭제·모바일 레이아웃을 확인했습니다. 실제 Vercel 배포와 Supabase Auth/RPC는 계정 연결 전이라 미검증입니다.
+`npm test`(46개): 예시 데이터·길찾기 링크·잘못된 데이터 거부·v1/v2 변환(시간 분해·날짜·맛집 이동·연도 넘김)·URL 좌표 추출·도메인 판별·비용·검색·키 검사.
+브라우저(개발 서버, 실제 키)에서 여행 목록·예전 데이터 이전·Google 지도 핀/맛집 배지/정보창·이름으로 위치 가져오기·날짜/시간 선택기·순서 드래그(포인터·키보드)·새 여행/날짜 추가·설정 화면·모바일 레이아웃을 확인했습니다. 실제 짧은 공유 링크 해석, Vercel 배포, Supabase Auth/RPC는 미검증입니다.

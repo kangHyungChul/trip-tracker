@@ -1,10 +1,8 @@
 // Supabase 연결 설정과 클라이언트 생성.
+// 클라우드에는 여행마다 한 행씩 저장하며, 여행 ID 를 trip_key 로 사용합니다. (supabase/schema.sql 참고)
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { readItem, SUPABASE_CONFIG_KEY } from './storage';
-
-/** 클라우드에 저장하는 여행 키. supabase/schema.sql 의 save_travel_plan 함수가 이 값만 허용합니다. */
-export const CLOUD_TRIP_KEY = 'kagoshima-2026';
 
 export interface SupabaseConfig {
     url: string;

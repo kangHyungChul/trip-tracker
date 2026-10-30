@@ -1,15 +1,25 @@
-// 장소 추가·편집 모달. 식당 후보 목록도 함께 편집합니다.
+// 장소 추가·편집 모달.
+// 위치는 구글지도 URL(또는 장소 이름)로 가져오고, 방문 시각은 시간 선택기로 고릅니다.
+// (맛집·카페는 이제 장소가 아니라 날짜의 별도 목록에서 관리합니다)
 
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { blankFood, blankStop, clone } from '../lib/trip';
+import { currencySymbol } from '../lib/currency';
+import { blankStop, clone } from '../lib/trip';
+import type { LatLng } from '../lib/placeLookup';
 import { Hint } from './common';
+import { TimeInput } from './DateTimeInputs';
 import { Modal, ModalFooter, ModalHead } from './Modal';
-import type { CostUnit, Food, Stop, TravelMode } from '../types';
+import { PlaceLocator } from './PlaceLocator';
+import type { CostUnit, Stop, TravelMode } from '../types';
 
 interface StopEditDialogProps {
     open: boolean;
     /** 편집할 장소. null 이면 새 장소 추가 */
     stop: Stop | null;
+    /** 장소 이름 검색 시 이 근처를 우선 (그날 첫 장소 좌표) */
+    bias?: LatLng | null;
+    /** 여행 통화 코드 (금액 입력칸 라벨에 표시) */
+    currency: string;
     onClose: () => void;
     /** 저장 요청. id 가 없으면 새 장소입니다. 검증에 성공하면 부모가 모달을 닫습니다. */
     onSave: (stop: Omit<Stop, 'id'> & { id?: string }) => void;
@@ -18,6 +28,7 @@ interface StopEditDialogProps {
 /**
  * 폼 입력 중 상태.
  * 숫자 필드는 입력 도중 빈 값·"-" 같은 중간 상태가 있어 문자열로 들고 있다가 저장할 때 숫자로 바꿉니다.
+ * 좌표가 빈 문자열이면 "아직 위치 없음"입니다.
  */
 type Draft = Omit<Stop, 'lat' | 'lng' | 'amount' | 'extraAmount' | 'id'> & {
     id?: string;
@@ -27,9 +38,10 @@ type Draft = Omit<Stop, 'lat' | 'lng' | 'amount' | 'extraAmount' | 'id'> & {
     extraAmount: string;
 };
 
-/** 장소 데이터 → 폼 상태 */
+/** 장소 데이터 → 폼 상태 (새 장소는 좌표 없이 시작) */
 function toDraft(stop: Stop | null): Draft {
-    const base = stop ? clone(stop) : blankStop();
+    if (!stop) return { ...blankStop(), lat: '', lng: '', amount: '0', extraAmount: '0' };
+    const base = clone(stop);
     return { ...base, lat: String(base.lat), lng: String(base.lng), amount: String(base.amount), extraAmount: String(base.extraAmount) };
 }
 
@@ -46,6 +58,9 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 /** 두 칸 나란히 (휴대폰에서는 한 줄씩) */
 const Row2 = ({ children }: { children: ReactNode }) => <div className="grid grid-cols-2 gap-x-3.5 max-phone:grid-cols-1">{children}</div>;
 
+/** 문자열 좌표 → 숫자 (빈 값·숫자 아님이면 null) */
+const toCoord = (value: string) => (value.trim() !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
+
 export function StopEditDialog(props: StopEditDialogProps) {
     return (
         <Modal open={props.open} onClose={props.onClose} labelledBy="edit-heading">
@@ -55,41 +70,43 @@ export function StopEditDialog(props: StopEditDialogProps) {
     );
 }
 
-function EditForm({ stop, onClose, onSave }: StopEditDialogProps) {
+function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps) {
     // useState 초기화 함수: 처음 열렸을 때 한 번만 장소 데이터를 폼 상태로 복사합니다.
     const [draft, setDraft] = useState<Draft>(() => toDraft(stop));
+    const [error, setError] = useState('');
+    // 금액 입력칸 라벨에 붙일 통화 표시 (예: "JPY ¥", 기호가 코드와 같으면 코드만)
+    const symbol = currencySymbol(currency);
+    const unitLabel = symbol === currency ? currency : `${currency} ${symbol}`;
 
     /** 필드 하나를 바꾸는 헬퍼. 제네릭 K 로 key 와 value 의 타입이 서로 맞는지 컴파일 시점에 검사합니다. */
     const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft(prev => ({ ...prev, [key]: value }));
 
-    /** 식당 후보 i 번째의 필드 하나를 변경 */
-    const setFood = (index: number, key: keyof Food, value: string) =>
-        setDraft(prev => ({ ...prev, food: prev.food.map((food, i) => (i === index ? { ...food, [key]: value } : food)) }));
-
-    const addFood = () => setDraft(prev => ({ ...prev, food: [...prev.food, blankFood()] }));
-    const removeFood = (index: number) => setDraft(prev => ({ ...prev, food: prev.food.filter((_, i) => i !== index) }));
-
     const submit = (event: FormEvent) => {
         event.preventDefault(); // 브라우저 기본 폼 제출(페이지 이동) 방지
-        // 문자열은 앞뒤 공백 제거, 숫자 필드는 Number 로 변환합니다. 빈 칸은 Number('') = 0 이 되므로 좌표는 별도 검증됩니다.
-        const result = {
+        const lat = toCoord(draft.lat);
+        const lng = toCoord(draft.lng);
+        if (lat === null || lng === null) {
+            setError('지도 위치가 없습니다. 위의 "위치 가져오기"로 구글지도 URL이나 장소 이름을 입력하세요.');
+            return;
+        }
+        // 문자열은 앞뒤 공백 제거, 숫자 필드는 Number 로 변환합니다.
+        onSave({
             ...draft,
-            time: draft.time.trim(), title: draft.title.trim(), query: draft.query.trim(), duration: draft.duration.trim(),
+            timeNote: draft.timeNote.trim(), title: draft.title.trim(), query: draft.query.trim(), duration: draft.duration.trim(),
             kind: draft.kind.trim(), fee: draft.fee.trim(), parking: draft.parking.trim(), parkingQuery: draft.parkingQuery.trim(),
             note: draft.note.trim(), source: draft.source.trim(),
-            lat: Number(draft.lat), lng: Number(draft.lng), amount: Number(draft.amount), extraAmount: Number(draft.extraAmount),
-        };
-        onSave(result);
+            lat, lng, amount: Number(draft.amount), extraAmount: Number(draft.extraAmount),
+        });
     };
 
     // 입력칸 공통 속성: value 와 onChange 를 한 번에 연결합니다.
-    const text = (key: 'time' | 'title' | 'query' | 'duration' | 'kind' | 'fee' | 'parkingQuery' | 'source') => ({
+    const text = (key: 'timeNote' | 'title' | 'query' | 'duration' | 'kind' | 'fee' | 'parkingQuery' | 'source') => ({
         value: draft[key],
         onChange: (event: { target: { value: string } }) => set(key, event.target.value),
     });
     const number = (key: 'lat' | 'lng' | 'amount' | 'extraAmount') => ({
         type: 'number',
-        step: 'any', // 소수점 좌표 입력 허용
+        step: 'any', // 소수점 입력 허용
         value: draft[key],
         onChange: (event: { target: { value: string } }) => set(key, event.target.value),
     });
@@ -98,16 +115,30 @@ function EditForm({ stop, onClose, onSave }: StopEditDialogProps) {
         <form onSubmit={submit}>
             <ModalHead id="edit-heading" eyebrow="MAKE IT YOURS" title={stop ? '장소 편집' : '새 장소 추가'} onClose={onClose} />
             <div className="px-[25px] py-[22px] max-phone:p-[18px]">
-                <Row2>
-                    <Field label="방문 시간"><input required {...text('time')} /></Field>
-                    <Field label="체류시간"><input {...text('duration')} /></Field>
-                </Row2>
+                <PlaceLocator
+                    lat={toCoord(draft.lat)}
+                    lng={toCoord(draft.lng)}
+                    bias={bias}
+                    onFound={place =>
+                        setDraft(prev => ({
+                            ...prev,
+                            lat: String(place.lat),
+                            lng: String(place.lng),
+                            // 이름·검색어가 비어 있을 때만 찾은 장소 정보로 채웁니다. (직접 쓴 내용은 유지)
+                            title: prev.title || place.name,
+                            query: prev.query || place.name || place.address,
+                        }))
+                    }
+                />
                 <Field label="장소 이름"><input required {...text('title')} /></Field>
-                <Field label="구글지도 검색어·일본어 주소"><input required {...text('query')} /></Field>
-                <Hint>새 장소는 아래 좌표도 변경해야 지도 핀이 정확해집니다. 구글지도 우클릭·장소 좌표를 참고하세요.</Hint>
+                <Field label="구글지도 검색어·현지 주소 (길찾기 목적지)"><input required {...text('query')} /></Field>
                 <Row2>
-                    <Field label="위도"><input required {...number('lat')} /></Field>
-                    <Field label="경도"><input required {...number('lng')} /></Field>
+                    <Field label="시작 시각"><TimeInput value={draft.start} onChange={value => set('start', value)} /></Field>
+                    <Field label="종료 시각 (선택)"><TimeInput value={draft.end} onChange={value => set('end', value)} placeholder="없음" openTo={draft.start} /></Field>
+                </Row2>
+                <Row2>
+                    <Field label="시간 메모 (예: 예상, 선택)"><input maxLength={200} {...text('timeNote')} /></Field>
+                    <Field label="체류시간"><input {...text('duration')} /></Field>
                 </Row2>
                 <Row2>
                     <Field label="종류"><input {...text('kind')} /></Field>
@@ -120,7 +151,7 @@ function EditForm({ stop, onClose, onSave }: StopEditDialogProps) {
                 </Row2>
                 <Field label="비용 설명"><input {...text('fee')} /></Field>
                 <Row2>
-                    <Field label="합계에 더할 기본금액(엔)"><input min="0" {...number('amount')} /></Field>
+                    <Field label={`합계에 더할 기본금액 (${unitLabel})`}><input min="0" {...number('amount')} /></Field>
                     <Field label="기본금액 단위">
                         <select value={draft.unit} onChange={event => set('unit', event.target.value as CostUnit)}>
                             <option value="adult">1인당 (인원수 곱하기)</option>
@@ -128,7 +159,7 @@ function EditForm({ stop, onClose, onSave }: StopEditDialogProps) {
                         </select>
                     </Field>
                 </Row2>
-                <Field label="추가 고정비(엔, 인원과 무관하게 1회)"><input min="0" {...number('extraAmount')} /></Field>
+                <Field label={`추가 고정비 (${unitLabel}, 인원과 무관하게 1회)`}><input min="0" {...number('extraAmount')} /></Field>
                 <Hint>식비·불확정 비용은 기본금액을 0으로 두세요. 주차비처럼 1인당 요금과 따로 붙는 정액은 추가 고정비에 넣으면 그날 합계에 더해집니다.</Hint>
                 <Field label="주차장 안내">
                     <textarea rows={3} value={draft.parking} onChange={event => set('parking', event.target.value)} />
@@ -138,36 +169,19 @@ function EditForm({ stop, onClose, onSave }: StopEditDialogProps) {
                     <textarea rows={3} value={draft.note} onChange={event => set('note', event.target.value)} />
                 </Field>
                 <Field label="공식·참고 URL"><input type="url" {...text('source')} /></Field>
-
-                <div className="mt-2.5 flex items-center justify-between border-t border-line pt-[15px]">
-                    <h3 className="m-0 text-[16px] font-bold">식당·카페 후보</h3>
-                    <button type="button" className="btn btn-outline" onClick={addFood}>＋ 후보 추가</button>
-                </div>
-                {draft.food.map((food, index) => (
-                    // 식당은 고유 ID 가 없어 순번을 key 로 사용합니다. (삭제 시 아래 항목이 한 칸씩 당겨짐)
-                    <details key={index} open className="my-3 rounded-[9px] border border-line p-3">
-                        <summary className="cursor-pointer text-[12px] font-[650]">
-                            후보 {index + 1} · {food.name || '새 식당'}
-                        </summary>
-                        <div className="pt-[13px]">
-                            <Field label="식당 이름"><input value={food.name} onChange={e => setFood(index, 'name', e.target.value)} /></Field>
-                            <Field label="구글지도 검색어·주소"><input value={food.query} onChange={e => setFood(index, 'query', e.target.value)} /></Field>
-                            <Row2>
-                                <Field label="대표 메뉴"><input value={food.menu} onChange={e => setFood(index, 'menu', e.target.value)} /></Field>
-                                <Field label="예상 예산"><input value={food.budget} onChange={e => setFood(index, 'budget', e.target.value)} /></Field>
-                            </Row2>
-                            <Field label="선정 이유·스타일"><input value={food.kind} onChange={e => setFood(index, 'kind', e.target.value)} /></Field>
-                            <Field label="영업시간·휴무"><input value={food.hours} onChange={e => setFood(index, 'hours', e.target.value)} /></Field>
-                            <Field label="주차 안내"><input value={food.parking} onChange={e => setFood(index, 'parking', e.target.value)} /></Field>
-                            <Field label="출처 URL"><input type="url" value={food.source} onChange={e => setFood(index, 'source', e.target.value)} /></Field>
-                            <button type="button" className="btn px-0 text-[11px] text-danger" onClick={() => removeFood(index)}>이 후보 삭제</button>
-                        </div>
-                    </details>
-                ))}
+                {/* 위치 가져오기로 해결되지 않는 경우를 위한 직접 입력 (평소에는 접어 둠) */}
+                <details className="mt-1 text-[12px]">
+                    <summary className="mb-3 cursor-pointer text-muted">좌표 직접 수정</summary>
+                    <Row2>
+                        <Field label="위도"><input {...number('lat')} /></Field>
+                        <Field label="경도"><input {...number('lng')} /></Field>
+                    </Row2>
+                </details>
             </div>
             <ModalFooter>
+                {error && <p className="m-0 mr-auto self-center text-[11px] text-danger">{error}</p>}
                 <button type="button" className="btn btn-outline" onClick={onClose}>취소</button>
-                <button type="submit" className="btn btn-primary">수정하고 저장</button>
+                <button type="submit" className="btn btn-primary">저장</button>
             </ModalFooter>
         </form>
     );

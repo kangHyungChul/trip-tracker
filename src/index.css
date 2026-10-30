@@ -133,7 +133,7 @@
         width: 100%;
         margin-top: 5px;
     }
-    /* 지도 번호 핀 (Leaflet divIcon 의 HTML 문자열에서 사용) */
+    /* 지도 번호 핀 (Google 지도 AdvancedMarker 안의 HTML) */
     .pin {
         display: grid;
         place-items: center;
@@ -151,14 +151,89 @@
         background: #b38642;
         transform: scale(1.15);
     }
+    /* 맛집·카페 배지: 번호 핀(원)과 구분되도록 둥근 사각형 + 이모지. 지도와 맛집 카드에서 함께 사용 */
+    .food-badge {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border: 2px solid #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px #0003;
+        color: #fff; /* 안의 SVG 아이콘(fill=currentColor)이 흰색이 되도록 */
+        font-size: 14px;
+        line-height: 1;
+    }
+    .food-badge-restaurant {
+        background: #e8743b; /* 식당: 주황 */
+    }
+    .food-badge-cafe {
+        background: #8a5a3c; /* 카페: 갈색 */
+    }
+    .food-badge-selected {
+        outline: 3px solid #b38642;
+        transform: scale(1.15);
+    }
+    /* 지도 정보창 제목 (닫기 버튼 줄) */
+    .map-info-title {
+        display: block;
+        padding-top: 2px;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.4;
+        color: var(--color-ink);
+    }
+    /* 지도 정보창 본문 */
+    .map-info {
+        max-width: 240px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--color-ink);
+    }
+    .map-info p {
+        margin: 0 0 6px;
+        color: var(--color-muted);
+    }
+    /* 링크·버튼을 한 줄에 */
+    .map-info-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .map-info a {
+        color: var(--color-green);
+        font-weight: 650;
+    }
 }
 
-/* Leaflet 팝업 글꼴 보정. leaflet.css(레이어 없음)를 이기려면 이 규칙도 레이어 밖에 있어야 합니다. */
-.leaflet-popup-content {
-    font-family: inherit;
-    line-height: 1.8;
+/* ── react-datepicker 보정 ──
+   라이브러리 CSS(레이어 없음)를 이기려면 이 규칙들도 레이어 밖에 있어야 합니다. */
+/* 입력칸을 감싸는 요소가 기본 inline-block 이라 폼 너비를 꽉 채우도록 바꿉니다. */
+.react-datepicker-wrapper {
+    display: block;
+    width: 100%;
 }
-.leaflet-popup-content a {
-    color: var(--color-green);
-    font-weight: 650;
+.react-datepicker-wrapper input {
+    display: block;
+    width: 100%;
+    margin-top: 5px;
+}
+.react-datepicker {
+    font-family: inherit;
+    border-color: var(--color-line);
+}
+/* 선택된 날짜·시각을 앱의 초록색으로 */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected {
+    background: var(--color-green);
+    color: #fff;
+}
+/* × 지우기 버튼 색 */
+.react-datepicker__close-icon::after {
+    background: #9aa596;
+}
+/* 모달 안에서 달력이 다른 입력칸 위에 뜨도록 */
+.react-datepicker-popper {
+    z-index: 20;
 }
