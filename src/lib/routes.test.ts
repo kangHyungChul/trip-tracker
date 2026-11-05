@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { buildRouteBatches, createRouteClient, formatRouteDuration, routeKey, type RouteData, type RouteStop } from './routes';
+import { buildRouteBatches, createRouteClient, formatRouteDuration, routeErrorDetails, routeErrorMessage, routeKey, type RouteData, type RouteStop } from './routes';
 
 const stops = (count: number): RouteStop[] => Array.from({ length: count }, (_, i) => ({ lat: 31 + i / 100, lng: 130, mode: 'driving' }));
 const data: RouteData = { path: [{ lat: 31, lng: 130 }, { lat: 32, lng: 130 }], legs: [{ distanceMeters: 1000, durationMillis: 120000 }], warnings: [] };
@@ -8,6 +8,9 @@ describe('무료 범위를 위한 경로 요청 구성', () => {
     it('0~1개 장소에서는 요청하지 않는다', () => {
         expect(buildRouteBatches([])).toEqual([]);
         expect(buildRouteBatches(stops(1))).toEqual([]);
+    });
+    it('JavaScript Routes에서 사용하는 필드를 요청한다', () => {
+        expect(buildRouteBatches(stops(3))[0].request.fields).toEqual(['path', 'legs', 'warnings']);
     });
     it('도착 장소의 이동수단으로 묶고 전환 지점을 공유한다', () => {
         const input = stops(5);
@@ -35,6 +38,13 @@ describe('무료 범위를 위한 경로 요청 구성', () => {
 });
 
 describe('호출·중복·오류 처리', () => {
+    it('SDK가 요청을 거절하면 사용자에게 오류 코드를 보존한다', async () => {
+        const fetch = vi.fn(async () => { throw Object.assign(new Error('Invalid field: legs.durationMillis'), { code: 'INVALID_ARGUMENT', endpoint: 'DIRECTIONS_ROUTE' }); });
+        const response = await createRouteClient(fetch).calculate(stops(3));
+        expect(response.error).toContain('요청 형식');
+        expect(response.diagnostic).toContain('INVALID_ARGUMENT');
+        expect(response.diagnostic).toContain('legs.durationMillis');
+    });
     it('동시 요청과 재조회에서 같은 경로 계산을 공유한다', async () => {
         const fetch = vi.fn(async () => data);
         const client = createRouteClient(fetch);
@@ -83,5 +93,36 @@ describe('호출·중복·오류 처리', () => {
         expect(formatRouteDuration(null)).toBe('시간 정보 없음');
         expect(formatRouteDuration(Infinity)).toBe('시간 정보 없음');
         expect(formatRouteDuration(3660000)).toBe('1시간 1분');
+    });
+});
+
+describe('오류 진단', () => {
+    it.each([
+        [{ code: 'PERMISSION_DENIED', message: 'Request denied' }, '권한'],
+        [{ error: { code: 403, message: 'Billing must be enabled' } }, '결제'],
+        [{ status: 'PERMISSION_DENIED', message: 'Routes API has not been enabled' }, '사용 설정'],
+        [{ code: 8 }, '한도'],
+        [{ code: 3 }, '요청 형식'],
+        [new TypeError('Cannot read properties of undefined (reading computeRoutes)'), '새로고침'],
+        [{ code: 'UNAVAILABLE' }, '서비스'],
+    ])('오류에 맞는 안내를 표시한다: %j', (error, expected) => {
+        expect(routeErrorMessage(error)).toContain(expected);
+    });
+    it('일반 객체·중첩 오류와 문자열의 상세도 읽되 요청 전체는 표시하지 않는다', () => {
+        expect(routeErrorDetails({ cause: { message: 'nested failure' }, request: { secret: 'do-not-show' } })).toContain('nested failure');
+        expect(routeErrorDetails({ request: { secret: 'do-not-show' } })).not.toContain('do-not-show');
+        expect(routeErrorDetails('Failed to fetch')).toBe('Failed to fetch');
+    });
+    it('오류 메시지에 담긴 API 키를 가린다', () => {
+        const secret = 'AIza' + 'a'.repeat(35);
+        const details = routeErrorDetails(new Error(`key ${secret} https://example.test/?key=secret-value&token=token-value`));
+        expect(details).not.toContain(secret);
+        expect(details).not.toContain('secret-value');
+        expect(details).not.toContain('token-value');
+    });
+    it('순환 cause도 안전하게 처리한다', () => {
+        const error: { message: string; cause?: unknown } = { message: 'failure' };
+        error.cause = error;
+        expect(routeErrorDetails(error)).toBe('message: failure');
     });
 });

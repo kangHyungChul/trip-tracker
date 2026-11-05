@@ -121,7 +121,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const routingKey = routeKey(stops);
     const routeRequest = useRef(0);
     const routeBusy = useRef(false);
-    const [routeState, setRouteState] = useState<{ key: string; loading: boolean; results: RouteResult[]; error: string } | null>(null);
+    const [routeState, setRouteState] = useState<{ key: string; loading: boolean; results: RouteResult[]; error: string; diagnostic?: string } | null>(null);
     const currentRoute = routeState?.key === routingKey ? routeState : null;
     const routeResults = currentRoute?.results;
     const confirmedLegs = routeResults?.reduce((sum, result) => sum + (result.data ? result.batch.end - result.batch.start : 0), 0) ?? 0;
@@ -271,6 +271,12 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                 {currentRoute?.error && <span className="text-danger">{currentRoute.error}</span>}
                 {currentRoute && !currentRoute.loading && !currentRoute.error && `${confirmedLegs}/${Math.max(0, stops.length - 1)}개 이동 구간 확인${confirmedLegs < stops.length - 1 ? ' · 경로 확인이 필요한 구간이 있어요.' : ''}`}
             </div>
+            {currentRoute?.diagnostic && (
+                <details className="mt-1 text-[11px]">
+                    <summary className="cursor-pointer text-danger">오류 상세</summary>
+                    <p className="mt-1 max-h-[100px] overflow-y-auto break-all whitespace-pre-wrap text-muted">{currentRoute.diagnostic}</p>
+                </details>
+            )}
             {currentRoute && !currentRoute.loading && (
                 <details className="mt-1 text-[11px]">
                     <summary className="cursor-pointer text-green">구간별 이동 정보·길찾기</summary>
