@@ -1,0 +1,87 @@
+import { describe, expect, it, vi } from 'vitest';
+import { buildRouteBatches, createRouteClient, formatRouteDuration, routeKey, type RouteData, type RouteStop } from './routes';
+
+const stops = (count: number): RouteStop[] => Array.from({ length: count }, (_, i) => ({ lat: 31 + i / 100, lng: 130, mode: 'driving' }));
+const data: RouteData = { path: [{ lat: 31, lng: 130 }, { lat: 32, lng: 130 }], legs: [{ distanceMeters: 1000, durationMillis: 120000 }], warnings: [] };
+
+describe('무료 범위를 위한 경로 요청 구성', () => {
+    it('0~1개 장소에서는 요청하지 않는다', () => {
+        expect(buildRouteBatches([])).toEqual([]);
+        expect(buildRouteBatches(stops(1))).toEqual([]);
+    });
+    it('도착 장소의 이동수단으로 묶고 전환 지점을 공유한다', () => {
+        const input = stops(5);
+        input[2].mode = input[3].mode = 'walking';
+        const batches = buildRouteBatches(input);
+        expect(batches.map(b => [b.start, b.end, b.mode])).toEqual([[0, 1, 'driving'], [1, 3, 'walking'], [3, 4, 'driving']]);
+        expect(batches[1].request.routingPreference).toBeUndefined();
+        expect(batches[0].request.routingPreference).toBe('TRAFFIC_UNAWARE');
+    });
+    it('중간 경유지 10곳을 넘기지 않고 모든 구간을 한 번씩 포함한다', () => {
+        const batches = buildRouteBatches(stops(100));
+        expect(batches.every(b => Array.from(b.request.intermediates ?? []).length <= 10)).toBe(true);
+        expect(batches.reduce((n, b) => n + b.end - b.start, 0)).toBe(99);
+        expect(batches[0].end).toBe(batches[1].start);
+        expect(batches.every(b => b.request.optimizeWaypointOrder === false && b.request.computeAlternativeRoutes === false)).toBe(true);
+    });
+    it('첫 장소의 이동수단은 경로 식별값에서 제외하고 실제 구간 변경은 구별한다', () => {
+        const input = stops(3);
+        const key = routeKey(input);
+        input[0].mode = 'walking';
+        expect(routeKey(input)).toBe(key);
+        input[1].mode = 'walking';
+        expect(routeKey(input)).not.toBe(key);
+    });
+});
+
+describe('호출·중복·오류 처리', () => {
+    it('동시 요청과 재조회에서 같은 경로 계산을 공유한다', async () => {
+        const fetch = vi.fn(async () => data);
+        const client = createRouteClient(fetch);
+        await Promise.all([client.calculate(stops(3)), client.calculate(stops(3))]);
+        await client.calculate(stops(3));
+        expect(fetch).toHaveBeenCalledTimes(1);
+    });
+    it('권한·한도 오류 이후 남은 구간은 호출하지 않고 자동 재시도하지 않는다', async () => {
+        const fetch = vi.fn(async () => { throw Object.assign(new Error('quota'), { code: 'RESOURCE_EXHAUSTED' }); });
+        const result = await createRouteClient(fetch).calculate(stops(25));
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(result.error).toContain('한도');
+        expect(result.results).toEqual([]);
+    });
+    it('일정이 바뀌면 진행 중 응답을 버리고 남은 호출을 중단한다', async () => {
+        let current = true;
+        const fetch = vi.fn(async () => { current = false; return data; });
+        const result = await createRouteClient(fetch).calculate(stops(25), () => current);
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(result.results).toEqual([]);
+    });
+    it('경로 없음은 직선을 생성하지 않고 이후 경로는 계산한다', async () => {
+        const fetch = vi.fn().mockResolvedValueOnce(null).mockResolvedValueOnce(data);
+        const result = await createRouteClient(fetch).calculate(stops(13));
+        expect(result.results.map(r => r.data)).toEqual([null, data]);
+        expect(result.error).toBe('');
+    });
+    it('실패한 요청은 수동 재시도할 수 있다', async () => {
+        const fetch = vi.fn().mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce(data);
+        const client = createRouteClient(fetch);
+        expect((await client.calculate(stops(2))).error).not.toBe('');
+        expect((await client.calculate(stops(2))).results[0].data).toBe(data);
+    });
+    it('유효 시간이 지난 결과는 다시 계산한다', async () => {
+        const clock = vi.spyOn(Date, 'now').mockReturnValue(0);
+        try {
+            const fetch = vi.fn(async () => data);
+            const client = createRouteClient(fetch);
+            await client.calculate(stops(2));
+            clock.mockReturnValue(16 * 60_000);
+            await client.calculate(stops(2));
+            expect(fetch).toHaveBeenCalledTimes(2);
+        } finally { clock.mockRestore(); }
+    });
+    it('시간이 없을 때 임의로 0분이라고 표시하지 않는다', () => {
+        expect(formatRouteDuration(null)).toBe('시간 정보 없음');
+        expect(formatRouteDuration(Infinity)).toBe('시간 정보 없음');
+        expect(formatRouteDuration(3660000)).toBe('1시간 1분');
+    });
+});

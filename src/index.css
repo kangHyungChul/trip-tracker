@@ -144,10 +144,11 @@
     }
     /* 지도 번호 핀 (Google 지도 AdvancedMarker 안의 HTML) */
     .pin {
+        position: relative;
         display: grid;
         place-items: center;
-        width: 30px;
-        height: 30px;
+        width: 34px;
+        height: 34px;
         border: 3px solid #fff;
         border-radius: 50%;
         background: var(--color-green);
@@ -159,6 +160,22 @@
     .pin-selected {
         background: #b38642;
         transform: scale(1.15);
+    }
+    .pin-number {
+        position: absolute;
+        top: -9px;
+        right: -9px;
+        display: grid;
+        place-items: center;
+        min-width: 19px;
+        height: 19px;
+        padding: 0 3px;
+        border: 1px solid var(--color-green);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--color-green);
+        font-size: 10px;
+        line-height: 1;
     }
     /* 맛집·카페 배지: 번호 핀(원)과 구분되도록 둥근 사각형 + SVG 아이콘. 지도와 맛집 카드에서 함께 사용 */
     .food-badge {

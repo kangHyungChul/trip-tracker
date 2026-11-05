@@ -5,6 +5,7 @@ import { gmaps } from '../lib/links';
 import { ExternalLink, Fact } from './common';
 import { isInteractiveTarget } from './FoodCard';
 import type { Stop } from '../types';
+import { StopIcon, stopIconName } from './StopIcon';
 
 interface StopCardProps {
     stop: Stop;
@@ -50,6 +51,7 @@ export function StopCard({ stop, number, selected, onFocus, onToggleDone, onDeta
                         <span className="rounded bg-[#f2f0e7] px-1.5 py-px text-[9px] text-[#8b7753]">{stop.kind}</span>
                     </div>
                     <h3 className={`m-0 text-[16px] leading-[1.5] font-[650] tracking-[-0.4px] max-phone:text-[15px] ${stop.done ? 'line-through' : ''}`}>
+                        <StopIcon name={stopIconName(stop)} className="mr-1.5 inline-block size-4 align-[-2px] text-green" />
                         {stop.title}
                     </h3>
                 </div>

@@ -8,6 +8,7 @@ import { gmaps, safeURL } from './links';
 import { checkPublicKey, normalizeSupabaseURL } from './supabaseKey';
 import { clone, createTrip, dayCost, foodMatches, guessCategory, LEGACY_TRIP_ID, migrateV1, parseTrip, stopMatches, validateTrip } from './trip';
 import type { Trip } from '../types';
+import { STOP_ICON_LABELS } from './stopIcons';
 
 /** 테스트마다 원본을 건드리지 않도록 검증된 복사본을 만듭니다. */
 const freshSeed = (): Trip => validateTrip(clone(seed));
@@ -66,6 +67,26 @@ describe('예시 여행 시드 (version 3)', () => {
 });
 
 describe('validateTrip: 잘못된 데이터 거부', () => {
+    it('모든 지도 아이콘을 저장·백업 왕복 시 보존한다', () => {
+        for (const icon of Object.keys(STOP_ICON_LABELS)) {
+            const trip = freshSeed();
+            Object.assign(trip.days[0].stops[0], { icon });
+            expect(parseTrip(JSON.parse(JSON.stringify(trip))).days[0].stops[0].icon).toBe(icon);
+        }
+    });
+    it('아이콘 없는 기존 백업은 종류를 참고하고 명시한 아이콘은 유지한다', () => {
+        const trip = freshSeed();
+        delete trip.days[0].stops[0].icon;
+        trip.days[0].stops[0].kind = '숙소';
+        expect(validateTrip(trip).days[0].stops[0].icon).toBe('hotel');
+        trip.days[0].stops[0].icon = 'cafe';
+        expect(validateTrip(trip).days[0].stops[0].icon).toBe('cafe');
+    });
+    it('알 수 없는 아이콘은 거부한다', () => {
+        const trip = freshSeed();
+        Object.assign(trip.days[0].stops[0], { icon: 'invalid' });
+        expect(() => validateTrip(trip)).toThrow('아이콘');
+    });
     // 각 함수가 시드를 한 군데씩 망가뜨립니다.
     const breakers: [string, (trip: Trip) => void][] = [
         ['위도 범위 초과', trip => { trip.days[0].stops[0].lat = 999; }],

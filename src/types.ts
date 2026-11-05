@@ -10,6 +10,7 @@
 //  - 여행별 통화(currency). 같은 version 3 안에서 추가된 필드라 없으면 JPY(예전 엔화 고정)로 보정
 
 /** 맛집 종류: 지도 배지 모양이 달라집니다. */
+import type { StopIcon } from './lib/stopIcons';
 export type FoodCategory = 'restaurant' | 'cafe';
 
 /** 날짜별 맛집·카페 후보 */
@@ -53,6 +54,7 @@ export interface Stop {
     note: string;         // 설명·메모
     source: string;       // 공식·참고 URL
     kind: string;         // 종류 태그 (관광, 식사, 숙소 …)
+    icon?: StopIcon;       // 지도 아이콘. 이전 백업은 종류에 따라 기본값 지정
     mode: TravelMode;     // 길찾기 이동수단
     done: boolean;        // 방문 완료 체크
 }

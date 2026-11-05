@@ -98,8 +98,9 @@ function SettingsForm({ onClose }: SettingsDialogProps) {
                 </label>
                 <p className="text-muted">
                     키는 이 기기 브라우저에만 저장됩니다. 브라우저용 키는 어떤 방식이든 노출되므로 Google Cloud 콘솔에서{' '}
-                    <b>웹사이트(HTTP 리퍼러) 제한</b>과 <b>Maps JavaScript API · Places API (New)</b> 로 API 제한을 꼭 걸어 두세요.
+                    <b>웹사이트(HTTP 리퍼러) 제한</b>과 <b>Maps JavaScript API · Places API (New) · Routes API</b> 로 API 제한을 꼭 걸어 두세요.
                 </p>
+                <p className="text-muted">실제 경로 표시에는 Routes API 사용 설정과 결제 연결이 필요합니다. Google Cloud에서 ComputeRoutes 할당량을 일일 300회·분당 30회로 제한하고 예산 알림을 설정하세요. 무료 사용량은 지도·장소 검색과 별도입니다.</p>
                 <SupabaseSection />
             </div>
             <ModalFooter>

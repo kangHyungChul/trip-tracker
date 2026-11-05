@@ -1,5 +1,5 @@
 // 하루 일정을 Google 지도에 표시하는 컴포넌트 (@vis.gl/react-google-maps).
-//  - 방문 장소: 번호 핀(초록 원) + 방문 순서를 잇는 점선
+//  - 방문 장소: 아이콘·번호 핀 + 사용자가 요청한 실제 이동 경로
 //  - 맛집·카페: 다른 모양의 배지(포크·나이프 = 식당 / 커피잔 = 카페 SVG 아이콘)
 //  - API 키가 없거나 로드에 실패하면 지도 대신 안내를 보여줍니다.
 
@@ -12,6 +12,8 @@ import { useMaps } from '../hooks/useMaps';
 import { useToast } from '../hooks/useToast';
 import { ExternalLink } from './common';
 import { FoodIcon } from './FoodCard';
+import { StopIcon, stopIconName } from './StopIcon';
+import { formatRouteDistance, formatRouteDuration, routeClient, routeKey, type RouteResult } from '../lib/routes';
 import type { Food, Stop } from '../types';
 
 /** 지도 포커스 요청. 같은 항목을 다시 눌러도 동작하도록 매번 다른 nonce 를 붙입니다. */
@@ -116,6 +118,33 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const [infoId, setInfoId] = useState<string | null>(null);
     const [showFoods, setShowFoods] = useState(true);
     const [myPosition, setMyPosition] = useState<google.maps.LatLngLiteral | null>(null);
+    const routingKey = routeKey(stops);
+    const routeRequest = useRef(0);
+    const routeBusy = useRef(false);
+    const [routeState, setRouteState] = useState<{ key: string; loading: boolean; results: RouteResult[]; error: string } | null>(null);
+    const currentRoute = routeState?.key === routingKey ? routeState : null;
+    const routeResults = currentRoute?.results;
+    const confirmedLegs = routeResults?.reduce((sum, result) => sum + (result.data ? result.batch.end - result.batch.start : 0), 0) ?? 0;
+    // 날짜·위치·순서·이동수단 변경 시 이전 응답과 남은 요청을 무효화합니다. 자동 호출은 하지 않습니다.
+    useLayoutEffect(() => {
+        routeBusy.current = false;
+        return () => { routeRequest.current++; };
+    }, [routingKey]);
+    const calculateRoutes = async () => {
+        if (routeBusy.current || stops.length < 2) return;
+        routeBusy.current = true;
+        const requestId = ++routeRequest.current;
+        setRouteState({ key: routingKey, loading: true, results: [], error: '' });
+        try {
+            const response = await routeClient.calculate(stops, () => routeRequest.current === requestId);
+            if (routeRequest.current !== requestId) return;
+            setRouteState({ key: routingKey, loading: false, ...response });
+        } catch {
+            if (routeRequest.current === requestId) setRouteState({ key: routingKey, loading: false, results: [], error: '경로 계산을 시작하지 못했습니다. 잠시 후 다시 시도하세요.' });
+        } finally {
+            if (routeRequest.current === requestId) routeBusy.current = false;
+        }
+    };
     /** 지도 영역 요소 (목록에서 선택했을 때 지도가 화면 밖이면 스크롤하기 위해) */
     const regionRef = useRef<HTMLDivElement>(null);
     /** 최신 아래쪽 가림 높이 (fitAll 처럼 나중에 실행되는 함수에서 읽기 위해 ref 로 보관) */
@@ -147,21 +176,22 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     /** 모든 핀·배지가 보이도록 확대·이동 */
     const fitAll = useCallback(() => {
         if (!map || !items.length) return;
-        if (items.length === 1) {
+        if (items.length === 1 && !routeResults?.length) {
             map.setZoom(15);
             map.setCenter(shiftForInset(map, items[0].position, insetRef.current));
             return;
         }
         const bounds = new google.maps.LatLngBounds();
         items.forEach(item => bounds.extend(item.position));
+        routeResults?.forEach(result => result.data?.path.forEach(point => bounds.extend(point)));
         // 40px 여백. 아래가 바텀시트로 가려지면 그만큼 아래 여백을 더해 보이는 영역 안에 모두 들어오게 합니다.
         // (fill 모드는 위쪽에 지도 버튼이 떠 있으므로 위 여백도 조금 더)
-        map.fitBounds(bounds, { top: fill ? 60 : 40, right: 40, left: 40, bottom: 40 + insetRef.current });
+        map.fitBounds(bounds, { top: fill ? 150 : 40, right: 40, left: 40, bottom: 40 + insetRef.current });
         // 항목이 아주 가까이 모여 있으면 지나치게 확대되므로, 이동이 끝난 뒤(idle) 최대 16단계로 제한합니다.
         google.maps.event.addListenerOnce(map, 'idle', () => {
             if ((map.getZoom() ?? 0) > 16) map.setZoom(16);
         });
-    }, [map, items, fill]);
+    }, [map, items, fill, routeResults]);
 
     // 날짜가 바뀌거나 좌표가 바뀐 경우에만 전체 보기로 맞춥니다.
     // (체크 표시 같은 다른 변경 때 사용자가 움직인 지도가 되돌아가지 않도록 좌표 문자열을 의존성으로 사용)
@@ -169,7 +199,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     useEffect(() => {
         fitAll();
         // fitAll 은 items 가 바뀔 때마다 새로 만들어지므로 의존성에서 빼고 coordsKey 로만 판단합니다.
-    }, [map, coordsKey]);
+    }, [map, coordsKey, routeResults]);
 
     // 목록에서 카드(또는 번호·배지)를 누르면 해당 위치로 이동하고 정보창을 엽니다.
     useEffect(() => {
@@ -227,6 +257,40 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
         </div>
     );
 
+    const routePanel = (
+        <div className={fill ? 'absolute top-[52px] right-2.5 left-2.5 z-[2] rounded-[10px] bg-paper/95 px-3 py-2 shadow-card' : 'border-t border-line px-4 py-2.5'}>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-[11px] text-muted">{stops.length < 2 ? '장소를 2곳 이상 추가하면 경로를 볼 수 있어요.' : '자동차 실선 · 도보 점선 · 교통 미반영'}</span>
+                {stops.length > 1 && <button type="button" className="btn btn-mini" onClick={calculateRoutes} disabled={currentRoute?.loading || (!!currentRoute && !currentRoute.error)}>
+                    {currentRoute?.loading ? '경로 계산 중…' : currentRoute?.error ? '경로 다시 시도' : currentRoute ? '경로 표시 중' : '실제 경로 보기'}
+                </button>}
+            </div>
+            <div role="status" aria-live="polite" className="mt-1 text-[11px] text-muted">
+                {!currentRoute && stops.length > 1 && `버튼을 누르면 일정 순서대로 경로를 계산합니다.${routeState ? ' 변경된 일정은 다시 계산해 주세요.' : ''}`}
+                {currentRoute?.loading && '경로를 불러오고 있습니다.'}
+                {currentRoute?.error && <span className="text-danger">{currentRoute.error}</span>}
+                {currentRoute && !currentRoute.loading && !currentRoute.error && `${confirmedLegs}/${Math.max(0, stops.length - 1)}개 이동 구간 확인${confirmedLegs < stops.length - 1 ? ' · 경로 확인이 필요한 구간이 있어요.' : ''}`}
+            </div>
+            {currentRoute && !currentRoute.loading && (
+                <details className="mt-1 text-[11px]">
+                    <summary className="cursor-pointer text-green">구간별 이동 정보·길찾기</summary>
+                    <div className="mt-2 max-h-[150px] overflow-y-auto overscroll-contain" data-sheet-nodrag="">
+                        {stops.slice(1).map((stop, i) => {
+                            const result = routeResults?.find(r => r.batch.start <= i && r.batch.end > i);
+                            const leg = result?.data?.legs[i - result.batch.start];
+                            return <div key={`${stops[i].id}-${stop.id}`} className="flex flex-wrap items-center justify-between gap-1 border-b border-line py-1.5">
+                                <span>{i + 1} → {i + 2} · {stop.mode === 'walking' ? '도보' : '자동차'} · {leg ? `${formatRouteDuration(leg.durationMillis)} · ${formatRouteDistance(leg.distanceMeters)}` : '경로 확인 필요'}</span>
+                                <ExternalLink href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${stops[i].lat},${stops[i].lng}`)}&destination=${encodeURIComponent(`${stop.lat},${stop.lng}`)}&travelmode=${stop.mode}`}>구글지도</ExternalLink>
+                            </div>;
+                        })}
+                        <p className="mt-2 text-muted">각 장소의 이동수단은 이전 장소에서 오는 구간 기준입니다. 맛집·카페 후보는 동선에서 제외됩니다.</p>
+                    </div>
+                </details>
+            )}
+            {routeResults?.flatMap(r => r.data?.warnings ?? []).map((warning, i) => <p key={`${i}-${warning}`} className="mt-1 text-[10px] text-muted">{warning}</p>)}
+        </div>
+    );
+
     return (
         <>
             {fill ? (
@@ -238,6 +302,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                     {controls}
                 </div>
             )}
+            {routePanel}
             {/* scroll-mt: 좁은 화면에서 위에 고정된 날짜 탭(약 85px)에 지도가 가려지지 않도록 스크롤 위치를 띄웁니다. */}
             <div ref={regionRef} role="region" aria-label="방문 순서와 맛집이 표시된 지도" className={fill ? 'h-full' : 'scroll-mt-[100px]'}>
                 <Map
@@ -259,14 +324,16 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                     onClick={() => setInfoId(null)}
                     className={`${fill ? 'h-full' : MAP_HEIGHT} bg-[#e2e9df]`}
                 >
-                    {/* 방문 순서를 잇는 점선 (실제 도로 경로 아님). 선은 투명하게 두고 짧은 선분 기호를 반복해 점선을 만듭니다. */}
-                    {stops.length > 1 && (
+                    {routeResults?.map(({ batch, data }) => data && (
                         <Polyline
-                            path={stops.map(stop => ({ lat: stop.lat, lng: stop.lng }))}
-                            strokeOpacity={0}
-                            icons={[{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 0.8, strokeColor: '#8a9d7a', scale: 2 }, offset: '0', repeat: '10px' }]}
+                            key={`${batch.start}-${batch.end}`}
+                            path={data.path}
+                            strokeColor="#426b50"
+                            strokeWeight={4}
+                            strokeOpacity={batch.mode === 'walking' ? 0 : 0.85}
+                            icons={batch.mode === 'walking' ? [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#426b50', strokeWeight: 3, scale: 1 }, offset: '0', repeat: '9px' }] : []}
                         />
-                    )}
+                    ))}
                     {items.map(item => {
                         const selected = item.id === selectedId;
                         const open = () => {
@@ -285,7 +352,10 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                                 // 선택된 핀을 맨 위에, 장소 핀은 맛집 배지보다 위에
                                 zIndex={selected ? 1000 : 500 - item.number}
                             >
-                                <span className={`pin ${selected ? 'pin-selected' : ''}`}>{item.number}</span>
+                                <span className={`pin ${selected ? 'pin-selected' : ''}`}>
+                                    <StopIcon name={stopIconName(item.stop)} className="size-[18px]" />
+                                    <span className="pin-number">{item.number}</span>
+                                </span>
                             </AdvancedMarker>
                         ) : (
                             <AdvancedMarker
@@ -326,7 +396,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
             {/* 범례: fill 모드는 바텀시트에 가려지므로 생략 */}
             {!fill && (
                 <div className="px-3.5 py-2.5 text-[10px] leading-[1.6] text-muted max-phone:text-[9px]">
-                    <span className="mr-[5px] inline-block h-1.5 w-1.5 rounded-full bg-gold" /> 숫자는 방문 순서 · <FoodIcon category="restaurant" /> 식당 · <FoodIcon category="cafe" /> 카페 · 점선은 순서 안내이며 실제 도로 경로가 아닙니다.
+                    숫자는 방문 순서 · 핀 안의 아이콘은 장소 종류 · <FoodIcon category="restaurant" /> 식당 후보 · <FoodIcon category="cafe" /> 카페 후보 · 실제 경로는 버튼을 눌러 표시합니다.
                     {hiddenFoods > 0 && ` 위치 없는 맛집 ${hiddenFoods}곳은 지도에 표시되지 않습니다.`}
                 </div>
             )}

@@ -2,6 +2,7 @@
 // UI와 분리된 순수 함수만 모아 두어 Vitest로 바로 테스트할 수 있습니다.
 
 import seed from '../data/seed.json';
+import { inferStopIcon, isStopIcon } from './stopIcons';
 import { CURRENCY_PATTERN, DEFAULT_CURRENCY, LEGACY_CURRENCY } from './currency';
 import { isValidISODate, isValidTime, parseISODate, splitTimeText } from './datetime';
 import type { CostUnit, Day, Food, FoodCategory, Stop, TravelMode, Trip } from '../types';
@@ -106,6 +107,7 @@ function validateStop(value: unknown, ids: Set<string>): Stop {
     const extraAmount = num(value.extraAmount, 0, 10_000_000, amountMessage);
     if (value.unit !== 'adult' && value.unit !== 'vehicle') throw new Error(amountMessage);
     if (value.mode !== 'driving' && value.mode !== 'walking') throw new Error(message);
+    if (value.icon !== undefined && !isStopIcon(value.icon)) throw new Error('지도 아이콘 종류를 확인하세요.');
     return {
         id,
         start,
@@ -125,6 +127,7 @@ function validateStop(value: unknown, ids: Set<string>): Stop {
         note: str(value.note, 12000, message),
         source: str(value.source, 12000, message),
         kind: str(value.kind, 12000, message),
+        icon: value.icon ?? inferStopIcon(str(value.kind, 12000, message)),
         mode: value.mode as TravelMode,
         // 체크 여부는 누락돼도 false 로 보정합니다.
         done: !!value.done,
@@ -377,7 +380,7 @@ export function blankStop(): Omit<Stop, 'id' | 'lat' | 'lng'> {
         start: '', end: '', timeNote: '', title: '', query: '', duration: '30분',
         fee: '무료 또는 현장 확인', amount: 0, unit: 'adult', extraAmount: 0,
         parking: '주차 여부·요금 확인', parkingQuery: '', note: '', source: '',
-        kind: '관광', mode: 'driving', done: false,
+        kind: '관광', icon: 'sightseeing', mode: 'driving', done: false,
     };
 }
 

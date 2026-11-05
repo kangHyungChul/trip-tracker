@@ -10,6 +10,7 @@ import { Hint } from './common';
 import { TimeInput } from './DateTimeInputs';
 import { Modal, ModalFooter, ModalHead } from './Modal';
 import { PlaceLocator } from './PlaceLocator';
+import { StopIcon, STOP_ICON_OPTIONS, stopIconName } from './StopIcon';
 import type { CostUnit, Stop, TravelMode } from '../types';
 
 interface StopEditDialogProps {
@@ -132,6 +133,18 @@ function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps
                 />
                 <Field label="장소 이름"><input required {...text('title')} /></Field>
                 <Field label="구글지도 검색어·현지 주소 (길찾기 목적지)"><input required {...text('query')} /></Field>
+                <fieldset className="mb-4">
+                    <legend className="mb-2 text-[12px] font-bold">지도 핀 아이콘</legend>
+                    <div className="grid grid-cols-4 gap-2 max-phone:grid-cols-3">
+                        {STOP_ICON_OPTIONS.map(([name, label]) => (
+                            <label key={name} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-2 py-2 text-[11px] ${stopIconName(draft) === name ? 'border-green bg-light text-green' : 'border-line'}`}>
+                                <input type="radio" name="stop-icon" value={name} checked={stopIconName(draft) === name} onChange={() => set('icon', name)} className="sr-only peer" />
+                                <span className="flex items-center gap-1.5 rounded peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-green"><StopIcon name={name} />{label}</span>
+                            </label>
+                        ))}
+                    </div>
+                    <p className="mt-2 text-[11px] text-muted">아이콘과 방문 순서가 지도에 함께 표시됩니다. 아래 종류·메모와 별도로 선택할 수 있습니다.</p>
+                </fieldset>
                 <Row2>
                     <Field label="시작 시각"><TimeInput value={draft.start} onChange={value => set('start', value)} /></Field>
                     <Field label="종료 시각 (선택)"><TimeInput value={draft.end} onChange={value => set('end', value)} placeholder="없음" openTo={draft.start} /></Field>
@@ -142,7 +155,7 @@ function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps
                 </Row2>
                 <Row2>
                     <Field label="종류"><input {...text('kind')} /></Field>
-                    <Field label="길찾기 이동수단">
+                    <Field label="이전 장소 → 이 장소 이동수단">
                         <select value={draft.mode} onChange={event => set('mode', event.target.value as TravelMode)}>
                             <option value="driving">자동차</option>
                             <option value="walking">도보</option>
