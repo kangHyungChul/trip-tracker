@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { buildRouteBatches, createRouteClient, formatRouteDuration, routeErrorDetails, routeErrorMessage, routeKey, type RouteData, type RouteStop } from './routes';
+import { buildRouteBatches, createRouteClient, formatRouteDuration, routeErrorDetails, routeErrorMessage, routeKey, routeProgress, type RouteData, type RouteStop } from './routes';
 
 const stops = (count: number): RouteStop[] => Array.from({ length: count }, (_, i) => ({ lat: 31 + i / 100, lng: 130, mode: 'driving' }));
 const data: RouteData = { path: [{ lat: 31, lng: 130 }, { lat: 32, lng: 130 }], legs: [{ distanceMeters: 1000, durationMillis: 120000 }], warnings: [] };
@@ -71,6 +71,17 @@ describe('호출·중복·오류 처리', () => {
         const result = await createRouteClient(fetch).calculate(stops(13));
         expect(result.results.map(r => r.data)).toEqual([null, data]);
         expect(result.error).toBe('');
+    });
+    it('빈 경로 응답을 표시 중으로 안내하지 않는다', async () => {
+        const result = await createRouteClient(vi.fn(async () => null)).calculate(stops(2));
+        expect(routeProgress(result.results, 1)).toEqual({ confirmedLegs: 0, label: '경로 없음', hasMissingRoutes: true });
+    });
+    it('일부 구간만 반환됐을 때 전체 경로 완료와 구분한다', async () => {
+        const fetch = vi.fn().mockResolvedValueOnce(null).mockResolvedValueOnce(data);
+        const result = await createRouteClient(fetch).calculate(stops(13));
+        expect(routeProgress(result.results, 12)).toEqual({ confirmedLegs: 1, label: '일부 경로 표시 중', hasMissingRoutes: true });
+        const complete = await createRouteClient(vi.fn(async () => data)).calculate(stops(2));
+        expect(routeProgress(complete.results, 1)).toEqual({ confirmedLegs: 1, label: '경로 표시 중', hasMissingRoutes: false });
     });
     it('실패한 요청은 수동 재시도할 수 있다', async () => {
         const fetch = vi.fn().mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce(data);

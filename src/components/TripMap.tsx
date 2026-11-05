@@ -13,7 +13,7 @@ import { useToast } from '../hooks/useToast';
 import { ExternalLink } from './common';
 import { FoodIcon } from './FoodCard';
 import { StopIcon, stopIconName } from './StopIcon';
-import { formatRouteDistance, formatRouteDuration, routeClient, routeKey, type RouteResult } from '../lib/routes';
+import { formatRouteDistance, formatRouteDuration, routeClient, routeKey, routeProgress, type RouteResult } from '../lib/routes';
 import type { Food, Stop } from '../types';
 
 /** 지도 포커스 요청. 같은 항목을 다시 눌러도 동작하도록 매번 다른 nonce 를 붙입니다. */
@@ -124,7 +124,8 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const [routeState, setRouteState] = useState<{ key: string; loading: boolean; results: RouteResult[]; error: string; diagnostic?: string } | null>(null);
     const currentRoute = routeState?.key === routingKey ? routeState : null;
     const routeResults = currentRoute?.results;
-    const confirmedLegs = routeResults?.reduce((sum, result) => sum + (result.data ? result.batch.end - result.batch.start : 0), 0) ?? 0;
+    const progress = routeProgress(routeResults ?? [], Math.max(0, stops.length - 1));
+    const { confirmedLegs } = progress;
     // 날짜·위치·순서·이동수단 변경 시 이전 응답과 남은 요청을 무효화합니다. 자동 호출은 하지 않습니다.
     useLayoutEffect(() => {
         routeBusy.current = false;
@@ -262,9 +263,16 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[11px] text-muted">{stops.length < 2 ? '장소를 2곳 이상 추가하면 경로를 볼 수 있어요.' : '자동차 실선 · 도보 점선 · 교통 미반영'}</span>
                 {stops.length > 1 && <button type="button" className="btn btn-mini" onClick={calculateRoutes} disabled={currentRoute?.loading || (!!currentRoute && !currentRoute.error)}>
-                    {currentRoute?.loading ? '경로 계산 중…' : currentRoute?.error ? '경로 다시 시도' : currentRoute ? '경로 표시 중' : '실제 경로 보기'}
+                    {currentRoute?.loading ? '경로 계산 중…' : currentRoute?.error ? '경로 다시 시도' : currentRoute ? progress.label : '실제 경로 보기'}
                 </button>}
             </div>
+            {currentRoute && !currentRoute.loading && !currentRoute.error && progress.hasMissingRoutes && (
+                <p className="mt-2 text-[11px] leading-relaxed text-muted">
+                    Google에서 일부 구간의 경로를 반환하지 않았습니다. 지원 지역·이동수단과 장소 좌표를 확인해 주세요.
+                    한국 내 자동차·도보 경로는 Google Maps Platform에서 지원하지 않습니다. 국내 이동은 네이버지도·카카오맵을 이용해 주세요.{' '}
+                    <ExternalLink href="https://developers.google.com/maps/coverage">지역별 지원 범위</ExternalLink>
+                </p>
+            )}
             <div role="status" aria-live="polite" className="mt-1 text-[11px] text-muted">
                 {!currentRoute && stops.length > 1 && `버튼을 누르면 일정 순서대로 경로를 계산합니다.${routeState ? ' 변경된 일정은 다시 계산해 주세요.' : ''}`}
                 {currentRoute?.loading && '경로를 불러오고 있습니다.'}
@@ -334,10 +342,10 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                         <Polyline
                             key={`${batch.start}-${batch.end}`}
                             path={data.path}
-                            strokeColor="#426b50"
-                            strokeWeight={4}
-                            strokeOpacity={batch.mode === 'walking' ? 0 : 0.85}
-                            icons={batch.mode === 'walking' ? [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#426b50', strokeWeight: 3, scale: 1 }, offset: '0', repeat: '9px' }] : []}
+                            strokeColor="#2563eb"
+                            strokeWeight={5}
+                            strokeOpacity={batch.mode === 'walking' ? 0 : 1}
+                            icons={batch.mode === 'walking' ? [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#2563eb', strokeWeight: 4, scale: 1 }, offset: '0', repeat: '9px' }] : []}
                         />
                     ))}
                     {items.map(item => {

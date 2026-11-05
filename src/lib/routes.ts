@@ -14,6 +14,15 @@ export interface RouteData {
 }
 export interface RouteResult { batch: RouteBatch; data: RouteData | null }
 
+export function routeProgress(results: RouteResult[], totalLegs: number) {
+    const confirmedLegs = results.reduce((sum, result) => sum + (result.data ? result.batch.end - result.batch.start : 0), 0);
+    return {
+        confirmedLegs,
+        label: confirmedLegs === 0 ? '경로 없음' : confirmedLegs < totalLegs ? '일부 경로 표시 중' : '경로 표시 중',
+        hasMissingRoutes: confirmedLegs < totalLegs,
+    };
+}
+
 /** 이동수단은 도착 장소 기준. 시간·완료 체크·아이콘은 경로 식별값에서 제외합니다. */
 export const routeKey = (stops: RouteStop[]) => JSON.stringify(stops.map((s, i) => [s.lat, s.lng, i ? s.mode : null]));
 
