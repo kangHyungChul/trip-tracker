@@ -27,10 +27,10 @@ export function useAutoLocateFoods(
 
     useEffect(() => {
         if (!ready) return;
-        // 좌표 없는 가게 목록 + 그날 첫 장소 좌표(근처 결과 우선 검색용)
+        // 아직 조회하지 않은 위치 미정 후보만 대상으로 합니다.
         const pending = (trip.candidates ?? [])
                 .filter(food => food.lat === null)
-                .map(food => ({ food, bias: null, key: `${trip.id}:${food.id}:${food.query}` }))
+                .map(food => ({ food, key: `${trip.id}:${food.id}:${food.query}` }))
                 .filter(item => !attempted.has(item.key));
         if (!pending.length) return;
         pending.forEach(item => attempted.add(item.key));
@@ -39,13 +39,13 @@ export function useAutoLocateFoods(
         void (async () => {
             let found = 0;
             let missing = 0;
-            for (const { food, bias, key } of pending) {
+            for (const { food, key } of pending) {
                 if (!mounted.current) {
                     attempted.delete(key); // 다음에 화면이 열리면 다시 시도
                     continue;
                 }
                 try {
-                    const place = await searchPlace(food.query, bias);
+                    const place = await searchPlace(food.query);
                     if (!mounted.current) {
                         attempted.delete(key);
                         continue;

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="background" x1="48" y1="24" x2="464" y2="488" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#118b97"/><stop offset=".52" stop-color="#087f8c"/><stop offset="1" stop-color="#076b77"/>
+    </linearGradient>
+    <filter id="pin-shadow" x="-20%" y="-15%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#003b45" flood-opacity=".13"/></filter>
+  </defs>
+  <rect width="512" height="512" fill="url(#background)"/>
+  <path d="M145 345C154 311 187 302 208 324C233 349 225 375 258 375C278 375 291 365 302 351" fill="none" stroke="#b99459" stroke-width="17" stroke-linecap="round" stroke-dasharray="1 26"/>
+  <circle cx="145" cy="345" r="15" fill="none" stroke="#fffefa" stroke-width="13"/>
+  <path d="M302 361C280 331 222 277 222 211C222 166 258 130 302 130C346 130 382 166 382 211C382 277 324 331 302 361Z" fill="#fffefa" filter="url(#pin-shadow)"/>
+  <circle cx="302" cy="211" r="29" fill="#b99459"/>
+</svg>

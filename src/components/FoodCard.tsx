@@ -7,6 +7,7 @@ import type { Food } from '../types';
 import { StopIcon } from './StopIcon';
 import { STOP_ICON_LABELS } from '../lib/stopIcons';
 import { iconMarkerStyle } from '../lib/iconColors';
+import { isInteractiveTarget } from '../lib/dom';
 
 interface FoodCardProps {
     food: Food;
@@ -17,21 +18,6 @@ interface FoodCardProps {
     onSchedule: (id: string) => void;
     scheduled?: boolean;
 }
-
-/** 종류별 아이콘(lucide SVG 컴포넌트)·이름. 배지·정보창 제목·범례에서 함께 씁니다. */
-
-/**
- * 맛집 종류 아이콘. 선(stroke) 색은 currentColor 라 주변 글자색을 따라갑니다. (배지 안에서는 .food-badge 의 흰색)
- * className 으로 크기를 바꿀 수 있고, 기본은 글자 크기에 맞춘 .icon 크기입니다.
- * aria-hidden 은 lucide 가 기본으로 붙여 장식용으로 처리됩니다. (버튼에는 aria-label 이 따로 있음)
- */
-export function FoodIcon({ category, className = '' }: { category: Food['category']; className?: string }) {
-    return <StopIcon name={category} className={`icon ${className}`} />;
-}
-
-/** 카드 안의 링크·버튼·체크박스를 누른 경우인지 (그때는 카드 클릭 동작을 하지 않음) */
-export const isInteractiveTarget = (target: EventTarget) =>
-    target instanceof Element && target.closest('a, button, input, label, select, textarea') !== null;
 
 export function FoodCard({ food, selected, onFocus, onEdit, onSchedule, scheduled }: FoodCardProps) {
     const located = food.lat !== null && food.lng !== null;
@@ -55,7 +41,7 @@ export function FoodCard({ food, selected, onFocus, onEdit, onSchedule, schedule
                     className="food-badge shrink-0"
                     style={iconMarkerStyle(food.iconColor)}
                 >
-                    <FoodIcon category={food.category} className="size-4" />
+                    <StopIcon name={food.category} className="size-4" />
                 </button>
                 <div className="min-w-0 flex-1">
                     <div className="text-[11px] text-muted">

@@ -63,6 +63,3 @@ export function currencySymbol(code: string): string {
     // formatToParts: 형식화 결과를 조각으로 나눠 그중 통화 기호 부분만 꺼냅니다.
     return formatter(code).formatToParts(0).find(part => part.type === 'currency')?.value ?? code;
 }
-
-/** 소수 금액을 입력할 수 있는 통화인지 (USD·EUR 등 = true, KRW·JPY = false) → 입력칸 step 결정 */
-export const allowsDecimals = (code: string) => (formatter(code).resolvedOptions().maximumFractionDigits ?? 0) > 0;

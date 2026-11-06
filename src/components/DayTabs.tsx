@@ -1,4 +1,5 @@
-import type { RefObject } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
+import { attachDragScroll } from '../lib/dragScroll';
 import { Plus } from 'lucide-react';
 import { shortDate, weekdayOf } from '../lib/datetime';
 import type { Day } from '../types';
@@ -12,7 +13,11 @@ interface Props {
 }
 
 export function DayTabs({ days, selectedId, activeRef, onSelect, onAdd }: Props) {
-    return <nav aria-label="여행 날짜" className="flex min-w-0 max-w-full shrink-0 scroll-px-2.5 gap-1.5 overflow-x-auto border-b border-line bg-paper px-2.5 py-2 [scrollbar-width:none]">
+    const scrollRef = useRef<HTMLElement>(null);
+    useEffect(() => {
+        if (scrollRef.current) return attachDragScroll(scrollRef.current);
+    }, []);
+    return <nav ref={scrollRef} aria-label="여행 날짜" className="drag-scroll flex min-w-0 max-w-full shrink-0 scroll-px-2.5 gap-1.5 overflow-x-auto border-b border-line bg-paper px-2.5 py-2 [scrollbar-width:none]">
         {days.map((day, index) => {
             const active = day.id === selectedId;
             const weekday = weekdayOf(day.date);

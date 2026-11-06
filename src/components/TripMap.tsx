@@ -11,8 +11,7 @@ import { gmaps } from '../lib/links';
 import { useMaps } from '../hooks/useMaps';
 import { useToast } from '../hooks/useToast';
 import { ExternalLink } from './common';
-import { FoodIcon } from './FoodCard';
-import { stopIconName } from './StopIcon';
+import { StopIcon, stopIconName } from './StopIcon';
 import { PlaceMarker } from './PlaceMarker';
 import { formatRouteDistance, formatRouteDuration, routeClient, routeKey, routeProgress, type RouteResult } from '../lib/routes';
 import type { Food, Stop } from '../types';
@@ -453,7 +452,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
             {/* 범례: fill 모드는 바텀시트에 가려지므로 생략 */}
             {!fill && !desktop && (
                 <div className="px-3.5 py-2.5 text-[10px] leading-[1.6] text-muted max-phone:text-[9px]">
-                    숫자는 방문 순서 · 핀 안의 아이콘은 장소 종류 · <FoodIcon category="restaurant" /> 식당 후보 · <FoodIcon category="cafe" /> 카페 후보 · 실제 경로는 버튼을 눌러 표시합니다.
+                    숫자는 방문 순서 · 핀 안의 아이콘은 장소 종류 · <StopIcon name="restaurant" className="icon" /> 식당 후보 · <StopIcon name="cafe" className="icon" /> 카페 후보 · 실제 경로는 버튼을 눌러 표시합니다.
                     {hiddenFoods > 0 && ` 위치 없는 후보 ${hiddenFoods}곳은 지도에 표시되지 않습니다.`}
                 </div>
             )}

@@ -1,24 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!--
-    브라우저 탭용 파비콘 (둥근 사각형).
-    - 16~32px로 작게 보이므로 홈 화면 아이콘보다 그림을 크게 키우고 점선을 굵게 했습니다.
-  -->
-
-  <!-- 배경: 모서리가 둥근 초록 사각형 -->
-  <rect width="64" height="64" rx="14" fill="#244e40"/>
-
-  <!-- 출발점에서 핀까지 점선 경로 (금색) -->
-  <path d="M13 50 C 16 40, 28 54, 36 46"
-        fill="none" stroke="#b99459" stroke-width="3.5"
-        stroke-linecap="round" stroke-dasharray="0.5 6"/>
-
-  <!-- 출발점 (아이보리 점) -->
-  <circle cx="13" cy="50" r="4" fill="#fffefa"/>
-
-  <!-- 지도 핀: 위쪽 원(중심 38,24 / 반지름 14) + 아래 뾰족한 끝(38,50) -->
-  <path d="M38 50 C 34 44, 24 36, 24 24 A 14 14 0 1 1 52 24 C 52 36, 42 44, 38 50 Z"
-        fill="#fffefa"/>
-
-  <!-- 핀 가운데 금색 점 -->
-  <circle cx="38" cy="24" r="5.5" fill="#b99459"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs><linearGradient id="background" x1="6" y1="3" x2="58" y2="61" gradientUnits="userSpaceOnUse"><stop stop-color="#118b97"/><stop offset=".52" stop-color="#087f8c"/><stop offset="1" stop-color="#076b77"/></linearGradient></defs>
+  <rect width="64" height="64" rx="14" fill="url(#background)"/>
+  <path d="M14 44C16 36 23 37 26 43C29 50 33 51 39 46" fill="none" stroke="#b99459" stroke-width="3.3" stroke-linecap="round" stroke-dasharray=".5 5.5"/>
+  <circle cx="14" cy="44" r="2.7" fill="none" stroke="#fffefa" stroke-width="2.4"/>
+  <path d="M39 48C35 42 26 34 26 24C26 16.8 31.8 11 39 11C46.2 11 52 16.8 52 24C52 34 43 42 39 48Z" fill="#fffefa"/>
+  <circle cx="39" cy="24" r="4.8" fill="#b99459"/>
 </svg>

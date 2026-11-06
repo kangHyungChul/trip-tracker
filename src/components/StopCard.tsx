@@ -3,7 +3,7 @@
 import { formatTime } from '../lib/datetime';
 import { gmaps } from '../lib/links';
 import { ExternalLink, Fact } from './common';
-import { isInteractiveTarget } from './FoodCard';
+import { isInteractiveTarget } from '../lib/dom';
 import type { Stop } from '../types';
 import { stopIconName } from './StopIcon';
 import { arrivalLabel, stopDestination } from '../lib/itinerary';

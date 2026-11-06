@@ -23,6 +23,8 @@ describe('사용자 아이콘 색상', () => {
         trip.candidates![0].iconColor = '#123456';
         const restored = parseTrip(JSON.parse(JSON.stringify(trip)));
         expect(restored.days[0].stops[0].iconColor).toBe('#aabbcc');
+        restored.days[0].stops[0].iconColor = '#ea580c';
+        expect(parseTrip(restored).days[0].stops[0].iconColor).toBe('#ea580c');
         const result = scheduleCandidate(restored, { candidateId: restored.candidates![0].id, dayId: restored.days[0].id, afterStopId: '', start: '', mode: 'driving', position: { lat: 37, lng: 127 } });
         expect(result.stop.iconColor).toBe('#123456');
     });

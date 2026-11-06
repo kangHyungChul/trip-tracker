@@ -27,18 +27,19 @@ export function createRouteClient(fetchRoute: FetchRoute, paths: PathCache) {
     };
     const remember = (batch: RouteBatch, stops: RouteStop[], data: RouteData | null) => {
         if (data?.geometryOnly) return;
+        const batchKey = keyOf(batch);
         if (!data || data.warnings.length) {
-            paths.delete(keyOf(batch));
+            paths.delete(batchKey);
             for (let index = batch.start; index < batch.end; index++) {
                 const key = keyOf(batchAt(stops, index, index + 1));
                 paths.delete(key);
                 legs.delete(key);
-                if (key !== keyOf(batch) && !memory.get(key)?.pending) memory.delete(key);
+                if (key !== batchKey && !memory.get(key)?.pending) memory.delete(key);
             }
         }
         if (!data) return;
         // 저장 정책상 안전 안내를 영구 보관할 수 없으므로 안내가 있는 응답은 메모리에서만 유지합니다.
-        if (!data.warnings.length) paths.set(keyOf(batch), data.path);
+        if (!data.warnings.length) paths.set(batchKey, data.path);
         if (data.legs.length !== batch.end - batch.start) return;
         data.legs.forEach((leg, index) => {
             if (!leg.path || leg.path.length < 2) return;
@@ -48,7 +49,6 @@ export function createRouteClient(fetchRoute: FetchRoute, paths: PathCache) {
             legs.set(key, { expires: Date.now() + MEMORY_TTL, data: segment });
             if (!data.warnings.length) paths.set(key, leg.path);
         });
-        trim();
     };
     const read = (batch: RouteBatch) => {
         const key = keyOf(batch);

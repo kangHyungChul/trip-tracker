@@ -1,10 +1,11 @@
 // 날짜 추가·편집·삭제 모달.
 // 날짜는 달력(react-datepicker)으로 고르고, 요일은 날짜에서 자동으로 계산됩니다.
 
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useState, type FormEvent } from 'react';
 import { weekdayOf } from '../lib/datetime';
 import { blankDay, clone } from '../lib/trip';
 import { DateInput } from './DateTimeInputs';
+import { Field, Row2 } from './FormFields';
 import { Modal, ModalFooter, ModalHead } from './Modal';
 import type { Day } from '../types';
 
@@ -20,15 +21,6 @@ interface DayEditDialogProps {
     onClose: () => void;
     onSave: (fields: DayFields) => void;
     onDelete: () => void;
-}
-
-function Field({ label, children }: { label: string; children: ReactNode }) {
-    return (
-        <label className="field">
-            {label}
-            {children}
-        </label>
-    );
 }
 
 export function DayEditDialog(props: DayEditDialogProps) {
@@ -70,18 +62,18 @@ function DayForm({ day, defaultDate, onClose, onSave, onDelete }: DayEditDialogP
         <form onSubmit={submit}>
             <ModalHead id="day-heading" title={day ? '날짜 편집' : '새 날짜 추가'} onClose={onClose} />
             <div className="px-[25px] py-[22px] max-phone:p-[18px]">
-                <div className="grid grid-cols-2 gap-x-3.5 max-phone:grid-cols-1">
+                <Row2>
                     <Field label={`날짜${weekday ? ` · ${weekday}요일` : ' (비우면 미정)'}`}>
                         <DateInput value={draft.date} onChange={value => set('date', value)} placeholder="날짜 미정" />
                     </Field>
                     <Field label="날짜 메모 (예: 공휴일)"><input maxLength={100} {...text('dateNote')} /></Field>
-                </div>
+                </Row2>
                 <Field label="날짜 제목"><input required maxLength={300} {...text('title')} /></Field>
                 <Field label="부제 (첫 '·' 앞부분이 날짜 탭에 표시됩니다)"><input maxLength={300} {...text('subtitle')} /></Field>
-                <div className="grid grid-cols-2 gap-x-3.5 max-phone:grid-cols-1">
+                <Row2>
                     <Field label="숙소·마무리"><input maxLength={300} {...text('hotel')} /></Field>
                     <Field label="일정 강도 (예: 가볍게)"><input maxLength={300} {...text('pace')} /></Field>
-                </div>
+                </Row2>
                 <Field label="주의 사항">
                     <textarea rows={3} maxLength={3000} {...text('warning')} />
                 </Field>

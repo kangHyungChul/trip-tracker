@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import seed from '../data/seed.json';
-import { allowsDecimals, currencySymbol, formatMoney, isCurrencyCode, normalizeCurrency } from './currency';
+import { currencySymbol, formatMoney, isCurrencyCode, normalizeCurrency } from './currency';
 import { gmaps, safeURL } from './links';
 import { checkPublicKey, normalizeSupabaseURL } from './supabaseKey';
 import { clone, createTrip, dayCost, foodMatches, guessCategory, LEGACY_TRIP_ID, migrateV1, parseTrip, stopMatches, validateTrip } from './trip';
@@ -157,8 +157,6 @@ describe('통화', () => {
         expect(formatMoney(1950, 'JPY')).toBe('¥1,950');
         expect(formatMoney(19.5, 'USD')).toBe('$19.5');
         expect(currencySymbol('KRW')).toBe('₩');
-        expect(allowsDecimals('KRW')).toBe(false);
-        expect(allowsDecimals('USD')).toBe(true);
     });
 });
 

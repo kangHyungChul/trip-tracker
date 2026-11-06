@@ -1,4 +1,3 @@
-import { PlannerHeading } from '../components/PlannerHeading';
 // 여행 화면: 날짜 탭, 지도, 일정·맛집 목록과 각종 편집 모달.
 // 여행 데이터(useTrip) 상태를 받아 화면 영역과 모달에 나눠 주고, 데이터 변경 동작을 한곳에서 처리합니다.
 
@@ -8,6 +7,7 @@ import { AppHeader, headerButton, headerIconButton } from '../components/AppHead
 import { BottomSheet, type SheetHeights, type SheetSnap } from '../components/BottomSheet';
 import { DayEditDialog, type DayFields } from '../components/DayEditDialog';
 import { DayTabs } from '../components/DayTabs';
+import { PlannerHeading } from '../components/PlannerHeading';
 import { FoodCard } from '../components/FoodCard';
 import { FoodEditDialog } from '../components/FoodEditDialog';
 import { CandidateScheduleDialog } from '../components/CandidateScheduleDialog';
@@ -117,7 +117,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     const schedulingCandidate = trip.candidates?.find(item => item.id === scheduleCandidateId);
     const editDay = editDayId ? trip.days.find(item => item.id === editDayId) ?? null : null;
     // 장소 이름으로 검색할 때 이 근처 결과를 우선하도록 그날(없으면 여행) 첫 장소 좌표를 씁니다.
-    const firstStop = day?.stops[0] ?? trip.days.flatMap(item => item.stops)[0];
+    const firstStop = day?.stops[0] ?? trip.days.find(item => item.stops.length)?.stops[0];
     const bias = firstStop ? { lat: firstStop.lat, lng: firstStop.lng } : null;
     // 새 날짜의 기본값: 날짜가 정해진 마지막 날의 다음 날
     const lastDated = [...trip.days].reverse().find(item => item.date);
@@ -429,7 +429,6 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
 
     // 아래 조각들은 날짜가 있을 때만 씁니다. (day 가 null 이면 null)
     const heading = (layout: 'desktop' | 'phone' | 'regular') => day && <PlannerHeading day={day} candidates={view === 'food'} tripTitle={trip.title} layout={layout} onEditDay={() => setEditDayId(day.id)} onAdd={() => view === 'food' ? setEditFoodId(null) : openStopEdit(null)} />;
-    const dayHeading = heading('regular');
 
     /** 지도 (휴대폰: 영역을 꽉 채우는 fill 모드 + 바텀시트 높이만큼 아래 여백) */
     const tripMap = day && (
@@ -678,21 +677,12 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
             </header>
         );
 
-        /**
-         * 휴대폰 날짜 칩: 한 줄 ‘DAY 1 · 10.31(토)’. 칩이 화면보다 많으면 좌우로 스와이프해서 넘깁니다.
-         * (overflow-x-auto 가로 스크롤, 스크롤 막대는 숨김. scroll-px: 자동 스크롤 때 칩이 화면 끝에 붙지 않게 좌우 여백 유지)
-         */
-        const phoneDayTabs = dayTabs;
-
-        /** 시트 머리: 경로 설명 1줄 + 날짜 제목 1줄(길면 …) + 연필(날짜 편집) / 더하기(장소 추가) 아이콘 버튼 */
-        const phoneDayHeading = heading('phone');
-
         return (
             <>
                 {/* h-dvh: 주소창이 접히고 펴지는 것까지 반영한 실제 화면 높이. 페이지 자체는 스크롤되지 않습니다. */}
                 <div className="flex h-dvh flex-col overflow-hidden">
                     {phoneHeader}
-                    {phoneDayTabs}
+                    {dayTabs}
                     {/* relative: 지도 위에 바텀시트를 겹쳐 놓는 기준 영역 */}
                     <div className="relative min-h-0 flex-1">
                         {tripMap}
@@ -701,7 +691,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                             onSnapChange={setSheetSnap}
                             onHeightsChange={setSheetHeights}
                             scrollerRef={sheetScrollerRef}
-                            header={phoneDayHeading}
+                            header={heading('phone')}
                         >
                             {listSection}
                             <div className="mt-6">{dayInfo}</div>
@@ -727,7 +717,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                     noDays
                 ) : (
                     <>
-                        {dayHeading}
+                        {heading('regular')}
 
                         <section className="grid grid-cols-[minmax(320px,0.9fr)_minmax(400px,1.1fr)] items-start gap-7 max-tab:grid-cols-1 max-tab:gap-[22px] print:block">
                             {/* ── 왼쪽: 지도·비용·안내 ── */}

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="410"><defs><clipPath id="c0"><rect width="172" height="172" rx="38"/></clipPath><clipPath id="c1"><rect width="172" height="172" rx="38"/></clipPath><clipPath id="c2"><rect width="172" height="172" rx="38"/></clipPath><clipPath id="c3"><rect width="172" height="172" rx="38"/></clipPath></defs><rect width="1080" height="410" fill="#f3f6f8"/><g font-family="Malgun Gothic, sans-serif"><g transform="translate(40,0)"><text y="52" font-size="22" font-weight="700" fill="#182c38">기존 아이콘</text><text y="80" font-size="12" fill="#607580">원래 사용하던 디자인</text><g transform="translate(0,104)" clip-path="url(#c0)"><svg width="172" height="172" viewBox="0 0 512 512"><rect width="512" height="512" fill="#244e40"/>
+
+  
+  <path d="M146 382 C 168 318, 236 430, 292 372"
+        fill="none" stroke="#b99459" stroke-width="16"
+        stroke-linecap="round" stroke-dasharray="2 28"/>
+
+  
+  <circle cx="146" cy="382" r="20" fill="#fffefa"/>
+  <circle cx="146" cy="382" r="8" fill="#244e40"/>
+
+  
+  <path d="M300 372 C 274 334, 216 282, 216 206 A 84 84 0 1 1 384 206 C 384 282, 326 334, 300 372 Z"
+        fill="#fffefa"/>
+
+  
+  <circle cx="300" cy="206" r="32" fill="#b99459"/></svg></g><svg x="0" y="310" width="32" height="32" viewBox="0 0 512 512"><rect width="512" height="512" fill="#244e40"/>
+
+  
+  <path d="M146 382 C 168 318, 236 430, 292 372"
+        fill="none" stroke="#b99459" stroke-width="16"
+        stroke-linecap="round" stroke-dasharray="2 28"/>
+
+  
+  <circle cx="146" cy="382" r="20" fill="#fffefa"/>
+  <circle cx="146" cy="382" r="8" fill="#244e40"/>
+
+  
+  <path d="M300 372 C 274 334, 216 282, 216 206 A 84 84 0 1 1 384 206 C 384 282, 326 334, 300 372 Z"
+        fill="#fffefa"/>
+
+  
+  <circle cx="300" cy="206" r="32" fill="#b99459"/></svg><text y="369" font-size="12" fill="#607580">32px</text></g><g transform="translate(296,0)"><text y="52" font-size="22" font-weight="700" fill="#182c38">1 · 원형 유지</text><text y="80" font-size="12" fill="#607580">핀 비율·중심·점선 간격 정돈</text><g transform="translate(0,104)" clip-path="url(#c1)"><svg width="172" height="172" viewBox="0 0 512 512"><rect width="512" height="512" fill="#244e40"/><path d="M154 354C181 307 222 385 289 356" fill="none" stroke="#d5b06a" stroke-width="16" stroke-linecap="round" stroke-dasharray="1 25"/><circle cx="154" cy="354" r="20" fill="#fffefa"/><circle cx="154" cy="354" r="8" fill="#244e40"/><path d="M302 360C278 326 224 277 224 208A78 78 0 1 1 380 208C380 277 326 326 302 360Z" fill="#fffefa"/><circle cx="302" cy="208" r="28" fill="#d5b06a"/></svg></g><svg x="0" y="310" width="32" height="32" viewBox="0 0 512 512"><rect width="512" height="512" fill="#244e40"/><path d="M154 354C181 307 222 385 289 356" fill="none" stroke="#d5b06a" stroke-width="16" stroke-linecap="round" stroke-dasharray="1 25"/><circle cx="154" cy="354" r="20" fill="#fffefa"/><circle cx="154" cy="354" r="8" fill="#244e40"/><path d="M302 360C278 326 224 277 224 208A78 78 0 1 1 380 208C380 277 326 326 302 360Z" fill="#fffefa"/><circle cx="302" cy="208" r="28" fill="#d5b06a"/></svg><text y="369" font-size="12" fill="#607580">32px</text></g><g transform="translate(552,0)"><text y="52" font-size="22" font-weight="700" fill="#182c38">2 · 경로 단순화</text><text y="80" font-size="12" fill="#607580">같은 형태에 부드러운 실선</text><g transform="translate(0,104)" clip-path="url(#c2)"><svg width="172" height="172" viewBox="0 0 512 512"><rect width="512" height="512" fill="#244e40"/><path d="M154 354C181 307 222 385 289 356" fill="none" stroke="#d5b06a" stroke-width="11" stroke-linecap="round"/><circle cx="154" cy="354" r="20" fill="#fffefa"/><circle cx="154" cy="354" r="8" fill="#244e40"/><path d="M302 360C278 326 224 277 224 208A78 78 0 1 1 380 208C380 277 326 326 302 360Z" fill="#fffefa"/><circle cx="302" cy="208" r="28" fill="#d5b06a"/></svg></g><svg x="0" y="310" width="32" height="32" viewBox="0 0 512 512"><rect width="512" height="512" fill="#244e40"/><path d="M154 354C181 307 222 385 289 356" fill="none" stroke="#d5b06a" stroke-width="11" stroke-linecap="round"/><circle cx="154" cy="354" r="20" fill="#fffefa"/><circle cx="154" cy="354" r="8" fill="#244e40"/><path d="M302 360C278 326 224 277 224 208A78 78 0 1 1 380 208C380 277 326 326 302 360Z" fill="#fffefa"/><circle cx="302" cy="208" r="28" fill="#d5b06a"/></svg><text y="369" font-size="12" fill="#607580">32px</text></g><g transform="translate(808,0)"><text y="52" font-size="22" font-weight="700" fill="#182c38">3 · 색감 조정</text><text y="80" font-size="12" fill="#607580">같은 형태에 앱의 청록색 적용</text><g transform="translate(0,104)" clip-path="url(#c3)"><svg width="172" height="172" viewBox="0 0 512 512"><rect width="512" height="512" fill="#087f8c"/><path d="M154 354C181 307 222 385 289 356" fill="none" stroke="#d5b06a" stroke-width="16" stroke-linecap="round" stroke-dasharray="1 25"/><circle cx="154" cy="354" r="20" fill="#fffefa"/><circle cx="154" cy="354" r="8" fill="#087f8c"/><path d="M302 360C278 326 224 277 224 208A78 78 0 1 1 380 208C380 277 326 326 302 360Z" fill="#fffefa"/><circle cx="302" cy="208" r="28" fill="#d5b06a"/></svg></g><svg x="0" y="310" width="32" height="32" viewBox="0 0 512 512"><rect width="512" height="512" fill="#087f8c"/><path d="M154 354C181 307 222 385 289 356" fill="none" stroke="#d5b06a" stroke-width="16" stroke-linecap="round" stroke-dasharray="1 25"/><circle cx="154" cy="354" r="20" fill="#fffefa"/><circle cx="154" cy="354" r="8" fill="#087f8c"/><path d="M302 360C278 326 224 277 224 208A78 78 0 1 1 380 208C380 277 326 326 302 360Z" fill="#fffefa"/><circle cx="302" cy="208" r="28" fill="#d5b06a"/></svg><text y="369" font-size="12" fill="#607580">32px</text></g></g></svg>

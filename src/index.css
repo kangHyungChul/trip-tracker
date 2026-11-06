@@ -158,6 +158,13 @@
     .journey-card:hover {
         border-color: var(--color-green);
     }
+    .drag-scroll {
+        cursor: grab;
+        user-select: none;
+    }
+    .drag-scroll[data-dragging], .drag-scroll[data-dragging] * {
+        cursor: grabbing;
+    }
     .itinerary-stop {
         position: relative;
         margin-left: 0;
