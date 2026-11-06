@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AdvancedMarker, APILoadingStatus, InfoWindow, Map, Polyline, useMap } from '@vis.gl/react-google-maps';
-import { ChevronDown, ChevronUp, LocateFixed, Settings } from 'lucide-react';
+import { ChevronDown, ChevronUp, Layers, LocateFixed, Route, Scan, Settings } from 'lucide-react';
 import { formatTime } from '../lib/datetime';
 import { gmaps } from '../lib/links';
 import { useMaps } from '../hooks/useMaps';
@@ -40,6 +40,7 @@ interface TripMapProps {
      * 상단 버튼을 지도 위에 띄웁니다. 아래에 바텀시트가 겹쳐 있다는 전제입니다.
      */
     fill?: boolean;
+    desktop?: boolean;
     /** 지도 아래쪽을 가리는 높이(px, 바텀시트). 위치 이동·전체 보기 때 이만큼을 피해 보이는 영역 가운데에 맞춥니다. */
     bottomInset?: number;
 }
@@ -51,6 +52,7 @@ const DEFAULT_CENTER = { lat: 35.5, lng: 132 };
 const DEFAULT_ZOOM = 5;
 /** 지도 높이 (화면 크기별) */
 const MAP_HEIGHT = 'h-[365px] max-tab:h-[310px] max-phone:h-[270px]';
+const MAP_ICON_BUTTON = 'grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-line bg-paper text-green shadow-card hover:bg-light';
 const ROUTE_COLORS = [
     { name: '자홍색', value: '#c026d3' },
     { name: '선홍색', value: '#e11d48' },
@@ -67,17 +69,17 @@ export function TripMap(props: TripMapProps) {
     const { status } = useMaps();
     return (
         // fill: 부모 높이를 꽉 채우고 테두리·둥근 모서리 없이 / 기본: 카드 모양
-        <div className={props.fill ? 'relative h-full bg-paper' : 'overflow-hidden rounded-[14px] border border-line bg-paper shadow-card'}>
+        <div className={props.fill ? 'relative h-full bg-paper' : props.desktop ? 'relative flex h-full min-h-0 flex-col overflow-hidden bg-paper' : 'overflow-hidden rounded-[14px] border border-line bg-paper shadow-card'}>
             {status === APILoadingStatus.LOADED ? (
                 <GoogleTripMap {...props} />
             ) : (
                 <>
-                    {!props.fill && (
+                    {!props.fill && !props.desktop && (
                         <div className="px-4 py-[13px] max-phone:p-[11px]">
                             <strong className="text-[12px] max-phone:text-[11px]">오늘의 이동 포인트</strong>
                         </div>
                     )}
-                    <MapPlaceholder status={status} onOpenSettings={props.onOpenSettings} fill={props.fill} />
+                    <MapPlaceholder status={status} onOpenSettings={props.onOpenSettings} fill={props.fill || props.desktop} />
                 </>
             )}
         </div>
@@ -116,7 +118,7 @@ function MapPlaceholder({ status, onOpenSettings, fill }: { status: ReturnType<t
 }
 
 /** Google 지도 본체 (스크립트 로드 완료 후에만 렌더링) */
-function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onStopDetail, onFoodEdit, fill = false, bottomInset = 0 }: TripMapProps) {
+function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onStopDetail, onFoodEdit, fill = false, desktop = false, bottomInset = 0 }: TripMapProps) {
     const toast = useToast();
     const { config } = useMaps();
     // useMap(MAP_ID): 아래 <Map id={MAP_ID}> 가 만들어지면 그 google.maps.Map 인스턴스를 돌려줍니다. (그 전에는 null)
@@ -124,7 +126,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     /** 정보창을 열어 둔 항목 ID */
     const [infoId, setInfoId] = useState<string | null>(null);
     const [showFoods, setShowFoods] = useState(true);
-    const [routePanelOpen, setRoutePanelOpen] = useState(true);
+    const [routePanelOpen, setRoutePanelOpen] = useState(false);
     const [routeColor, setRouteColor] = useState<string>(ROUTE_COLORS[0].value);
     const [myPosition, setMyPosition] = useState<google.maps.LatLngLiteral | null>(null);
     const routingKey = routeKey(stops);
@@ -197,7 +199,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
         routeResults?.forEach(result => result.data?.path.forEach(point => bounds.extend(point)));
         // 40px 여백. 아래가 바텀시트로 가려지면 그만큼 아래 여백을 더해 보이는 영역 안에 모두 들어오게 합니다.
         // (fill 모드는 위쪽에 지도 버튼이 떠 있으므로 위 여백도 조금 더)
-        map.fitBounds(bounds, { top: fill ? 150 : 40, right: 40, left: 40, bottom: 40 + insetRef.current });
+        map.fitBounds(bounds, { top: 40, right: 64, left: 40, bottom: 40 + insetRef.current });
         // 항목이 아주 가까이 모여 있으면 지나치게 확대되므로, 이동이 끝난 뒤(idle) 최대 16단계로 제한합니다.
         google.maps.event.addListenerOnce(map, 'idle', () => {
             if ((map.getZoom() ?? 0) > 16) map.setZoom(16);
@@ -258,21 +260,18 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
 
     // 지도 조작 버튼 (맛집 표시 / 전체 보기 / 내 위치)
     const controls = (
-        <div className="flex items-center gap-1">
-            <label className="mr-1 flex cursor-pointer items-center gap-1 text-[11px] text-muted">
-                <input type="checkbox" className="h-3.5 w-3.5 p-0 accent-green" checked={showFoods} onChange={event => setShowFoods(event.target.checked)} />
-                후보
-            </label>
-            <button type="button" className="btn btn-mini" onClick={fitAll}>전체 보기</button>
-            <button type="button" className="btn btn-mini" onClick={locate} aria-label="내 위치 표시"><LocateFixed className="icon" />내 위치</button>
+        <div role="group" aria-label="지도 조작" className="absolute top-3 right-3 z-[2] flex flex-col gap-2">
+            <button type="button" className={`${MAP_ICON_BUTTON} ${showFoods ? 'bg-light' : ''}`} onClick={() => setShowFoods(show => !show)} aria-label="장소 후보 표시" aria-pressed={showFoods} title={showFoods ? '장소 후보 숨기기' : '장소 후보 표시'}><Layers className="size-[18px]" /></button>
+            <button type="button" className={MAP_ICON_BUTTON} onClick={fitAll} aria-label="전체 보기" title="전체 보기"><Scan className="size-[18px]" /></button>
+            <button type="button" className={MAP_ICON_BUTTON} onClick={locate} aria-label="내 위치 표시" title="내 위치"><LocateFixed className="size-[18px]" /></button>
         </div>
     );
 
     const routePanel = (
-        <div className={fill ? `absolute top-[52px] right-2.5 ${routePanelOpen ? 'left-2.5' : ''} z-[2] rounded-[10px] bg-paper/95 px-3 py-2 shadow-card` : 'border-t border-line px-4 py-2.5'}>
-            <button type="button" className="btn btn-mini mb-1" onClick={() => setRoutePanelOpen(open => !open)} aria-expanded={routePanelOpen} aria-controls="trip-route-panel">
-                {routePanelOpen ? <ChevronUp className="icon" /> : <ChevronDown className="icon" />}
-                경로 안내 {routePanelOpen ? '접기' : '펼치기'}
+        <div className={fill ? `absolute top-3 left-3 ${routePanelOpen ? 'right-16 overflow-y-auto rounded-xl border border-line bg-paper p-3 shadow-card' : ''} z-[2]` : 'shrink-0 overflow-y-auto border-t border-line bg-paper px-4 py-2'} style={routePanelOpen ? { maxHeight: fill ? `max(120px, calc(100% - ${bottomInset + 24}px))` : desktop ? '40%' : undefined } : undefined}>
+            <button type="button" className={fill && !routePanelOpen ? MAP_ICON_BUTTON : 'flex min-h-9 items-center gap-2 text-[12px] font-semibold'} onClick={() => setRoutePanelOpen(open => !open)} aria-label={routePanelOpen ? '경로 안내 접기' : '경로 안내 펼치기'} title={routePanelOpen ? '경로 안내 접기' : '경로 안내 펼치기'} aria-expanded={routePanelOpen} aria-controls="trip-route-panel">
+                <Route className="size-[18px]" />
+                {(!fill || routePanelOpen) && <><span>경로 안내</span>{currentRoute && !currentRoute.loading && <span className="font-normal text-muted">{confirmedLegs}/{Math.max(0, stops.length - 1)}개 구간</span>}{routePanelOpen ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}</>}
             </button>
             <div id="trip-route-panel" hidden={!routePanelOpen}>
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -337,18 +336,14 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
 
     return (
         <>
-            {fill ? (
-                // fill 모드: 제목 줄 없이 버튼만 지도 오른쪽 위에 띄웁니다.
-                <div className="absolute top-2.5 right-2.5 z-[2] rounded-[10px] bg-paper/95 px-2 py-1.5 shadow-card">{controls}</div>
-            ) : (
+            {!fill && !desktop && (
                 <div className="flex items-center justify-between px-4 py-[13px] max-phone:p-[11px]">
                     <strong className="text-[12px] max-phone:text-[11px]">오늘의 이동 포인트</strong>
-                    {controls}
                 </div>
             )}
-            {routePanel}
             {/* scroll-mt: 좁은 화면에서 위에 고정된 날짜 탭(약 85px)에 지도가 가려지지 않도록 스크롤 위치를 띄웁니다. */}
-            <div ref={regionRef} role="region" aria-label="방문 순서와 맛집이 표시된 지도" className={fill ? 'h-full' : 'scroll-mt-[100px]'}>
+            <div ref={regionRef} role="region" aria-label="방문 순서와 후보가 표시된 지도" className={fill ? 'relative h-full' : desktop ? 'relative min-h-0 flex-1' : 'relative scroll-mt-[100px]'}>
+                {controls}
                 <Map
                     id={MAP_ID}
                     mapId={config.mapId} // 고급 마커(AdvancedMarker)를 쓰려면 Map ID 가 필요
@@ -366,7 +361,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                     cameraControl={!fill}
                     clickableIcons={false} // 구글 기본 장소 아이콘 클릭 정보창 끄기
                     onClick={() => setInfoId(null)}
-                    className={`${fill ? 'h-full' : MAP_HEIGHT} bg-[#e2e9df]`}
+                    className={`${fill || desktop ? 'h-full' : MAP_HEIGHT} bg-[#e2e9df]`}
                 >
                     {routeResults?.map(({ batch, data }) => data && (
                         <Polyline
@@ -451,8 +446,9 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                     )}
                 </Map>
             </div>
+            {routePanel}
             {/* 범례: fill 모드는 바텀시트에 가려지므로 생략 */}
-            {!fill && (
+            {!fill && !desktop && (
                 <div className="px-3.5 py-2.5 text-[10px] leading-[1.6] text-muted max-phone:text-[9px]">
                     숫자는 방문 순서 · 핀 안의 아이콘은 장소 종류 · <FoodIcon category="restaurant" /> 식당 후보 · <FoodIcon category="cafe" /> 카페 후보 · 실제 경로는 버튼을 눌러 표시합니다.
                     {hiddenFoods > 0 && ` 위치 없는 후보 ${hiddenFoods}곳은 지도에 표시되지 않습니다.`}

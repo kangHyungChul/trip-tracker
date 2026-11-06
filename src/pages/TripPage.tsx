@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowUpDown, ArrowUpRight, Check, Cloud, Pencil, Plus, Searc
 import { AppHeader, headerButton } from '../components/AppHeader';
 import { BottomSheet, type SheetHeights, type SheetSnap } from '../components/BottomSheet';
 import { DayEditDialog, type DayFields } from '../components/DayEditDialog';
+import { DayTabs } from '../components/DayTabs';
 import { FoodCard } from '../components/FoodCard';
 import { FoodEditDialog } from '../components/FoodEditDialog';
 import { CandidateScheduleDialog } from '../components/CandidateScheduleDialog';
@@ -18,7 +19,7 @@ import { TripInfoDialog, type TripInfo } from '../components/TripInfoDialog';
 import { TripMap, type FocusRequest } from '../components/TripMap';
 import { TripStorageDialog } from '../components/TripStorageDialog';
 import { currencySymbol, formatMoney } from '../lib/currency';
-import { addDays, shortDate, weekdayOf } from '../lib/datetime';
+import { addDays, shortDate } from '../lib/datetime';
 import { lastDayKey, readItem, writeItem } from '../lib/storage';
 import { clone, dayCost, foodMatches, newId, stopMatches, validateTrip } from '../lib/trip';
 import { formatDateRange } from '../lib/tripSummary';
@@ -78,6 +79,8 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
 
     // ── 휴대폰 화면(폭 480px 이하) 상태 ──
     const isPhone = useMediaQuery(PHONE_QUERY);
+    const isDesktop = useMediaQuery('(min-width: 851px)');
+    const desktopScrollerRef = useRef<HTMLDivElement>(null);
     /** 바텀시트 높이 단계. 처음에는 절반 높이로 목록 일부를 보여줍니다. */
     const [sheetSnap, setSheetSnap] = useState<SheetSnap>('half');
     /** 바텀시트 단계별 높이(px). BottomSheet 가 화면 크기를 재서 알려 줍니다. */
@@ -121,6 +124,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     const dateRange = formatDateRange(trip);
     // 휴대폰 + 날짜가 있을 때만 ‘전체화면 지도 + 바텀시트’ 구성 (날짜가 없으면 안내 화면이라 일반 구성)
     const phoneLayout = isPhone && !!day;
+    const desktopLayout = isDesktop && !!day;
     // 지도 아래쪽이 바텀시트에 가려지는 높이. 지도에서 위치를 옮길 때 이만큼을 피해 보이는 영역 가운데에 맞춥니다.
     // (시트 단계를 바꾸는 것과 같은 렌더링에서 새 높이가 지도에 전달되도록 여기서 계산)
     const bottomInset = phoneLayout ? sheetHeights[sheetSnap] : 0;
@@ -128,7 +132,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     // 휴대폰: 선택한 날짜 칩이 가로 스크롤 밖에 있으면 보이는 곳으로 옮깁니다. (날짜가 많을 때)
     // inline 'nearest': 이미 보이면 움직이지 않고, 가려졌을 때만 가까운 쪽 끝에 맞춥니다.
     useEffect(() => {
-        if (phoneLayout) activeChipRef.current?.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+        activeChipRef.current?.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
     }, [phoneLayout, day?.id]);
 
     // ── 데이터 변경 도우미 ──
@@ -170,8 +174,8 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
         requestAnimationFrame(() => {
             const card = document.getElementById(`item-${id}`);
             if (!card) return;
-            const scroller = sheetScrollerRef.current;
-            if (phoneLayout && scroller) {
+            const scroller = phoneLayout ? sheetScrollerRef.current : desktopLayout ? desktopScrollerRef.current : null;
+            if (scroller) {
                 // 카드의 ‘목록 내용 기준’ 위치 = 화면상 위치 차이 + 현재 스크롤 양
                 const top = card.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
                 scroller.scrollTo({ top: Math.max(0, top - SHEET_STICKY_OFFSET), behavior: 'smooth' });
@@ -403,44 +407,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     );
 
     /** 날짜 탭 (날짜가 많으면 가로 스크롤). [scrollbar-width:none]: 가로 스크롤은 유지하되 스크롤 막대는 숨깁니다. */
-    const dayTabs = (
-        <nav aria-label="여행 날짜" className="flex overflow-x-auto rounded-xl border border-line bg-paper [scrollbar-width:none] max-tab:sticky max-tab:top-0 max-tab:z-[5] print:static">
-            {trip.days.map((item, index) => {
-                const active = item.id === day?.id;
-                const sub = [weekdayOf(item.date), item.dateNote].filter(Boolean).join(' · ');
-                return (
-                    <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => selectDay(item.id)}
-                        aria-current={active ? 'date' : undefined}
-                        className={[
-                            'flex min-w-[150px] flex-1 basis-0 items-center justify-start gap-4 border-r border-line px-5 py-4 text-left',
-                            'max-tab:gap-2 max-tab:px-[15px] max-tab:py-[13px] max-phone:block max-phone:min-w-[78px] max-phone:px-[9px] max-phone:py-2.5',
-                            active ? 'bg-green text-white' : '',
-                        ].join(' ')}
-                    >
-                        <span className="text-[20px] font-medium tracking-[-1px] whitespace-nowrap max-phone:text-[18px]">
-                            {shortDate(item.date) || '미정'}
-                            <small className={`block text-[11px] font-normal tracking-normal max-phone:text-[9px] max-phone:whitespace-nowrap ${active ? 'text-[#cbd8c7]' : 'text-muted'}`}>
-                                {sub || '\u00a0'}
-                            </small>
-                        </span>
-                        <span className="text-[10px] tracking-[1px] max-phone:text-[8px]">
-                            {/* DAY 01, DAY 02 … 처럼 두 자리 순번 */}
-                            DAY {String(index + 1).padStart(2, '0')}
-                            <small className={`block text-[11px] font-normal max-phone:max-w-[70px] max-phone:overflow-hidden max-phone:text-[9px] max-phone:text-ellipsis max-phone:whitespace-nowrap ${active ? 'text-[#cbd8c7]' : 'text-muted'}`}>
-                                {item.subtitle.split('·')[0]}
-                            </small>
-                        </span>
-                    </button>
-                );
-            })}
-            <button type="button" onClick={() => setEditDayId(null)} className="shrink-0 px-4 py-4 text-[12px] font-semibold whitespace-nowrap text-green print:hidden" aria-label="날짜 추가">
-                <Plus className="icon mr-0.5" />날짜
-            </button>
-        </nav>
-    );
+    const dayTabs = <DayTabs days={trip.days} selectedId={day?.id} activeRef={activeChipRef} onSelect={selectDay} onAdd={() => setEditDayId(null)} />;
 
     const candidateList = <>
         <p className="mb-3 text-[11px] text-muted">여행 전체에서 공유하는 장소 후보입니다. 방문을 정하면 ‘일정에 추가’에서 날짜와 순서를 선택하세요.</p>
@@ -490,6 +457,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
             onFoodEdit={id => setEditFoodId(id)}
             onOpenSettings={onOpenSettings}
             fill={phoneLayout}
+            desktop={desktopLayout}
             bottomInset={bottomInset}
         />
     );
@@ -559,7 +527,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
             {/* 탭 줄 고정 위치: 휴대폰은 바텀시트 목록 맨 위(top-0), 좁은 화면은 상단 바·날짜 탭 아래 */}
             <div
                 className={`mb-3.5 flex items-center justify-between gap-2.5 print:hidden ${
-                    phoneLayout ? 'sticky top-0 z-[2] bg-bg py-[9px]' : 'max-tab:sticky max-tab:top-[73px] max-tab:z-[2] max-tab:bg-bg max-tab:py-[9px] max-phone:top-[75px]'
+                    phoneLayout || desktopLayout ? 'sticky top-0 z-[2] bg-bg py-[9px]' : 'max-tab:sticky max-tab:top-[52px] max-tab:z-[2] max-tab:bg-bg max-tab:py-[9px] max-phone:top-[75px]'
                 }`}
             >
                 <div className="flex gap-[18px] border-b border-line max-phone:gap-[15px]">
@@ -688,6 +656,38 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
         </>
     );
 
+    // ── PC: 왼쪽 일정 목록 / 오른쪽 지도. 전체 탭 없이 날짜별로 선택합니다. ──
+    if (desktopLayout && day) {
+        return <>
+            <div className="flex h-dvh min-h-0 flex-col overflow-hidden">
+                <div className="shrink-0">{header}</div>
+                <main className="flex min-h-0 flex-1 overflow-hidden">
+                    <aside aria-label="여행 일정 목록" className="flex w-[360px] shrink-0 flex-col border-r border-line bg-bg wide:w-[390px]">
+                        {dayTabs}
+                        <div ref={desktopScrollerRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-5">
+                            <div className="flex items-center gap-1.5 py-4">
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-[11px] text-muted" title={trip.title}>{trip.title}</p>
+                                    <h1 className="truncate text-[19px] font-semibold" title={day.title}>{day.title}</h1>
+                                </div>
+                                <button type="button" className={PHONE_ICON_BUTTON} onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>
+                                <button type="button" className={PHONE_ICON_BUTTON} onClick={() => openStopEdit(null)} aria-label="장소 추가" title="장소 추가"><Plus className="size-5" /></button>
+                            </div>
+                            {listSection}
+                            <div className="mt-5">{dayInfo}</div>
+                            <div className="mt-5 border-t border-line pt-3">
+                                <button type="button" className="btn btn-mini" onClick={() => setInfoOpen(true)}>여행 정보 편집</button>
+                                <details className="mt-3 text-[12px]"><summary className="cursor-pointer text-muted">여행 소개</summary><p className="mt-2 whitespace-pre-wrap">{trip.tagline}</p><p className="mt-1 whitespace-pre-wrap">{trip.notes}</p></details>
+                            </div>
+                        </div>
+                    </aside>
+                    <section aria-label="일별 여행 지도" className="min-h-0 min-w-0 flex-1">{tripMap}</section>
+                </main>
+            </div>
+            {dialogs}
+        </>;
+    }
+
     // ── 휴대폰 구성: 낮은 상단 바 + 날짜 칩 고정, 남은 화면 전체가 지도, 목록은 지도 위 바텀시트 ──
     if (phoneLayout && day) {
         /** 휴대폰 상단 바: 뒤로(여행 목록) / 여행 제목(길면 …) / 충돌 알림 / 저장·백업 / 설정. 아이콘은 모두 lucide SVG */
@@ -711,39 +711,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
          * 휴대폰 날짜 칩: 한 줄 ‘DAY 1 · 10.31(토)’. 칩이 화면보다 많으면 좌우로 스와이프해서 넘깁니다.
          * (overflow-x-auto 가로 스크롤, 스크롤 막대는 숨김. scroll-px: 자동 스크롤 때 칩이 화면 끝에 붙지 않게 좌우 여백 유지)
          */
-        const phoneDayTabs = (
-            <nav aria-label="여행 날짜" className="flex shrink-0 scroll-px-2.5 gap-1.5 overflow-x-auto border-b border-line bg-paper px-2.5 py-2 [scrollbar-width:none]">
-                {trip.days.map((item, index) => {
-                    const active = item.id === day.id;
-                    const weekday = weekdayOf(item.date);
-                    // 날짜가 없으면 ‘미정’, 요일을 알 수 있으면 10.31(토)
-                    const dateLabel = item.date ? `${shortDate(item.date)}${weekday ? `(${weekday})` : ''}` : '미정';
-                    return (
-                        <button
-                            key={item.id}
-                            ref={active ? activeChipRef : undefined}
-                            type="button"
-                            onClick={() => selectDay(item.id)}
-                            aria-current={active ? 'date' : undefined}
-                            className={`shrink-0 rounded-full border px-3 py-[7px] text-[12px] whitespace-nowrap ${
-                                active ? 'border-green bg-green text-white' : 'border-line bg-paper text-ink'
-                            }`}
-                        >
-                            <b className="font-bold">DAY {index + 1}</b>
-                            <span className={active ? 'text-[#cbd8c7]' : 'text-muted'}> · {dateLabel}</span>
-                        </button>
-                    );
-                })}
-                <button
-                    type="button"
-                    onClick={() => setEditDayId(null)}
-                    className="shrink-0 rounded-full border border-dashed border-[#c9d0c4] px-3 py-[7px] text-[12px] font-semibold whitespace-nowrap text-green"
-                    aria-label="날짜 추가"
-                >
-                    <Plus className="icon mr-0.5" />날짜
-                </button>
-            </nav>
-        );
+        const phoneDayTabs = dayTabs;
 
         /** 시트 머리: 경로 설명 1줄 + 날짜 제목 1줄(길면 …) + 연필(날짜 편집) / 더하기(장소 추가) 아이콘 버튼 */
         const eyebrow = [day.subtitle, day.hotel].filter(Boolean).join(' · ');
