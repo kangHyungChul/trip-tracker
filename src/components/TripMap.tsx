@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AdvancedMarker, APILoadingStatus, InfoWindow, Map, Polyline, useMap } from '@vis.gl/react-google-maps';
-import { LocateFixed, Settings } from 'lucide-react';
+import { ChevronDown, ChevronUp, LocateFixed, Settings } from 'lucide-react';
 import { formatTime } from '../lib/datetime';
 import { gmaps } from '../lib/links';
 import { useMaps } from '../hooks/useMaps';
@@ -15,6 +15,7 @@ import { FoodIcon } from './FoodCard';
 import { StopIcon, stopIconName } from './StopIcon';
 import { formatRouteDistance, formatRouteDuration, routeClient, routeKey, routeProgress, type RouteResult } from '../lib/routes';
 import type { Food, Stop } from '../types';
+import { arrivalLabel, stopDestination, stopPosition } from '../lib/itinerary';
 
 /** 지도 포커스 요청. 같은 항목을 다시 눌러도 동작하도록 매번 다른 nonce 를 붙입니다. */
 export interface FocusRequest {
@@ -50,6 +51,12 @@ const DEFAULT_CENTER = { lat: 35.5, lng: 132 };
 const DEFAULT_ZOOM = 5;
 /** 지도 높이 (화면 크기별) */
 const MAP_HEIGHT = 'h-[365px] max-tab:h-[310px] max-phone:h-[270px]';
+const ROUTE_COLORS = [
+    { name: '자홍색', value: '#c026d3' },
+    { name: '선홍색', value: '#e11d48' },
+    { name: '보라색', value: '#6d28d9' },
+    { name: '남색', value: '#172554' },
+] as const;
 
 /** 지도에 그릴 항목 하나 (장소 핀 또는 맛집 배지) */
 type MapItem =
@@ -117,6 +124,8 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     /** 정보창을 열어 둔 항목 ID */
     const [infoId, setInfoId] = useState<string | null>(null);
     const [showFoods, setShowFoods] = useState(true);
+    const [routePanelOpen, setRoutePanelOpen] = useState(true);
+    const [routeColor, setRouteColor] = useState<string>(ROUTE_COLORS[0].value);
     const [myPosition, setMyPosition] = useState<google.maps.LatLngLiteral | null>(null);
     const routingKey = routeKey(stops);
     const routeRequest = useRef(0);
@@ -164,9 +173,10 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
             counts.set(key, n + 1);
             return { lat: lat + n * 0.00035, lng: lng + n * 0.00035 };
         };
-        const list: MapItem[] = stops.map((stop, index) => ({ type: 'stop', id: stop.id, position: shift(stop.lat, stop.lng), number: index + 1, stop }));
+        const list: MapItem[] = stops.map((stop, index) => { const point = stopPosition(stop); return { type: 'stop', id: stop.id, position: shift(point.lat, point.lng), number: index + 1, stop }; });
         if (showFoods) {
             for (const food of foods) {
+                if (stops.some(stop => stop.sourceCandidateId === food.id)) continue;
                 if (food.lat === null || food.lng === null) continue; // 위치 없는 맛집은 지도에 표시하지 않음
                 list.push({ type: 'food', id: food.id, position: shift(food.lat, food.lng), food });
             }
@@ -251,7 +261,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
         <div className="flex items-center gap-1">
             <label className="mr-1 flex cursor-pointer items-center gap-1 text-[11px] text-muted">
                 <input type="checkbox" className="h-3.5 w-3.5 p-0 accent-green" checked={showFoods} onChange={event => setShowFoods(event.target.checked)} />
-                맛집
+                후보
             </label>
             <button type="button" className="btn btn-mini" onClick={fitAll}>전체 보기</button>
             <button type="button" className="btn btn-mini" onClick={locate} aria-label="내 위치 표시"><LocateFixed className="icon" />내 위치</button>
@@ -259,13 +269,32 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     );
 
     const routePanel = (
-        <div className={fill ? 'absolute top-[52px] right-2.5 left-2.5 z-[2] rounded-[10px] bg-paper/95 px-3 py-2 shadow-card' : 'border-t border-line px-4 py-2.5'}>
+        <div className={fill ? `absolute top-[52px] right-2.5 ${routePanelOpen ? 'left-2.5' : ''} z-[2] rounded-[10px] bg-paper/95 px-3 py-2 shadow-card` : 'border-t border-line px-4 py-2.5'}>
+            <button type="button" className="btn btn-mini mb-1" onClick={() => setRoutePanelOpen(open => !open)} aria-expanded={routePanelOpen} aria-controls="trip-route-panel">
+                {routePanelOpen ? <ChevronUp className="icon" /> : <ChevronDown className="icon" />}
+                경로 안내 {routePanelOpen ? '접기' : '펼치기'}
+            </button>
+            <div id="trip-route-panel" hidden={!routePanelOpen}>
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[11px] text-muted">{stops.length < 2 ? '장소를 2곳 이상 추가하면 경로를 볼 수 있어요.' : '자동차 실선 · 도보 점선 · 교통 미반영'}</span>
                 {stops.length > 1 && <button type="button" className="btn btn-mini" onClick={calculateRoutes} disabled={currentRoute?.loading || (!!currentRoute && !currentRoute.error)}>
                     {currentRoute?.loading ? '경로 계산 중…' : currentRoute?.error ? '경로 다시 시도' : currentRoute ? progress.label : '실제 경로 보기'}
                 </button>}
             </div>
+            <fieldset className="mt-2 mb-1">
+                <legend className="mb-1 text-[11px] text-muted">경로 색상</legend>
+                <div className="flex flex-wrap gap-1.5">
+                    {ROUTE_COLORS.map(color => (
+                        <label key={color.value} className={`flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1.5 text-[11px] ${routeColor === color.value ? 'border-green bg-light' : 'border-line'}`}>
+                            <input type="radio" name="route-color" value={color.value} checked={routeColor === color.value} onChange={() => setRouteColor(color.value)} className="sr-only peer" />
+                            <span className="flex items-center gap-1.5 rounded peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-green">
+                                <span aria-hidden="true" className="h-1.5 w-5 rounded-full ring-2 ring-white" style={{ backgroundColor: color.value }} />
+                                {color.name}
+                            </span>
+                        </label>
+                    ))}
+                </div>
+            </fieldset>
             {currentRoute && !currentRoute.loading && !currentRoute.error && progress.hasMissingRoutes && (
                 <p className="mt-2 text-[11px] leading-relaxed text-muted">
                     Google에서 일부 구간의 경로를 반환하지 않았습니다. 지원 지역·이동수단과 장소 좌표를 확인해 주세요.
@@ -294,14 +323,15 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                             const leg = result?.data?.legs[i - result.batch.start];
                             return <div key={`${stops[i].id}-${stop.id}`} className="flex flex-wrap items-center justify-between gap-1 border-b border-line py-1.5">
                                 <span>{i + 1} → {i + 2} · {stop.mode === 'walking' ? '도보' : '자동차'} · {leg ? `${formatRouteDuration(leg.durationMillis)} · ${formatRouteDistance(leg.distanceMeters)}` : '경로 확인 필요'}</span>
-                                <ExternalLink href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${stops[i].lat},${stops[i].lng}`)}&destination=${encodeURIComponent(`${stop.lat},${stop.lng}`)}&travelmode=${stop.mode}`}>구글지도</ExternalLink>
+                                <ExternalLink href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${stopPosition(stops[i]).lat},${stopPosition(stops[i]).lng}`)}&destination=${encodeURIComponent(`${stopPosition(stop).lat},${stopPosition(stop).lng}`)}&travelmode=${stop.mode}`}>구글지도</ExternalLink>
                             </div>;
                         })}
-                        <p className="mt-2 text-muted">각 장소의 이동수단은 이전 장소에서 오는 구간 기준입니다. 맛집·카페 후보는 동선에서 제외됩니다.</p>
+                        <p className="mt-2 text-muted">이동수단은 이전 장소에서 오는 구간 기준입니다. 주차장·출입구를 지정하면 해당 지점으로 안내합니다. 일정에 넣지 않은 후보는 동선에서 제외됩니다.</p>
                     </div>
                 </details>
             )}
             {routeResults?.flatMap(r => r.data?.warnings ?? []).map((warning, i) => <p key={`${i}-${warning}`} className="mt-1 text-[10px] text-muted">{warning}</p>)}
+            </div>
         </div>
     );
 
@@ -340,12 +370,26 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                 >
                     {routeResults?.map(({ batch, data }) => data && (
                         <Polyline
+                            key={`outline-${batch.start}-${batch.end}`}
+                            path={data.path}
+                            strokeColor="#ffffff"
+                            strokeWeight={10}
+                            strokeOpacity={batch.mode === 'walking' ? 0 : 1}
+                            clickable={false}
+                            zIndex={10}
+                            icons={batch.mode === 'walking' ? [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#ffffff', strokeWeight: 9, scale: 1 }, offset: '0', repeat: '12px' }] : []}
+                        />
+                    ))}
+                    {routeResults?.map(({ batch, data }) => data && (
+                        <Polyline
                             key={`${batch.start}-${batch.end}`}
                             path={data.path}
-                            strokeColor="#2563eb"
-                            strokeWeight={5}
+                            strokeColor={routeColor}
+                            strokeWeight={6}
                             strokeOpacity={batch.mode === 'walking' ? 0 : 1}
-                            icons={batch.mode === 'walking' ? [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#2563eb', strokeWeight: 4, scale: 1 }, offset: '0', repeat: '9px' }] : []}
+                            clickable={false}
+                            zIndex={11}
+                            icons={batch.mode === 'walking' ? [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: routeColor, strokeWeight: 5, scale: 1 }, offset: '0', repeat: '12px' }] : []}
                         />
                     ))}
                     {items.map(item => {
@@ -411,7 +455,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
             {!fill && (
                 <div className="px-3.5 py-2.5 text-[10px] leading-[1.6] text-muted max-phone:text-[9px]">
                     숫자는 방문 순서 · 핀 안의 아이콘은 장소 종류 · <FoodIcon category="restaurant" /> 식당 후보 · <FoodIcon category="cafe" /> 카페 후보 · 실제 경로는 버튼을 눌러 표시합니다.
-                    {hiddenFoods > 0 && ` 위치 없는 맛집 ${hiddenFoods}곳은 지도에 표시되지 않습니다.`}
+                    {hiddenFoods > 0 && ` 위치 없는 후보 ${hiddenFoods}곳은 지도에 표시되지 않습니다.`}
                 </div>
             )}
         </>
@@ -461,8 +505,9 @@ function InfoContent({ item, onStopDetail, onFoodEdit }: { item: MapItem; onStop
                     {formatTime(stop.start, stop.end, stop.timeNote)}
                     {stop.duration && ` · ${stop.duration}`}
                 </p>
+                {stop.arrival && <p>도착: {arrivalLabel(stop.arrival)}</p>}
                 <div className="map-info-actions">
-                    <ExternalLink href={gmaps(stop.query, true, stop.mode)}>길찾기</ExternalLink>
+                    <ExternalLink href={gmaps(stopDestination(stop), true, stop.mode)}>길찾기</ExternalLink>
                     <button type="button" className="btn btn-mini" onClick={() => onStopDetail(stop.id)}>
                         자세히
                     </button>

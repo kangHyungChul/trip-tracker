@@ -206,7 +206,7 @@ function TripCard({ entry, onDelete }: { entry: StoredTrip; onDelete: (id: strin
                 <h2 className="m-0 text-[20px] leading-[1.4] font-semibold tracking-[-0.6px]">{trip.title}</h2>
                 {trip.tagline && <p className="mt-1.5 mb-0 text-[12px] text-muted">{trip.tagline}</p>}
                 <p className="mt-4 mb-0 text-[11px] text-[#5b685b]">
-                    <span className="text-gold">{trip.days.length} DAYS</span> · 장소 {counts.stops} · 맛집 {counts.foods}
+                    <span className="text-gold">{trip.days.length} DAYS</span> · 일정 {counts.stops} · 후보 {counts.foods}
                 </p>
                 {trip.updatedAt && <small className="mt-1 block text-[10px] text-muted">{new Date(trip.updatedAt).toLocaleString('ko-KR')} 수정</small>}
             </a>

@@ -179,6 +179,7 @@
     }
     /* 맛집·카페 배지: 번호 핀(원)과 구분되도록 둥근 사각형 + SVG 아이콘. 지도와 맛집 카드에서 함께 사용 */
     .food-badge {
+        background: var(--color-green);
         display: grid;
         place-items: center;
         width: 28px;

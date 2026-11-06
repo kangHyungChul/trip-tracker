@@ -28,14 +28,10 @@ export function useAutoLocateFoods(
     useEffect(() => {
         if (!ready) return;
         // 좌표 없는 가게 목록 + 그날 첫 장소 좌표(근처 결과 우선 검색용)
-        const pending = trip.days.flatMap(day => {
-            const firstStop = day.stops[0];
-            const bias = firstStop ? { lat: firstStop.lat, lng: firstStop.lng } : null;
-            return day.foods
+        const pending = (trip.candidates ?? [])
                 .filter(food => food.lat === null)
-                .map(food => ({ food, bias, key: `${trip.id}:${food.id}:${food.query}` }))
+                .map(food => ({ food, bias: null, key: `${trip.id}:${food.id}:${food.query}` }))
                 .filter(item => !attempted.has(item.key));
-        });
         if (!pending.length) return;
         pending.forEach(item => attempted.add(item.key));
 
@@ -62,19 +58,16 @@ export function useAutoLocateFoods(
                     // 그사이 사용자가 직접 위치를 지정했을 수 있으므로 여전히 null 인 경우에만 채웁니다.
                     update(current => ({
                         ...current,
-                        days: current.days.map(day => ({
-                            ...day,
-                            foods: day.foods.map(item => (item.id === food.id && item.lat === null ? { ...item, lat: place.lat, lng: place.lng } : item)),
-                        })),
+                        candidates: current.candidates?.map(item => (item.id === food.id && item.lat === null && item.query === food.query ? { ...item, lat: place.lat, lng: place.lng } : item)) ?? [],
                     }));
                 } catch (error) {
                     // API 미사용 설정·키 제한 같은 공통 오류는 반복해도 실패하므로 중단합니다.
-                    toast('맛집 위치 자동 조회 실패: ' + (error instanceof Error ? error.message : String(error)));
+                    toast('후보 위치 자동 조회 실패: ' + (error instanceof Error ? error.message : String(error)));
                     return;
                 }
             }
             if (mounted.current && (found || missing)) {
-                toast(`맛집 위치 ${found}곳을 지도에 표시했습니다.${missing ? ` ${missing}곳은 찾지 못했습니다. 편집에서 구글지도 URL로 지정하세요.` : ''}`);
+                toast(`후보 위치 ${found}곳을 지도에 표시했습니다.${missing ? ` ${missing}곳은 찾지 못했습니다. 편집에서 구글지도 URL로 지정하세요.` : ''}`);
             }
         })();
     }, [ready, trip, update, toast]);

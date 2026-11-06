@@ -2,7 +2,7 @@
 // UI와 분리된 순수 함수만 모아 두어 Vitest로 바로 테스트할 수 있습니다.
 
 import seed from '../data/seed.json';
-import { inferStopIcon, isStopIcon } from './stopIcons';
+import { inferStopIcon, isStopIcon, STOP_ICON_LABELS } from './stopIcons';
 import { CURRENCY_PATTERN, DEFAULT_CURRENCY, LEGACY_CURRENCY } from './currency';
 import { isValidISODate, isValidTime, parseISODate, splitTimeText } from './datetime';
 import type { CostUnit, Day, Food, FoodCategory, Stop, TravelMode, Trip } from '../types';
@@ -61,13 +61,13 @@ function uniqueId(value: unknown, ids: Set<string>, message: string): string {
 
 /** 맛집·카페 1개 검증. 알 수 없는 키는 버리고 정해진 필드만 새 객체로 만듭니다. */
 function validateFood(value: unknown, ids: Set<string>): Food {
-    const message = '맛집·카페 항목 형식을 확인하세요.';
+    const message = '장소 후보 항목 형식을 확인하세요.';
     if (!isObject(value)) throw new Error(message);
-    const id = uniqueId(value.id, ids, '중복되거나 잘못된 맛집 ID입니다.');
-    if (value.category !== 'restaurant' && value.category !== 'cafe') throw new Error(message);
+    const id = uniqueId(value.id, ids, '중복되거나 잘못된 후보 ID입니다.');
+    if (!isStopIcon(value.category)) throw new Error(message);
     const name = str(value.name, 10000, message);
     const query = str(value.query, 10000, message);
-    if (!name.trim() || !query.trim()) throw new Error('맛집 이름과 구글지도 검색어가 필요합니다.');
+    if (!name.trim() || !query.trim()) throw new Error('장소 후보 이름과 구글지도 검색어가 필요합니다.');
     // 좌표는 "둘 다 숫자" 또는 "둘 다 null(위치 미정)" 만 허용합니다.
     const coordMessage = '맛집 지도 좌표가 올바르지 않습니다.';
     const hasCoords = value.lat !== null || value.lng !== null;
@@ -108,6 +108,12 @@ function validateStop(value: unknown, ids: Set<string>): Stop {
     if (value.unit !== 'adult' && value.unit !== 'vehicle') throw new Error(amountMessage);
     if (value.mode !== 'driving' && value.mode !== 'walking') throw new Error(message);
     if (value.icon !== undefined && !isStopIcon(value.icon)) throw new Error('지도 아이콘 종류를 확인하세요.');
+    let arrival: Stop['arrival'];
+    if (value.arrival !== undefined) {
+        const point = value.arrival;
+        if (!isObject(point) || (point.type !== 'parking' && point.type !== 'entrance')) throw new Error('도착 지점 형식을 확인하세요.');
+        arrival = { type: point.type, name: str(point.name, 12000, message), lat: num(point.lat, -90, 90, coordMessage), lng: num(point.lng, -180, 180, coordMessage) };
+    }
     return {
         id,
         start,
@@ -128,6 +134,8 @@ function validateStop(value: unknown, ids: Set<string>): Stop {
         source: str(value.source, 12000, message),
         kind: str(value.kind, 12000, message),
         icon: value.icon ?? inferStopIcon(str(value.kind, 12000, message)),
+        ...(arrival ? { arrival } : {}),
+        ...(value.sourceCandidateId !== undefined ? { sourceCandidateId: str(value.sourceCandidateId, 200, message) } : {}),
         mode: value.mode as TravelMode,
         // 체크 여부는 누락돼도 false 로 보정합니다.
         done: !!value.done,
@@ -194,6 +202,11 @@ export function validateTrip(value: unknown): Trip {
         notes: value.notes,
         days: value.days.map(day => validateDay(day, dayIds, itemIds)),
     };
+    if (value.candidates !== undefined && (!Array.isArray(value.candidates) || value.candidates.length > 3000)) throw new Error('장소 후보 목록을 확인하세요.');
+    // 예전 날짜별 목록도 ID·정보를 보존해 여행 공통 후보함으로 한 번만 이동합니다.
+    trip.candidates = [...trip.days.flatMap(day => day.foods), ...((value.candidates ?? []) as unknown[]).map(item => validateFood(item, itemIds))];
+    if (trip.candidates.length > 3000) throw new Error('장소 후보는 여행당 최대 3000개입니다.');
+    trip.days = trip.days.map(day => ({ ...day, foods: [] }));
     // 선택 필드는 문자열일 때만 유지합니다.
     if (typeof value.checkedAt === 'string') trip.checkedAt = value.checkedAt.slice(0, 50);
     if (typeof value.updatedAt === 'string') trip.updatedAt = value.updatedAt.slice(0, 50);
@@ -364,7 +377,7 @@ const includesTerm = (fields: string[], term: string): boolean => {
  * (URL·좌표 문자열까지 걸리지 않도록 JSON 전체 검색은 하지 않음)
  */
 export function foodMatches(food: Food, term: string): boolean {
-    return includesTerm([food.name, food.query, food.menu, food.budget, food.kind, food.hours, food.parking], term);
+    return includesTerm([food.name, food.query, food.menu, food.budget, food.kind, food.hours, food.parking, STOP_ICON_LABELS[food.category]], term);
 }
 
 /** 장소 검색: 장소의 텍스트 필드만 검색합니다. (맛집은 별도 탭에서 검색) */
@@ -386,7 +399,7 @@ export function blankStop(): Omit<Stop, 'id' | 'lat' | 'lng'> {
 
 /** 맛집 추가 시 빈 값 (좌표는 위치를 가져오기 전까지 null) */
 export function blankFood(): Omit<Food, 'id'> {
-    return { category: 'restaurant', name: '', query: '', lat: null, lng: null, menu: '', budget: '', kind: '', hours: '', parking: '', source: '' };
+    return { category: 'sightseeing', name: '', query: '', lat: null, lng: null, menu: '', budget: '', kind: '', hours: '', parking: '', source: '' };
 }
 
 /** 날짜 추가 시 기본값 (id 는 저장할 때 부여) */

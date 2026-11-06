@@ -1,9 +1,11 @@
 // 맛집·카페 카드. "맛집·카페" 탭에서 사용합니다.
 
-import { Coffee, MapPinOff, Utensils } from 'lucide-react';
+import { MapPinOff, Plus } from 'lucide-react';
 import { gmaps } from '../lib/links';
 import { ExternalLink, SourceLink } from './common';
 import type { Food } from '../types';
+import { StopIcon } from './StopIcon';
+import { STOP_ICON_LABELS } from '../lib/stopIcons';
 
 interface FoodCardProps {
     food: Food;
@@ -11,13 +13,11 @@ interface FoodCardProps {
     /** 배지 버튼: 지도에서 해당 맛집으로 이동 */
     onFocus: (id: string) => void;
     onEdit: (id: string) => void;
+    onSchedule: (id: string) => void;
+    scheduled?: boolean;
 }
 
 /** 종류별 아이콘(lucide SVG 컴포넌트)·이름. 배지·정보창 제목·범례에서 함께 씁니다. */
-export const FOOD_BADGE = {
-    restaurant: { Icon: Utensils, label: '식당' }, // 포크·나이프
-    cafe: { Icon: Coffee, label: '카페' }, // 커피잔
-} as const;
 
 /**
  * 맛집 종류 아이콘. 선(stroke) 색은 currentColor 라 주변 글자색을 따라갑니다. (배지 안에서는 .food-badge 의 흰색)
@@ -25,16 +25,14 @@ export const FOOD_BADGE = {
  * aria-hidden 은 lucide 가 기본으로 붙여 장식용으로 처리됩니다. (버튼에는 aria-label 이 따로 있음)
  */
 export function FoodIcon({ category, className = '' }: { category: Food['category']; className?: string }) {
-    const { Icon } = FOOD_BADGE[category];
-    return <Icon className={`icon ${className}`} strokeWidth={2.25} />;
+    return <StopIcon name={category} className={`icon ${className}`} />;
 }
 
 /** 카드 안의 링크·버튼·체크박스를 누른 경우인지 (그때는 카드 클릭 동작을 하지 않음) */
 export const isInteractiveTarget = (target: EventTarget) =>
     target instanceof Element && target.closest('a, button, input, label, select, textarea') !== null;
 
-export function FoodCard({ food, selected, onFocus, onEdit }: FoodCardProps) {
-    const badge = FOOD_BADGE[food.category];
+export function FoodCard({ food, selected, onFocus, onEdit, onSchedule, scheduled }: FoodCardProps) {
     const located = food.lat !== null && food.lng !== null;
     return (
         <article
@@ -59,7 +57,7 @@ export function FoodCard({ food, selected, onFocus, onEdit }: FoodCardProps) {
                 </button>
                 <div className="min-w-0 flex-1">
                     <div className="text-[10px] text-[#9d875b]">
-                        {badge.label}
+                        {STOP_ICON_LABELS[food.category]}{scheduled ? ' · 일정에 추가됨' : ''}
                         {food.kind ? ` · ${food.kind}` : ''}
                     </div>
                     <h3 className="my-[3px] text-[16px] font-bold">{food.name}</h3>
@@ -82,6 +80,7 @@ export function FoodCard({ food, selected, onFocus, onEdit }: FoodCardProps) {
                 </small>
             )}
             <div className="mt-3 flex flex-wrap items-center gap-2.5 text-[11px] print:hidden">
+                <button type="button" className="btn btn-mini" onClick={() => onSchedule(food.id)}><Plus className="icon" />일정에 추가</button>
                 {/* 자동차 길찾기와 도보 길찾기를 모두 제공합니다. (↗ 아이콘은 ExternalLink 가 붙임) */}
                 <ExternalLink href={gmaps(food.query, true)} className="navlink">길찾기</ExternalLink>
                 <ExternalLink href={gmaps(food.query, true, 'walking')}>도보</ExternalLink>

@@ -2,7 +2,8 @@ export const STOP_ICON_LABELS = {
     hotel: '호텔', shopping: '쇼핑', restaurant: '식당', cafe: '카페',
     sightseeing: '관광지', airport: '공항', subway: '전철',
     train: '기차', bus: '버스', parking: '주차장', ferry: '페리',
-    rest: '휴식', hospital: '병원', other: '기타',
+    rest: '휴식', hospital: '병원', car: '자동차', fuel: '주유소',
+    beach: '해변', mountain: '산', park: '공원', museum: '박물관', activity: '체험', luggage: '짐 보관', other: '기타',
 } as const;
 
 export type StopIcon = keyof typeof STOP_ICON_LABELS;
@@ -21,7 +22,8 @@ export function inferStopIcon(kind: string): StopIcon {
     if (/전철|지하철/.test(kind)) return 'subway';
     if (/기차|철도/.test(kind)) return 'train';
     if (/버스/.test(kind)) return 'bus';
-    if (/주차|렌터카|반납/.test(kind)) return 'parking';
+    if (/렌터카|자동차|반납/.test(kind)) return 'car';
+    if (/주차/.test(kind)) return 'parking';
     if (/페리|선박|항구/.test(kind)) return 'ferry';
     if (/휴식|휴게/.test(kind)) return 'rest';
     if (/병원|의료/.test(kind)) return 'hospital';

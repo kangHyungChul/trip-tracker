@@ -8,6 +8,8 @@ import { BottomSheet, type SheetHeights, type SheetSnap } from '../components/Bo
 import { DayEditDialog, type DayFields } from '../components/DayEditDialog';
 import { FoodCard } from '../components/FoodCard';
 import { FoodEditDialog } from '../components/FoodEditDialog';
+import { CandidateScheduleDialog } from '../components/CandidateScheduleDialog';
+import { scheduleCandidate, type ScheduleCandidateInput } from '../lib/itinerary';
 import { SortableStopList } from '../components/SortableStopList';
 import { StopCard } from '../components/StopCard';
 import { StopDetailDialog } from '../components/StopDetailDialog';
@@ -90,6 +92,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     const [editStopId, setEditStopId] = useState<EditTarget>(undefined);
     const [editDayId, setEditDayId] = useState<EditTarget>(undefined);
     const [editFoodId, setEditFoodId] = useState<EditTarget>(undefined);
+    const [scheduleCandidateId, setScheduleCandidateId] = useState<string | null>(null);
     const [infoOpen, setInfoOpen] = useState(false);
     const [storageOpen, setStorageOpen] = useState(false);
 
@@ -103,10 +106,11 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
 
     // ── 파생 값 ──
     const filteredStops = useMemo(() => (day ? day.stops.filter(stop => stopMatches(stop, search)) : []), [day, search]);
-    const filteredFoods = useMemo(() => (day ? day.foods.filter(food => foodMatches(food, search)) : []), [day, search]);
+    const filteredFoods = useMemo(() => (trip.candidates ?? []).filter(food => foodMatches(food, search)), [trip.candidates, search]);
     const detailStop = day && detailId ? day.stops.find(stop => stop.id === detailId) ?? null : null;
     const editStop = day && editStopId ? day.stops.find(stop => stop.id === editStopId) ?? null : null;
-    const editFood = day && editFoodId ? day.foods.find(food => food.id === editFoodId) ?? null : null;
+    const editFood = editFoodId ? trip.candidates?.find(food => food.id === editFoodId) ?? null : null;
+    const schedulingCandidate = trip.candidates?.find(item => item.id === scheduleCandidateId);
     const editDay = editDayId ? trip.days.find(item => item.id === editDayId) ?? null : null;
     // 장소 이름으로 검색할 때 이 근처 결과를 우선하도록 그날(없으면 여행) 첫 장소 좌표를 씁니다.
     const firstStop = day?.stops[0] ?? trip.days.flatMap(item => item.stops)[0];
@@ -191,7 +195,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     /** 지도 핀·배지 클릭: 해당 종류의 탭으로 바꾸고 목록에서 카드가 보이도록 스크롤 */
     const onMapSelect = (id: string) => {
         setSelectedId(id);
-        const isFood = !!day?.foods.some(food => food.id === id);
+        const isFood = !!trip.candidates?.some(food => food.id === id);
         setView(isFood ? 'food' : 'route');
         setReorder(false);
         setSearch(''); // 검색으로 카드가 숨겨져 있을 수 있으므로 검색어를 지웁니다.
@@ -260,26 +264,38 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
 
     /** 맛집 저장. id 가 없으면 오늘 맛집 목록 끝에 추가합니다. */
     const saveFood = (input: Omit<Food, 'id'> & { id?: string }) => {
-        if (!day) return;
         const food: Food = { ...input, id: input.id ?? newId() };
         const next = clone(getTrip());
-        const target = next.days.find(item => item.id === day.id);
-        if (!target) return;
-        const index = target.foods.findIndex(item => item.id === food.id);
-        if (index >= 0) target.foods[index] = food;
-        else target.foods.push(food);
+        next.candidates ??= [];
+        const index = next.candidates.findIndex(item => item.id === food.id);
+        if (index >= 0) next.candidates[index] = food;
+        else next.candidates.push(food);
         if (!commitValidated(next)) return;
         setSelectedId(food.id);
         setEditFoodId(undefined);
-        toast(food.lat === null ? '저장했습니다. 위치가 없어 지도에는 표시되지 않습니다.' : '맛집을 저장했습니다.');
+        toast(food.lat === null ? '후보를 저장했습니다. 위치가 없어 지도에는 표시되지 않습니다.' : '여행 공통 후보함에 저장했습니다.');
     };
 
     const deleteFood = async (id: string) => {
-        const name = day?.foods.find(food => food.id === id)?.name ?? '이 맛집·카페';
-        if (!(await confirm({ title: `'${name}'을(를) 삭제할까요?`, message: '삭제한 맛집·카페는 되돌릴 수 없습니다.', confirmLabel: '삭제', danger: true }))) return;
-        updateDay(current => ({ ...current, foods: current.foods.filter(food => food.id !== id) }));
+        const name = trip.candidates?.find(food => food.id === id)?.name ?? '이 후보';
+        if (!(await confirm({ title: `'${name}' 후보를 삭제할까요?`, message: '후보함에서 삭제됩니다. 이미 추가한 일정은 유지됩니다.', confirmLabel: '삭제', danger: true }))) return;
+        update(current => ({ ...current, candidates: current.candidates?.filter(food => food.id !== id) ?? [] }));
         setEditFoodId(undefined);
         if (selectedId === id) setSelectedId('');
+    };
+
+    const addCandidateToSchedule = (input: ScheduleCandidateInput) => {
+        try {
+            const result = scheduleCandidate(getTrip(), input);
+            if (!commitValidated(result.trip)) return;
+            setScheduleCandidateId(null);
+            setSelectedDayId(input.dayId);
+            setSelectedId(result.stop.id);
+            setView('route');
+            setSearch('');
+            setReorder(false);
+            toast('선택한 위치에 일정을 추가했습니다.');
+        } catch (error) { toast(errorMessage(error)); }
     };
 
     // ── 날짜 동작 ──
@@ -304,7 +320,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
         if (!editDay) return;
         const ok = await confirm({
             title: `'${editDay.title || shortDate(editDay.date) || '이 날짜'}'을(를) 삭제할까요?`,
-            message: `이 날짜의 장소 ${editDay.stops.length}곳과 맛집·카페 ${editDay.foods.length}곳도 함께 삭제되며 되돌릴 수 없습니다.`,
+            message: `이 날짜의 일정 ${editDay.stops.length}곳도 함께 삭제됩니다. 여행 공통 후보함은 유지됩니다.`,
             confirmLabel: '날짜 삭제',
             danger: true,
         });
@@ -426,11 +442,20 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
         </nav>
     );
 
-    /** 날짜가 하나도 없을 때 안내 */
+    const candidateList = <>
+        <p className="mb-3 text-[11px] text-muted">여행 전체에서 공유하는 장소 후보입니다. 방문을 정하면 ‘일정에 추가’에서 날짜와 순서를 선택하세요.</p>
+        {filteredFoods.length ? filteredFoods.map(food => (
+            <FoodCard key={food.id} food={food} selected={food.id === selectedId} onFocus={id => focusItem(day?.stops.find(stop => stop.sourceCandidateId === id)?.id ?? id)} onEdit={id => setEditFoodId(id)} onSchedule={setScheduleCandidateId} scheduled={trip.days.some(item => item.stops.some(stop => stop.sourceCandidateId === food.id))} />
+        )) : <Empty>{trip.candidates?.length ? '검색된 후보가 없습니다.' : '아직 장소 후보가 없습니다. ‘후보 추가’로 모아보세요.'}</Empty>}
+    </>;
+
+    /** 날짜가 하나도 없을 때도 여행 공통 후보는 관리할 수 있습니다. */
     const noDays = (
         <div className="my-10 rounded-xl border border-dashed border-line p-10 text-center">
-            <p className="mb-4 text-muted">아직 날짜가 없습니다. 첫 날짜를 추가하고 장소와 맛집을 채워 보세요.</p>
+            <p className="mb-4 text-muted">날짜를 정하기 전에도 장소 후보를 모아둘 수 있습니다.</p>
             <button type="button" className="btn btn-primary" onClick={() => setEditDayId(null)}><Plus className="icon" />첫 날짜 추가</button>
+            <button type="button" className="btn btn-outline ml-2" onClick={() => setEditFoodId(null)}><Plus className="icon" />후보 추가</button>
+            <div className="mt-5 text-left">{candidateList}</div>
         </div>
     );
 
@@ -457,7 +482,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     const tripMap = day && (
         <TripMap
             stops={day.stops}
-            foods={day.foods}
+            foods={trip.candidates ?? []}
             selectedId={selectedId}
             focusRequest={focusRequest}
             onSelect={onMapSelect}
@@ -541,7 +566,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                     {(
                         [
                             ['route', `일정 ${day.stops.length}`],
-                            ['food', `맛집·카페 ${day.foods.length}`],
+                            ['food', `장소 후보 ${trip.candidates?.length ?? 0}`],
                         ] as const
                     ).map(([key, label]) => (
                         <button
@@ -565,8 +590,8 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                             <Search className="icon text-[12px] text-muted" />
                             <input
                                 type="search"
-                                placeholder={view === 'food' ? '맛집 검색' : '장소 검색'}
-                                aria-label={view === 'food' ? '맛집 검색' : '장소 검색'}
+                                placeholder={view === 'food' ? '후보 검색' : '장소 검색'}
+                                aria-label={view === 'food' ? '후보 검색' : '장소 검색'}
                                 value={search}
                                 onChange={event => setSearch(event.target.value)}
                                 className="w-[110px] border-0 bg-transparent p-[3px] text-[11px] max-phone:w-[80px]"
@@ -592,23 +617,14 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                         </button>
                     ) : (
                         <button type="button" className="btn btn-mini whitespace-nowrap" onClick={() => setEditFoodId(null)}>
-                            <Plus className="icon" />맛집
+                            <Plus className="icon" />후보 추가
                         </button>
                     )}
                 </div>
             </div>
 
             {view === 'food' ? (
-                filteredFoods.length ? (
-                    <>
-                        <p className="mb-3 text-[11px] text-muted">맛집은 방문 후보입니다. 예산은 추정이며 휴무·대기시간을 확인하세요. 식당·카페 배지를 누르면 지도에서 위치를 보여줍니다.</p>
-                        {filteredFoods.map(food => (
-                            <FoodCard key={food.id} food={food} selected={food.id === selectedId} onFocus={focusItem} onEdit={id => setEditFoodId(id)} />
-                        ))}
-                    </>
-                ) : (
-                    <Empty>{day.foods.length ? '검색된 맛집이 없습니다.' : '아직 맛집·카페가 없습니다. ‘맛집’ 추가 버튼으로 추가하세요.'}</Empty>
-                )
+                candidateList
             ) : reorder ? (
                 <>
                     <p className="mb-3 text-[11px] text-muted">왼쪽 손잡이를 끌어 순서를 바꾸세요. 바뀐 순서는 바로 저장됩니다.</p>
@@ -637,6 +653,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     /** 모달 모음 (두 구성 공통) */
     const dialogs = (
         <>
+            {schedulingCandidate && <CandidateScheduleDialog key={schedulingCandidate.id} candidate={schedulingCandidate} days={trip.days} initialDayId={day?.id ?? ''} onClose={() => setScheduleCandidateId(null)} onSave={addCandidateToSchedule} />}
             <StopDetailDialog stop={detailStop} checkedAt={trip.checkedAt} onClose={() => setDetailId(null)} onEdit={openStopEdit} onDelete={deleteStop} />
             <StopEditDialog open={editStopId !== undefined} stop={editStop} bias={bias} currency={trip.currency} onClose={() => setEditStopId(undefined)} onSave={saveStop} />
             <FoodEditDialog

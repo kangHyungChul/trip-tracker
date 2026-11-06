@@ -75,6 +75,10 @@ function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps
     // useState 초기화 함수: 처음 열렸을 때 한 번만 장소 데이터를 폼 상태로 복사합니다.
     const [draft, setDraft] = useState<Draft>(() => toDraft(stop));
     const [error, setError] = useState('');
+    const [arrivalType, setArrivalType] = useState<'' | 'parking' | 'entrance'>(stop?.arrival?.type ?? '');
+    const [arrivalLat, setArrivalLat] = useState(stop?.arrival ? String(stop.arrival.lat) : '');
+    const [arrivalLng, setArrivalLng] = useState(stop?.arrival ? String(stop.arrival.lng) : '');
+    const [arrivalName, setArrivalName] = useState(stop?.arrival?.name ?? '');
     // 금액 입력칸 라벨에 붙일 통화 표시 (예: "JPY ¥", 기호가 코드와 같으면 코드만)
     const symbol = currencySymbol(currency);
     const unitLabel = symbol === currency ? currency : `${currency} ${symbol}`;
@@ -90,9 +94,16 @@ function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps
             setError('지도 위치가 없습니다. 위의 "위치 가져오기"로 구글지도 URL이나 장소 이름을 입력하세요.');
             return;
         }
+        const actualLat = toCoord(arrivalLat);
+        const actualLng = toCoord(arrivalLng);
+        if (arrivalType && (actualLat === null || actualLng === null || Math.abs(actualLat) > 90 || Math.abs(actualLng) > 180)) {
+            setError('주차장·출입구의 위치를 가져오거나 올바른 좌표를 입력해 주세요.');
+            return;
+        }
         // 문자열은 앞뒤 공백 제거, 숫자 필드는 Number 로 변환합니다.
         onSave({
             ...draft,
+            arrival: arrivalType && actualLat !== null && actualLng !== null ? { type: arrivalType, name: arrivalName.trim(), lat: actualLat, lng: actualLng } : undefined,
             timeNote: draft.timeNote.trim(), title: draft.title.trim(), query: draft.query.trim(), duration: draft.duration.trim(),
             kind: draft.kind.trim(), fee: draft.fee.trim(), parking: draft.parking.trim(), parkingQuery: draft.parkingQuery.trim(),
             note: draft.note.trim(), source: draft.source.trim(),
@@ -133,6 +144,22 @@ function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps
                 />
                 <Field label="장소 이름"><input required {...text('title')} /></Field>
                 <Field label="구글지도 검색어·현지 주소 (길찾기 목적지)"><input required {...text('query')} /></Field>
+                <fieldset className="mb-4 rounded-lg border border-line p-3">
+                    <legend className="px-1 text-[12px] font-bold">실제 도착 지점</legend>
+                    <Field label="경로·길찾기 목적지">
+                        <select value={arrivalType} onChange={event => setArrivalType(event.target.value as typeof arrivalType)}>
+                            <option value="">장소 원래 위치</option><option value="parking">주차장</option><option value="entrance">출입구</option>
+                        </select>
+                    </Field>
+                    {arrivalType && <>
+                        <PlaceLocator key={arrivalType} lat={toCoord(arrivalLat)} lng={toCoord(arrivalLng)} bias={latLngBias(draft)} label={`${arrivalType === 'parking' ? '주차장' : '출입구'} URL 또는 이름`} onFound={place => { setArrivalLat(String(place.lat)); setArrivalLng(String(place.lng)); setArrivalName(place.name || place.address); }} />
+                        <Field label="도착 지점 이름 (선택)"><input value={arrivalName} onChange={event => setArrivalName(event.target.value)} /></Field>
+                        <details className="text-[12px]"><summary className="mb-2 cursor-pointer text-muted">도착 좌표 직접 입력</summary>
+                            <Row2><Field label="도착 위도"><input type="number" step="any" min="-90" max="90" value={arrivalLat} onChange={event => setArrivalLat(event.target.value)} /></Field><Field label="도착 경도"><input type="number" step="any" min="-180" max="180" value={arrivalLng} onChange={event => setArrivalLng(event.target.value)} /></Field></Row2>
+                        </details>
+                    </>}
+                    <p className="mt-1 text-[11px] text-muted">지도 핀과 이동 경로·길찾기는 선택한 도착 지점을 사용합니다. 장소의 원래 위치는 유지됩니다.</p>
+                </fieldset>
                 <fieldset className="mb-4">
                     <legend className="mb-2 text-[12px] font-bold">지도 핀 아이콘</legend>
                     <div className="grid grid-cols-4 gap-2 max-phone:grid-cols-3">
@@ -198,4 +225,10 @@ function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps
             </ModalFooter>
         </form>
     );
+}
+
+function latLngBias(draft: Draft): LatLng | null {
+    const lat = toCoord(draft.lat);
+    const lng = toCoord(draft.lng);
+    return lat !== null && lng !== null ? { lat, lng } : null;
 }

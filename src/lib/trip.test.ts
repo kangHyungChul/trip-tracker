@@ -38,21 +38,23 @@ describe('예시 여행 시드 (version 3)', () => {
                 expect(stop.parking.trim()).not.toBe('');
                 expect(stop.fee.trim()).not.toBe('');
             }
-            for (const food of day.foods) {
+            for (const food of freshSeed().candidates ?? []) {
                 expect(new URL(gmaps(food.query, true)).searchParams.get('destination')).toBe(food.query);
                 expect(safeURL(food.source)).not.toBe('');
             }
         }
     });
 
-    it('맛집은 날짜별 목록으로 분리돼 있고 모두 지도 좌표가 있다', () => {
+    it('예전 날짜별 후보를 공통 후보함으로 옮기고 좌표와 ID를 보존한다', () => {
         const trip = freshSeed();
-        const foods = trip.days.flatMap(day => day.foods);
+        const foods = trip.candidates!;
         expect(foods.length).toBeGreaterThan(20);
         expect(foods.every(food => food.lat !== null && food.lng !== null)).toBe(true);
         expect(foods.some(food => food.category === 'cafe')).toBe(true);
         // 같은 날 같은 검색어는 한 번만
-        for (const day of trip.days) expect(new Set(day.foods.map(food => food.query)).size).toBe(day.foods.length);
+        expect(trip.days.every(day => day.foods.length === 0)).toBe(true);
+        expect(foods.map(food => food.id)).toEqual(seed.days.flatMap(day => day.foods.map(food => food.id)));
+        expect(validateTrip(trip)).toEqual(trip);
     });
 
     it('요청한 핵심 장소와 시간 분해가 들어 있다', () => {
@@ -93,9 +95,9 @@ describe('validateTrip: 잘못된 데이터 거부', () => {
         ['음수 금액', trip => { trip.days[0].stops[0].amount = -1; }],
         ['음수 추가 고정비', trip => { trip.days[0].stops[0].extraAmount = -1; }],
         ['장소 ID 중복', trip => { trip.days[0].stops.push(trip.days[0].stops[0]); }],
-        ['장소·맛집 ID 중복', trip => { trip.days[0].foods[0].id = trip.days[0].stops[0].id; }],
-        ['맛집 좌표 한쪽만', trip => { trip.days[0].foods[0].lng = null; }],
-        ['맛집 종류 오류', trip => { (trip.days[0].foods[0] as unknown as { category: string }).category = 'bar'; }],
+        ['장소·맛집 ID 중복', trip => { trip.candidates![0].id = trip.days[0].stops[0].id; }],
+        ['맛집 좌표 한쪽만', trip => { trip.candidates![0].lng = null; }],
+        ['맛집 종류 오류', trip => { (trip.candidates![0] as unknown as { category: string }).category = 'bar'; }],
         ['시각 형식 오류', trip => { trip.days[0].stops[0].start = '25:00'; }],
         ['날짜 형식 오류', trip => { trip.days[0].date = '10.31'; }],
         ['없는 날짜', trip => { trip.days[0].date = '2026-02-30'; }],
@@ -121,9 +123,9 @@ describe('validateTrip: 잘못된 데이터 거부', () => {
 
     it('맛집 위치 미정(null)을 허용한다', () => {
         const trip = freshSeed();
-        trip.days[0].foods[0].lat = null;
-        trip.days[0].foods[0].lng = null;
-        expect(validateTrip(trip).days[0].foods[0].lat).toBeNull();
+        trip.candidates![0].lat = null;
+        trip.candidates![0].lng = null;
+        expect(validateTrip(trip).candidates![0].lat).toBeNull();
     });
 
     it('알 수 없는 키는 제거한다', () => {
@@ -200,10 +202,10 @@ describe('예전 버전 → version 3 변환', () => {
         expect(day.dateNote).toBe('공휴일');
         expect([day.stops[0].start, day.stops[0].end, day.stops[0].timeNote]).toEqual(['18:50', '20:20', '']);
         expect([day.stops[1].start, day.stops[1].timeNote]).toEqual(['', '시간 미정']);
-        expect(day.foods.map(food => food.name)).toEqual(['센간엔 차료', '새 식당']);
-        expect(day.foods[0].category).toBe('cafe');
-        expect(day.foods[0].lat).not.toBeNull(); // 예시 데이터에서 찾은 좌표
-        expect(day.foods[1].lat).toBeNull();     // 모르는 가게는 위치 미정 → 앱에서 자동 조회
+        expect(trip.candidates!.map(food => food.name)).toEqual(['센간엔 차료', '새 식당']);
+        expect(trip.candidates![0].category).toBe('cafe');
+        expect(trip.candidates![0].lat).not.toBeNull(); // 예시 데이터에서 찾은 좌표
+        expect(trip.candidates![1].lat).toBeNull();     // 모르는 가게는 위치 미정 → 앱에서 자동 조회
         expect(trip.companion).toBe('부모님과 둘이'); // 예전 화면 고정 문구 보존
     });
 
@@ -243,7 +245,7 @@ describe('비용 계산', () => {
 describe('검색', () => {
     const trip = freshSeed();
     const stop = trip.days[2].stops.find(item => item.id === 'sengan')!;
-    const food = trip.days[2].foods.find(item => item.name === '센간엔 차료')!;
+    const food = trip.candidates!.find(item => item.name === '센간엔 차료')!;
 
     it('장소는 이름·메모로, 맛집은 이름·메뉴로 찾는다', () => {
         expect(stopMatches(stop, '센간엔')).toBe(true);

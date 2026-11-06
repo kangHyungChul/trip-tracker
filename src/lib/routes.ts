@@ -1,6 +1,7 @@
 import type { Stop, TravelMode } from '../types';
+import { stopPosition } from './itinerary';
 
-export type RouteStop = Pick<Stop, 'lat' | 'lng' | 'mode'>;
+export type RouteStop = Pick<Stop, 'lat' | 'lng' | 'mode' | 'arrival'>;
 export interface RouteBatch {
     start: number;
     end: number;
@@ -24,12 +25,12 @@ export function routeProgress(results: RouteResult[], totalLegs: number) {
 }
 
 /** 이동수단은 도착 장소 기준. 시간·완료 체크·아이콘은 경로 식별값에서 제외합니다. */
-export const routeKey = (stops: RouteStop[]) => JSON.stringify(stops.map((s, i) => [s.lat, s.lng, i ? s.mode : null]));
+export const routeKey = (stops: RouteStop[]) => JSON.stringify(stops.map((s, i) => { const p = stopPosition(s); return [p.lat, p.lng, i ? s.mode : null]; }));
 
 /** 같은 이동수단을 묶고 Essentials 범위(중간 경유지 10곳)를 넘기 전에 분할합니다. */
 export function buildRouteBatches(stops: RouteStop[]): RouteBatch[] {
     const batches: RouteBatch[] = [];
-    const point = (s: RouteStop) => ({ lat: s.lat, lng: s.lng });
+    const point = stopPosition;
     for (let start = 0; start < stops.length - 1;) {
         const mode = stops[start + 1].mode;
         let end = start + 1;

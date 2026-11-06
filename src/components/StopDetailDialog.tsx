@@ -6,6 +6,7 @@ import { gmaps } from '../lib/links';
 import { ExternalLink, Fact, SourceLink } from './common';
 import { Modal, ModalHead } from './Modal';
 import type { Stop } from '../types';
+import { arrivalLabel, stopDestination } from '../lib/itinerary';
 
 interface StopDetailDialogProps {
     /** 표시할 장소. null 이면 모달이 닫힙니다. */
@@ -35,9 +36,10 @@ export function StopDetailDialog({ stop, checkedAt, onClose, onEdit, onDelete }:
                             <Fact label="비용">{stop.fee}</Fact>
                             <Fact label="주차">{stop.parking}</Fact>
                             <Fact label="검색">{stop.query}</Fact>
+                            {stop.arrival && <Fact label="도착">{arrivalLabel(stop.arrival)}</Fact>}
                         </div>
                         <div className="flex flex-wrap items-center gap-2.5">
-                            <ExternalLink href={gmaps(stop.query, true, stop.mode)} className="navlink">구글지도 길찾기</ExternalLink>
+                            <ExternalLink href={gmaps(stopDestination(stop), true, stop.mode)} className="navlink">구글지도 길찾기</ExternalLink>
                             {/* 주차장 검색어가 있을 때만 주차장 길찾기 제공 */}
                             {stop.parkingQuery && (
                                 <ExternalLink href={gmaps(stop.parkingQuery, true)} className="btn btn-outline">주차장 길찾기</ExternalLink>

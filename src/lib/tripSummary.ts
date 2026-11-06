@@ -22,6 +22,6 @@ export function formatDateRange(trip: Trip): string {
 export function countItems(trip: Trip) {
     return {
         stops: trip.days.reduce((sum, day) => sum + day.stops.length, 0),
-        foods: trip.days.reduce((sum, day) => sum + day.foods.length, 0),
+        foods: trip.candidates?.length ?? trip.days.reduce((sum, day) => sum + day.foods.length, 0),
     };
 }

@@ -11,7 +11,7 @@
 
 /** 맛집 종류: 지도 배지 모양이 달라집니다. */
 import type { StopIcon } from './lib/stopIcons';
-export type FoodCategory = 'restaurant' | 'cafe';
+export type FoodCategory = StopIcon;
 
 /** 날짜별 맛집·카페 후보 */
 export interface Food {
@@ -34,6 +34,13 @@ export type CostUnit = 'adult' | 'vehicle';
 /** 구글지도 길찾기 이동수단 */
 export type TravelMode = 'driving' | 'walking';
 
+export interface ArrivalPoint {
+    type: 'parking' | 'entrance';
+    name: string;
+    lat: number;
+    lng: number;
+}
+
 /** 하루 일정 안의 방문 장소 */
 export interface Stop {
     id: string;           // 여행 전체에서 유일한 ID
@@ -55,6 +62,8 @@ export interface Stop {
     source: string;       // 공식·참고 URL
     kind: string;         // 종류 태그 (관광, 식사, 숙소 …)
     icon?: StopIcon;       // 지도 아이콘. 이전 백업은 종류에 따라 기본값 지정
+    arrival?: ArrivalPoint; // 실제 경로 도착점 (장소 원래 좌표는 유지)
+    sourceCandidateId?: string; // 일정에 추가한 원본 후보 ID
     mode: TravelMode;     // 길찾기 이동수단
     done: boolean;        // 방문 완료 체크
 }
@@ -90,4 +99,5 @@ export interface Trip {
     updatedAt?: string;   // 마지막 기기 저장 시각 (선택)
     notes: string;        // 여행 메모
     days: Day[];          // 날짜 목록 (새 여행은 0일로 시작 가능)
+    candidates?: Food[];   // 여행 공통 장소 후보. 이전 날짜별 foods는 불러올 때 이동
 }

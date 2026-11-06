@@ -6,6 +6,7 @@ import { ExternalLink, Fact } from './common';
 import { isInteractiveTarget } from './FoodCard';
 import type { Stop } from '../types';
 import { StopIcon, stopIconName } from './StopIcon';
+import { arrivalLabel, stopDestination } from '../lib/itinerary';
 
 interface StopCardProps {
     stop: Stop;
@@ -65,11 +66,12 @@ export function StopCard({ stop, number, selected, onFocus, onToggleDone, onDeta
             </div>
             <p className="mt-[9px] mb-3 text-[11px] leading-[1.8] whitespace-pre-wrap text-muted">{stop.note}</p>
             <div className="grid gap-[7px] text-[11px]">
+                {stop.arrival && <Fact label="도착">{arrivalLabel(stop.arrival)}</Fact>}
                 <Fact label="비용">{stop.fee}</Fact>
                 <Fact label="주차">{stop.parking}</Fact>
             </div>
             <div className="mt-3.5 flex flex-wrap items-center gap-[7px] max-phone:gap-1.5 print:hidden">
-                <ExternalLink href={gmaps(stop.query, true, stop.mode)} className="navlink">구글지도 길찾기</ExternalLink>
+                <ExternalLink href={gmaps(stopDestination(stop), true, stop.mode)} className="navlink">구글지도 길찾기</ExternalLink>
                 <button type="button" onClick={() => onDetail(stop.id)} className="rounded-[7px] border border-line px-2.5 py-1.5 text-[11px]">
                     자세히
                 </button>
