@@ -2,6 +2,7 @@
 // 위치는 구글지도 URL 또는 장소 이름으로 가져옵니다.
 
 import { useState, type FormEvent } from 'react';
+import { DEFAULT_CANDIDATE_COLOR } from '../lib/iconColors';
 import { blankFood, clone } from '../lib/trip';
 import type { LatLng } from '../lib/placeLookup';
 import { Hint } from './common';
@@ -70,7 +71,7 @@ function FoodForm({ food, bias, onClose, onSave, onDelete }: FoodEditDialogProps
                 />
                 <Field label="장소 이름"><input required {...text('name')} /></Field>
                 <Field label="구글지도 검색어·주소 (길찾기 목적지)"><input required {...text('query')} /></Field>
-                <PlaceIconPicker value={draft.category} onChange={value => set('category', value)} color={draft.iconColor} onColorChange={value => set('iconColor', value)} hint="후보 목록과 지도에 이 아이콘이 표시되며, 일정에 추가할 때도 이어집니다." />
+                <PlaceIconPicker value={draft.category} onChange={value => set('category', value)} color={draft.iconColor ?? DEFAULT_CANDIDATE_COLOR} onColorChange={value => set('iconColor', value)} hint="후보 목록과 지도에 이 아이콘이 표시되며, 일정에 추가할 때도 이어집니다." />
                 <Row2>
                     <Field label="메뉴·주요 정보 (선택)"><input {...text('menu')} /></Field>
                     <Field label="예상 예산"><input {...text('budget')} /></Field>

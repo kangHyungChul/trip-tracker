@@ -1,4 +1,6 @@
 export const DEFAULT_ICON_COLOR = '#000000';
+/** 일정의 검은 핀과 구분되는 후보 기본색. 사용자가 지정한 색은 그대로 유지합니다. */
+export const DEFAULT_CANDIDATE_COLOR = '#2563eb';
 export const ICON_COLORS = [
     { value: DEFAULT_ICON_COLOR, label: '검은색' }, { value: '#ea580c', label: '주황색' }, { value: '#db2777', label: '분홍색' },
     { value: '#7c3aed', label: '보라색' }, { value: '#2563eb', label: '파란색' },

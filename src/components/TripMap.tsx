@@ -16,6 +16,7 @@ import { PlaceMarker } from './PlaceMarker';
 import { formatRouteDistance, formatRouteDuration, routeClient, routeKey, routeProgress, type RouteResult } from '../lib/routes';
 import type { Food, Stop } from '../types';
 import { arrivalLabel, stopDestination, stopPosition } from '../lib/itinerary';
+import { DEFAULT_CANDIDATE_COLOR } from '../lib/iconColors';
 
 /** 지도 포커스 요청. 같은 항목을 다시 눌러도 동작하도록 매번 다른 nonce 를 붙입니다. */
 export interface FocusRequest {
@@ -127,7 +128,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const [infoId, setInfoId] = useState<string | null>(null);
     const [showFoods, setShowFoods] = useState(true);
     const [routePanelOpen, setRoutePanelOpen] = useState(false);
-    const [routesVisible, setRoutesVisible] = useState(true);
+    const [routesVisible, setRoutesVisible] = useState(false);
     const [routeColor, setRouteColor] = useState<string>(ROUTE_COLORS[0].value);
     const [myPosition, setMyPosition] = useState<google.maps.LatLngLiteral | null>(null);
     const routingKey = routeKey(stops);
@@ -137,7 +138,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const currentRoute = routeState?.key === routingKey ? routeState : null;
     // 경로 데이터는 보관하고 지도에 그리는 것만 끕니다. 다시 표시할 때 재조회하지 않습니다.
     const routeResults = routesVisible ? currentRoute?.results : undefined;
-    const hasSavedPaths = !!currentRoute?.results.some(result => result.data?.geometryOnly);
+    const hasRoutePaths = !!currentRoute?.results.some(result => result.data?.path.length);
     const progress = routeProgress(currentRoute?.results ?? [], Math.max(0, stops.length - 1));
     const { confirmedLegs } = progress;
     // 날짜·위치·순서·이동수단 변경 시 이전 응답과 남은 요청을 무효화합니다. 자동 호출은 하지 않습니다.
@@ -146,6 +147,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
         return () => { routeRequest.current++; };
     }, [routingKey]);
     useEffect(() => {
+        setRoutesVisible(false);
         const saved = routeClient.peek(stops);
         if (saved) setRouteState({ key: routingKey, loading: false, results: saved, error: '' });
         // 좌표·순서·이동수단이 같으면 이름·메모 등의 수정으로 재조회하지 않습니다.
@@ -270,7 +272,10 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     // 지도 우측 하단. 휴대폰은 바텀시트 위로 올리되 지도 위쪽을 벗어나지 않게 제한합니다.
     const controls = (
         <div role="group" aria-label="지도 조작" className="absolute right-3 z-[2] flex flex-col gap-2" style={{ bottom: fill ? `min(${bottomInset + 12}px, max(28px, calc(100% - 148px)))` : 28 }}>
-            <button type="button" className={`${MAP_ICON_BUTTON} ${showFoods ? 'bg-light' : ''}`} onClick={() => setShowFoods(show => !show)} aria-label="장소 후보 표시" aria-pressed={showFoods} title={showFoods ? '장소 후보 숨기기' : '장소 후보 표시'}><Layers className="size-[18px]" /></button>
+            <button type="button" className="flex min-h-12 min-w-10 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-1.5 shadow-card" style={{ backgroundColor: showFoods ? DEFAULT_CANDIDATE_COLOR : '#ffffff', color: showFoods ? '#ffffff' : '#607580', borderColor: showFoods ? DEFAULT_CANDIDATE_COLOR : '#dce5ea' }} onClick={() => setShowFoods(show => !show)} aria-label={showFoods ? '장소 후보 켜짐, 누르면 숨기기' : '장소 후보 꺼짐, 누르면 표시'} aria-pressed={showFoods} title={showFoods ? '장소 후보 숨기기' : '장소 후보 표시'}>
+                <Layers className="size-[18px]" />
+                <span className="text-[10px] leading-none font-semibold">후보 {showFoods ? 'ON' : 'OFF'}</span>
+            </button>
             <button type="button" className={MAP_ICON_BUTTON} onClick={fitAll} aria-label="전체 보기" title="전체 보기"><Scan className="size-[18px]" /></button>
             <button type="button" className={MAP_ICON_BUTTON} onClick={locate} aria-label="내 위치 표시" title="내 위치"><LocateFixed className="size-[18px]" /></button>
         </div>
@@ -285,16 +290,10 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
             <div id="trip-route-panel" hidden={!routePanelOpen}>
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[11px] text-muted">{stops.length < 2 ? '장소를 2곳 이상 추가하면 경로를 볼 수 있어요.' : '자동차 실선 · 도보 점선 · 교통 미반영'}</span>
-                {currentRoute?.results.some(result => result.data?.path.length) && (
-                    <button type="button" className="btn btn-mini" aria-pressed={routesVisible} onClick={() => setRoutesVisible(visible => !visible)}>
-                        {routesVisible ? '경로 숨기기' : '경로 다시 표시'}
-                    </button>
-                )}
-                {stops.length > 1 && <button type="button" className="btn btn-mini" onClick={() => void calculateRoutes(hasSavedPaths)} disabled={currentRoute?.loading || (!!currentRoute && !currentRoute.error && !hasSavedPaths)}>
-                    {currentRoute?.loading ? '경로 계산 중…' : currentRoute?.error ? '경로 다시 시도' : hasSavedPaths ? '시간·거리 확인' : currentRoute ? progress.label : '실제 경로 보기'}
+                {stops.length > 1 && <button type="button" className="btn btn-mini" aria-pressed={hasRoutePaths && routesVisible} onClick={() => hasRoutePaths ? setRoutesVisible(visible => !visible) : void calculateRoutes()} disabled={currentRoute?.loading}>
+                    {currentRoute?.loading ? '경로 계산 중…' : hasRoutePaths ? routesVisible ? '경로 숨기기' : '경로 표시하기' : currentRoute?.error ? '경로 다시 시도' : '경로 표시하기'}
                 </button>}
             </div>
-            {hasSavedPaths && <p className="mt-2 text-[11px] text-muted">이전에 확인한 경로입니다. 시간·거리가 필요하면 ‘시간·거리 확인’을 눌러 주세요.</p>}
             <fieldset className="mt-2 mb-1">
                 <legend className="mb-1 text-[11px] text-muted">경로 색상</legend>
                 <div className="flex flex-wrap gap-1.5">
