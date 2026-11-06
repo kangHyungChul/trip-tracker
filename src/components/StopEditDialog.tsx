@@ -10,7 +10,8 @@ import { Hint } from './common';
 import { TimeInput } from './DateTimeInputs';
 import { Modal, ModalFooter, ModalHead } from './Modal';
 import { PlaceLocator } from './PlaceLocator';
-import { StopIcon, STOP_ICON_OPTIONS, stopIconName } from './StopIcon';
+import { stopIconName } from './StopIcon';
+import { PlaceIconPicker } from './PlaceIconPicker';
 import type { CostUnit, Stop, TravelMode } from '../types';
 
 interface StopEditDialogProps {
@@ -160,18 +161,7 @@ function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps
                     </>}
                     <p className="mt-1 text-[11px] text-muted">지도 핀과 이동 경로·길찾기는 선택한 도착 지점을 사용합니다. 장소의 원래 위치는 유지됩니다.</p>
                 </fieldset>
-                <fieldset className="mb-4">
-                    <legend className="mb-2 text-[12px] font-bold">지도 핀 아이콘</legend>
-                    <div className="grid grid-cols-4 gap-2 max-phone:grid-cols-3">
-                        {STOP_ICON_OPTIONS.map(([name, label]) => (
-                            <label key={name} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-2 py-2 text-[11px] ${stopIconName(draft) === name ? 'border-green bg-light text-green' : 'border-line'}`}>
-                                <input type="radio" name="stop-icon" value={name} checked={stopIconName(draft) === name} onChange={() => set('icon', name)} className="sr-only peer" />
-                                <span className="flex items-center gap-1.5 rounded peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-green"><StopIcon name={name} />{label}</span>
-                            </label>
-                        ))}
-                    </div>
-                    <p className="mt-2 text-[11px] text-muted">아이콘과 방문 순서가 지도에 함께 표시됩니다. 아래 종류·메모와 별도로 선택할 수 있습니다.</p>
-                </fieldset>
+                <PlaceIconPicker value={stopIconName(draft)} onChange={value => set('icon', value)} hint="아이콘과 방문 순서가 지도에 함께 표시됩니다. 아래 종류·메모와 별도로 선택할 수 있습니다." />
                 <Row2>
                     <Field label="시작 시각"><TimeInput value={draft.start} onChange={value => set('start', value)} /></Field>
                     <Field label="종료 시각 (선택)"><TimeInput value={draft.end} onChange={value => set('end', value)} placeholder="없음" openTo={draft.start} /></Field>

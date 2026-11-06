@@ -7,8 +7,8 @@ import type { LatLng } from '../lib/placeLookup';
 import { Hint } from './common';
 import { Modal, ModalFooter, ModalHead } from './Modal';
 import { PlaceLocator } from './PlaceLocator';
-import type { Food, FoodCategory } from '../types';
-import { STOP_ICON_OPTIONS } from './StopIcon';
+import type { Food } from '../types';
+import { PlaceIconPicker } from './PlaceIconPicker';
 
 interface FoodEditDialogProps {
     open: boolean;
@@ -77,16 +77,9 @@ function FoodForm({ food, bias, onClose, onSave, onDelete }: FoodEditDialogProps
                         }))
                     }
                 />
-                <Row2>
-                    <Field label="장소 이름"><input required {...text('name')} /></Field>
-                    <Field label="종류 (지도 배지)">
-                        <select value={draft.category} onChange={event => set('category', event.target.value as FoodCategory)}>
-                            {/* 기본 선택상자 항목에는 SVG 를 넣을 수 없어 글자만 표시합니다. */}
-                            {STOP_ICON_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                        </select>
-                    </Field>
-                </Row2>
+                <Field label="장소 이름"><input required {...text('name')} /></Field>
                 <Field label="구글지도 검색어·주소 (길찾기 목적지)"><input required {...text('query')} /></Field>
+                <PlaceIconPicker value={draft.category} onChange={value => set('category', value)} hint="후보 목록과 지도에 이 아이콘이 표시되며, 일정에 추가할 때도 이어집니다." />
                 <Row2>
                     <Field label="메뉴·주요 정보 (선택)"><input {...text('menu')} /></Field>
                     <Field label="예상 예산"><input {...text('budget')} /></Field>

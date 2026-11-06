@@ -427,20 +427,23 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     );
 
     // 아래 조각들은 날짜가 있을 때만 씁니다. (day 가 null 이면 null)
+    const contextAddButton = (
+        <button type="button" className="btn btn-primary shrink-0 gap-1 whitespace-nowrap px-2.5 py-2 text-[11px]" onClick={() => view === 'food' ? setEditFoodId(null) : openStopEdit(null)}>
+            <Plus className="size-4" />{view === 'food' ? '후보 추가' : '일정 추가'}
+        </button>
+    );
     /** 선택한 날짜 제목 + 날짜 편집·장소 추가 버튼 (일반 구성) */
     const dayHeading = day && (
         <div className="mt-[29px] mb-5 flex items-center justify-between gap-3 max-tab:mt-[23px] max-tab:mb-4">
             <div className="min-w-0">
-                <p className="eyebrow max-phone:text-[9px]">{[day.subtitle, day.hotel].filter(Boolean).join(' · ')}</p>
-                <h2 className="m-0 text-[23px] leading-[1.4] font-semibold tracking-[-0.8px] max-phone:text-[21px]">{day.title}</h2>
+                <p className="eyebrow max-phone:text-[9px]">{view === 'food' ? '여행 전체 공통' : [day.subtitle, day.hotel].filter(Boolean).join(' · ')}</p>
+                <h2 className="m-0 flex items-center gap-1 text-[23px] leading-[1.4] font-semibold tracking-[-0.8px] max-phone:text-[21px]">
+                    <span>{view === 'food' ? '장소 후보' : day.title}</span>
+                    {view === 'route' && <button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-full" onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>}
+                </h2>
             </div>
             <div className="flex shrink-0 flex-wrap justify-end gap-2 print:hidden">
-                <button type="button" className="btn btn-outline max-phone:px-2.5 max-phone:py-2 max-phone:text-[11px]" onClick={() => setEditDayId(day.id)}>
-                    날짜 편집
-                </button>
-                <button type="button" className="btn btn-outline whitespace-nowrap max-phone:px-2.5 max-phone:py-2 max-phone:text-[11px]" onClick={() => openStopEdit(null)}>
-                    <Plus className="icon" />장소 추가
-                </button>
+                {contextAddButton}
             </div>
         </div>
     );
@@ -566,7 +569,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                             />
                         </label>
                     )}
-                    {view === 'route' ? (
+                    {view === 'route' && (
                         <button
                             type="button"
                             className={`btn btn-mini shrink-0 whitespace-nowrap ${reorder ? 'bg-green text-white' : ''}`}
@@ -582,10 +585,6 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                                     <ArrowUpDown className="icon" />순서 편집
                                 </>
                             )}
-                        </button>
-                    ) : (
-                        <button type="button" className="btn btn-mini shrink-0 whitespace-nowrap" onClick={() => setEditFoodId(null)}>
-                            <Plus className="icon" />후보 추가
                         </button>
                     )}
                 </div>
@@ -667,11 +666,13 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                         <div ref={desktopScrollerRef} className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-4 pb-5 wrap-anywhere">
                             <div className="flex items-center gap-1.5 py-4">
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-[11px] text-muted" title={trip.title}>{trip.title}</p>
-                                    <h1 className="truncate text-[19px] font-semibold" title={day.title}>{day.title}</h1>
+                                    <p className="truncate text-[11px] text-muted" title={trip.title}>{view === 'food' ? '여행 전체 공통' : trip.title}</p>
+                                    <div className="flex min-w-0 items-center gap-1">
+                                        <h1 className="min-w-0 truncate text-[19px] font-semibold" title={view === 'food' ? '장소 후보' : day.title}>{view === 'food' ? '장소 후보' : day.title}</h1>
+                                        {view === 'route' && <button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-full" onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>}
+                                    </div>
                                 </div>
-                                <button type="button" className={PHONE_ICON_BUTTON} onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>
-                                <button type="button" className={PHONE_ICON_BUTTON} onClick={() => openStopEdit(null)} aria-label="장소 추가" title="장소 추가"><Plus className="size-5" /></button>
+                                {contextAddButton}
                             </div>
                             {listSection}
                             <div className="mt-5">{dayInfo}</div>
@@ -719,11 +720,13 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
             <div className="flex items-center gap-1.5 px-[15px] pb-2.5">
                 <div className="min-w-0 flex-1">
                     {/* title: 잘린 전체 문구를 길게 누르거나 마우스를 올리면 볼 수 있게 */}
-                    {eyebrow && <p className="eyebrow mb-0.5 truncate text-[9px]" title={eyebrow}>{eyebrow}</p>}
-                    <h2 className="m-0 truncate text-[18px] leading-[1.35] font-semibold tracking-[-0.6px]" title={day.title}>{day.title}</h2>
+                    {(eyebrow || view === 'food') && <p className="eyebrow mb-0.5 truncate text-[9px]" title={view === 'food' ? '여행 전체 공통' : eyebrow}>{view === 'food' ? '여행 전체 공통' : eyebrow}</p>}
+                    <div className="flex min-w-0 items-center gap-1">
+                        <h2 className="m-0 min-w-0 truncate text-[18px] leading-[1.35] font-semibold tracking-[-0.6px]" title={view === 'food' ? '장소 후보' : day.title}>{view === 'food' ? '장소 후보' : day.title}</h2>
+                        {view === 'route' && <button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-full" onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>}
+                    </div>
                 </div>
-                <button type="button" className={`${PHONE_ICON_BUTTON} btn-outline`} onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>
-                <button type="button" className={`${PHONE_ICON_BUTTON} btn-outline`} onClick={() => openStopEdit(null)} aria-label="장소 추가" title="장소 추가"><Plus className="size-5" /></button>
+                {contextAddButton}
             </div>
         );
 
