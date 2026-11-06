@@ -52,9 +52,9 @@ export default defineConfig(({ mode }) => {
             chunkSizeWarningLimit: 900,
         },
         test: {
-            // 순수 함수 테스트만 하므로 DOM 없는 node 환경으로 충분합니다.
+            // 순수 함수와 서버 렌더링 마크업 검증은 DOM 없는 node 환경에서 실행합니다.
             environment: 'node',
-            include: ['src/**/*.test.ts'],
+            include: ['src/**/*.test.{ts,tsx}'],
         },
     };
 });

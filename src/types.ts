@@ -15,6 +15,7 @@ export type FoodCategory = StopIcon;
 
 /** 날짜별 맛집·카페 후보 */
 export interface Food {
+    iconColor?: string;       // 사용자가 고른 지도 아이콘 색상 (#RRGGBB)
     id: string;               // 여행 전체에서 유일한 ID (장소 ID 와도 겹치지 않음)
     category: FoodCategory;   // 식당 / 카페
     name: string;             // 가게 이름
@@ -62,6 +63,7 @@ export interface Stop {
     source: string;       // 공식·참고 URL
     kind: string;         // 종류 태그 (관광, 식사, 숙소 …)
     icon?: StopIcon;       // 지도 아이콘. 이전 백업은 종류에 따라 기본값 지정
+    iconColor?: string;
     arrival?: ArrivalPoint; // 실제 경로 도착점 (장소 원래 좌표는 유지)
     sourceCandidateId?: string; // 일정에 추가한 원본 후보 ID
     mode: TravelMode;     // 길찾기 이동수단

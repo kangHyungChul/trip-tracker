@@ -2,9 +2,9 @@ import { useState, type FormEvent } from 'react';
 import { Modal, ModalFooter, ModalHead } from './Modal';
 import { TimeInput } from './DateTimeInputs';
 import { PlaceLocator } from './PlaceLocator';
-import { StopIcon } from './StopIcon';
 import type { ScheduleCandidateInput } from '../lib/itinerary';
 import type { Day, Food, TravelMode } from '../types';
+import { PlaceMarker } from './PlaceMarker';
 
 interface Props {
     candidate: Food;
@@ -35,7 +35,7 @@ export function CandidateScheduleDialog({ candidate, days, initialDayId, onClose
         <form onSubmit={submit}>
             <ModalHead id="candidate-schedule-title" title="후보를 일정에 추가" onClose={onClose} />
             <div className="px-[25px] py-5 max-phone:px-[18px]">
-                <p className="mb-4 flex items-center gap-2 font-semibold"><StopIcon name={candidate.category} />{candidate.name}</p>
+                <p className="mb-4 flex items-center gap-2 font-semibold"><PlaceMarker icon={candidate.category} color={candidate.iconColor} />{candidate.name}</p>
                 <label className="field">방문 날짜
                     <select required value={dayId} onChange={event => { const next = days.find(item => item.id === event.target.value); setDayId(event.target.value); setAfterStopId(next?.stops.at(-1)?.id ?? ''); setError(''); }}>
                         {!days.length && <option value="">등록된 날짜 없음</option>}

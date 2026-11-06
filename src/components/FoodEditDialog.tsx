@@ -1,10 +1,11 @@
-// 맛집·카페 추가·편집 모달.
-// 날짜별 맛집 목록의 항목 하나를 편집합니다. 위치는 구글지도 URL(또는 가게 이름)로 가져옵니다.
+// 날짜에 속하지 않는 장소 후보 추가·편집 모달.
+// 위치는 구글지도 URL 또는 장소 이름으로 가져옵니다.
 
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useState, type FormEvent } from 'react';
 import { blankFood, clone } from '../lib/trip';
 import type { LatLng } from '../lib/placeLookup';
 import { Hint } from './common';
+import { Field, Row2 } from './FormFields';
 import { Modal, ModalFooter, ModalHead } from './Modal';
 import { PlaceLocator } from './PlaceLocator';
 import type { Food } from '../types';
@@ -21,16 +22,6 @@ interface FoodEditDialogProps {
     onDelete: (id: string) => void;
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
-    return (
-        <label className="field">
-            {label}
-            {children}
-        </label>
-    );
-}
-
-const Row2 = ({ children }: { children: ReactNode }) => <div className="grid grid-cols-2 gap-x-3.5 max-phone:grid-cols-1">{children}</div>;
 
 export function FoodEditDialog(props: FoodEditDialogProps) {
     return (
@@ -79,7 +70,7 @@ function FoodForm({ food, bias, onClose, onSave, onDelete }: FoodEditDialogProps
                 />
                 <Field label="장소 이름"><input required {...text('name')} /></Field>
                 <Field label="구글지도 검색어·주소 (길찾기 목적지)"><input required {...text('query')} /></Field>
-                <PlaceIconPicker value={draft.category} onChange={value => set('category', value)} hint="후보 목록과 지도에 이 아이콘이 표시되며, 일정에 추가할 때도 이어집니다." />
+                <PlaceIconPicker value={draft.category} onChange={value => set('category', value)} color={draft.iconColor} onColorChange={value => set('iconColor', value)} hint="후보 목록과 지도에 이 아이콘이 표시되며, 일정에 추가할 때도 이어집니다." />
                 <Row2>
                     <Field label="메뉴·주요 정보 (선택)"><input {...text('menu')} /></Field>
                     <Field label="예상 예산"><input {...text('budget')} /></Field>

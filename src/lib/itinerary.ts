@@ -26,7 +26,7 @@ export function scheduleCandidate(trip: Trip, input: ScheduleCandidateInput) {
     if (input.afterStopId && anchor < 0) throw new Error('삽입 기준 장소가 삭제되었습니다. 위치를 다시 선택해 주세요.');
     const stop: Stop = {
         ...blankStop(), id: newId(), title: candidate.name, query: candidate.query,
-        ...input.position, icon: candidate.category, kind: STOP_ICON_LABELS[candidate.category],
+        ...input.position, icon: candidate.category, iconColor: candidate.iconColor, kind: STOP_ICON_LABELS[candidate.category],
         start: input.start, mode: input.mode, sourceCandidateId: candidate.id,
         fee: candidate.budget, parking: candidate.parking,
         note: [candidate.kind, candidate.menu, candidate.hours].filter(Boolean).join('\n'), source: candidate.source,

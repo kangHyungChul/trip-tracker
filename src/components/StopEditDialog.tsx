@@ -1,12 +1,13 @@
 // 장소 추가·편집 모달.
 // 위치는 구글지도 URL(또는 장소 이름)로 가져오고, 방문 시각은 시간 선택기로 고릅니다.
-// (맛집·카페는 이제 장소가 아니라 날짜의 별도 목록에서 관리합니다)
+// 장소 후보는 여행 전체에서 관리하며, 방문을 정하면 일정으로 추가합니다.
 
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useState, type FormEvent } from 'react';
 import { currencySymbol } from '../lib/currency';
 import { blankStop, clone } from '../lib/trip';
 import type { LatLng } from '../lib/placeLookup';
 import { Hint } from './common';
+import { Field, Row2 } from './FormFields';
 import { TimeInput } from './DateTimeInputs';
 import { Modal, ModalFooter, ModalHead } from './Modal';
 import { PlaceLocator } from './PlaceLocator';
@@ -47,18 +48,6 @@ function toDraft(stop: Stop | null): Draft {
     return { ...base, lat: String(base.lat), lng: String(base.lng), amount: String(base.amount), extraAmount: String(base.extraAmount) };
 }
 
-/** 라벨 + 입력칸 묶음 */
-function Field({ label, children }: { label: string; children: ReactNode }) {
-    return (
-        <label className="field">
-            {label}
-            {children}
-        </label>
-    );
-}
-
-/** 두 칸 나란히 (휴대폰에서는 한 줄씩) */
-const Row2 = ({ children }: { children: ReactNode }) => <div className="grid grid-cols-2 gap-x-3.5 max-phone:grid-cols-1">{children}</div>;
 
 /** 문자열 좌표 → 숫자 (빈 값·숫자 아님이면 null) */
 const toCoord = (value: string) => (value.trim() !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
@@ -161,7 +150,7 @@ function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps
                     </>}
                     <p className="mt-1 text-[11px] text-muted">지도 핀과 이동 경로·길찾기는 선택한 도착 지점을 사용합니다. 장소의 원래 위치는 유지됩니다.</p>
                 </fieldset>
-                <PlaceIconPicker value={stopIconName(draft)} onChange={value => set('icon', value)} hint="아이콘과 방문 순서가 지도에 함께 표시됩니다. 아래 종류·메모와 별도로 선택할 수 있습니다." />
+                <PlaceIconPicker value={stopIconName(draft)} onChange={value => set('icon', value)} color={draft.iconColor} onColorChange={value => set('iconColor', value)} hint="아이콘과 방문 순서가 지도에 함께 표시됩니다." />
                 <Row2>
                     <Field label="시작 시각"><TimeInput value={draft.start} onChange={value => set('start', value)} /></Field>
                     <Field label="종료 시각 (선택)"><TimeInput value={draft.end} onChange={value => set('end', value)} placeholder="없음" openTo={draft.start} /></Field>

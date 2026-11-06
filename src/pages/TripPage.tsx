@@ -1,8 +1,9 @@
+import { PlannerHeading } from '../components/PlannerHeading';
 // 여행 화면: 날짜 탭, 지도, 일정·맛집 목록과 각종 편집 모달.
 // 여행 데이터(useTrip) 상태를 받아 화면 영역과 모달에 나눠 주고, 데이터 변경 동작을 한곳에서 처리합니다.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowUpDown, ArrowUpRight, Check, Cloud, Pencil, Plus, Search, Settings, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, ArrowUpDown, ArrowUpRight, Check, Cloud, Plus, Search, Settings, TriangleAlert } from 'lucide-react';
 import { AppHeader, headerButton, headerIconButton } from '../components/AppHeader';
 import { BottomSheet, type SheetHeights, type SheetSnap } from '../components/BottomSheet';
 import { DayEditDialog, type DayFields } from '../components/DayEditDialog';
@@ -427,26 +428,8 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     );
 
     // 아래 조각들은 날짜가 있을 때만 씁니다. (day 가 null 이면 null)
-    const contextAddButton = (
-        <button type="button" className="btn btn-primary shrink-0 gap-1 whitespace-nowrap px-2.5 py-2 text-[11px]" onClick={() => view === 'food' ? setEditFoodId(null) : openStopEdit(null)}>
-            <Plus className="size-4" />{view === 'food' ? '후보 추가' : '일정 추가'}
-        </button>
-    );
-    /** 선택한 날짜 제목 + 날짜 편집·장소 추가 버튼 (일반 구성) */
-    const dayHeading = day && (
-        <div className="mt-[29px] mb-5 flex items-center justify-between gap-3 max-tab:mt-[23px] max-tab:mb-4">
-            <div className="min-w-0">
-                <p className="eyebrow max-phone:text-[9px]">{view === 'food' ? '여행 전체 공통' : [day.subtitle, day.hotel].filter(Boolean).join(' · ')}</p>
-                <h2 className="m-0 flex items-center gap-1 text-[23px] leading-[1.4] font-semibold tracking-[-0.8px] max-phone:text-[21px]">
-                    <span>{view === 'food' ? '장소 후보' : day.title}</span>
-                    {view === 'route' && <button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-full" onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>}
-                </h2>
-            </div>
-            <div className="flex shrink-0 flex-wrap justify-end gap-2 print:hidden">
-                {contextAddButton}
-            </div>
-        </div>
-    );
+    const heading = (layout: 'desktop' | 'phone' | 'regular') => day && <PlannerHeading day={day} candidates={view === 'food'} tripTitle={trip.title} layout={layout} onEditDay={() => setEditDayId(day.id)} onAdd={() => view === 'food' ? setEditFoodId(null) : openStopEdit(null)} />;
+    const dayHeading = heading('regular');
 
     /** 지도 (휴대폰: 영역을 꽉 채우는 fill 모드 + 바텀시트 높이만큼 아래 여백) */
     const tripMap = day && (
@@ -660,16 +643,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                     <aside aria-label="여행 일정 목록" className="flex min-w-0 w-[360px] shrink-0 flex-col overflow-hidden border-r border-line bg-paper wide:w-[390px]">
                         {dayTabs}
                         <div ref={desktopScrollerRef} className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-4 pb-5 wrap-anywhere">
-                            <div className="flex items-center gap-2 border-b border-line py-5">
-                                <div className="min-w-0 flex-1">
-                                    <p className="truncate text-[11px] text-muted" title={trip.title}>{view === 'food' ? '여행 전체 공통' : trip.title}</p>
-                                    <div className="flex min-w-0 items-center gap-1">
-                                    <h1 className="min-w-0 truncate text-[20px] font-semibold tracking-[-0.6px]" title={view === 'food' ? '장소 후보' : day.title}>{view === 'food' ? '장소 후보' : day.title}</h1>
-                                        {view === 'route' && <button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-full" onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>}
-                                    </div>
-                                </div>
-                                {contextAddButton}
-                            </div>
+                            {heading('desktop')}
                             {listSection}
                             <div className="mt-5">{dayInfo}</div>
                             <div className="mt-5 border-t border-line pt-3">
@@ -711,20 +685,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
         const phoneDayTabs = dayTabs;
 
         /** 시트 머리: 경로 설명 1줄 + 날짜 제목 1줄(길면 …) + 연필(날짜 편집) / 더하기(장소 추가) 아이콘 버튼 */
-        const eyebrow = [day.subtitle, day.hotel].filter(Boolean).join(' · ');
-        const phoneDayHeading = (
-            <div className="flex items-center gap-1.5 px-[15px] pb-2.5">
-                <div className="min-w-0 flex-1">
-                    {/* title: 잘린 전체 문구를 길게 누르거나 마우스를 올리면 볼 수 있게 */}
-                    {(eyebrow || view === 'food') && <p className="eyebrow mb-0.5 truncate text-[9px]" title={view === 'food' ? '여행 전체 공통' : eyebrow}>{view === 'food' ? '여행 전체 공통' : eyebrow}</p>}
-                    <div className="flex min-w-0 items-center gap-1">
-                        <h2 className="m-0 min-w-0 truncate text-[18px] leading-[1.35] font-semibold tracking-[-0.6px]" title={view === 'food' ? '장소 후보' : day.title}>{view === 'food' ? '장소 후보' : day.title}</h2>
-                        {view === 'route' && <button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-full" onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>}
-                    </div>
-                </div>
-                {contextAddButton}
-            </div>
-        );
+        const phoneDayHeading = heading('phone');
 
         return (
             <>

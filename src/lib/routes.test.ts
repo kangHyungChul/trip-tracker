@@ -89,14 +89,16 @@ describe('호출·중복·오류 처리', () => {
         expect((await client.calculate(stops(2))).error).not.toBe('');
         expect((await client.calculate(stops(2))).results[0].data).toBe(data);
     });
-    it('유효 시간이 지난 결과는 다시 계산한다', async () => {
+    it('15분이 지나면 시간·거리 대신 저장된 경로만 재사용하고 명시적 갱신에서 호출한다', async () => {
         const clock = vi.spyOn(Date, 'now').mockReturnValue(0);
         try {
             const fetch = vi.fn(async () => data);
             const client = createRouteClient(fetch);
             await client.calculate(stops(2));
             clock.mockReturnValue(16 * 60_000);
-            await client.calculate(stops(2));
+            expect((await client.calculate(stops(2))).results[0].data?.geometryOnly).toBe(true);
+            expect(fetch).toHaveBeenCalledTimes(1);
+            await client.calculate(stops(2), undefined, { refresh: true });
             expect(fetch).toHaveBeenCalledTimes(2);
         } finally { clock.mockRestore(); }
     });

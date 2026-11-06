@@ -12,7 +12,8 @@ import { useMaps } from '../hooks/useMaps';
 import { useToast } from '../hooks/useToast';
 import { ExternalLink } from './common';
 import { FoodIcon } from './FoodCard';
-import { StopIcon, stopIconName } from './StopIcon';
+import { stopIconName } from './StopIcon';
+import { PlaceMarker } from './PlaceMarker';
 import { formatRouteDistance, formatRouteDuration, routeClient, routeKey, routeProgress, type RouteResult } from '../lib/routes';
 import type { Food, Stop } from '../types';
 import { arrivalLabel, stopDestination, stopPosition } from '../lib/itinerary';
@@ -135,6 +136,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const [routeState, setRouteState] = useState<{ key: string; loading: boolean; results: RouteResult[]; error: string; diagnostic?: string } | null>(null);
     const currentRoute = routeState?.key === routingKey ? routeState : null;
     const routeResults = currentRoute?.results;
+    const hasSavedPaths = !!routeResults?.some(result => result.data?.geometryOnly);
     const progress = routeProgress(routeResults ?? [], Math.max(0, stops.length - 1));
     const { confirmedLegs } = progress;
     // 날짜·위치·순서·이동수단 변경 시 이전 응답과 남은 요청을 무효화합니다. 자동 호출은 하지 않습니다.
@@ -142,15 +144,20 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
         routeBusy.current = false;
         return () => { routeRequest.current++; };
     }, [routingKey]);
-    const calculateRoutes = async () => {
+    useEffect(() => {
+        const saved = routeClient.peek(stops);
+        if (saved) setRouteState({ key: routingKey, loading: false, results: saved, error: '' });
+        // 좌표·순서·이동수단이 같으면 이름·메모 등의 수정으로 재조회하지 않습니다.
+    }, [routingKey]);
+    const calculateRoutes = async (refresh = false) => {
         if (routeBusy.current || stops.length < 2) return;
         routeBusy.current = true;
         const requestId = ++routeRequest.current;
-        setRouteState({ key: routingKey, loading: true, results: [], error: '' });
+        setRouteState({ key: routingKey, loading: true, results: currentRoute?.results ?? [], error: '' });
         try {
-            const response = await routeClient.calculate(stops, () => routeRequest.current === requestId);
+            const response = await routeClient.calculate(stops, () => routeRequest.current === requestId, { refresh });
             if (routeRequest.current !== requestId) return;
-            setRouteState({ key: routingKey, loading: false, ...response });
+            setRouteState({ key: routingKey, loading: false, ...response, results: response.error && !response.results.length ? currentRoute?.results ?? [] : response.results });
         } catch {
             if (routeRequest.current === requestId) setRouteState({ key: routingKey, loading: false, results: [], error: '경로 계산을 시작하지 못했습니다. 잠시 후 다시 시도하세요.' });
         } finally {
@@ -276,10 +283,11 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
             <div id="trip-route-panel" hidden={!routePanelOpen}>
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[11px] text-muted">{stops.length < 2 ? '장소를 2곳 이상 추가하면 경로를 볼 수 있어요.' : '자동차 실선 · 도보 점선 · 교통 미반영'}</span>
-                {stops.length > 1 && <button type="button" className="btn btn-mini" onClick={calculateRoutes} disabled={currentRoute?.loading || (!!currentRoute && !currentRoute.error)}>
-                    {currentRoute?.loading ? '경로 계산 중…' : currentRoute?.error ? '경로 다시 시도' : currentRoute ? progress.label : '실제 경로 보기'}
+                {stops.length > 1 && <button type="button" className="btn btn-mini" onClick={() => void calculateRoutes(hasSavedPaths)} disabled={currentRoute?.loading || (!!currentRoute && !currentRoute.error && !hasSavedPaths)}>
+                    {currentRoute?.loading ? '경로 계산 중…' : currentRoute?.error ? '경로 다시 시도' : hasSavedPaths ? '시간·거리 확인' : currentRoute ? progress.label : '실제 경로 보기'}
                 </button>}
             </div>
+            {hasSavedPaths && <p className="mt-2 text-[11px] text-muted">이전에 확인한 경로입니다. 시간·거리가 필요하면 ‘시간·거리 확인’을 눌러 주세요.</p>}
             <fieldset className="mt-2 mb-1">
                 <legend className="mb-1 text-[11px] text-muted">경로 색상</legend>
                 <div className="flex flex-wrap gap-1.5">
@@ -321,7 +329,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                             const result = routeResults?.find(r => r.batch.start <= i && r.batch.end > i);
                             const leg = result?.data?.legs[i - result.batch.start];
                             return <div key={`${stops[i].id}-${stop.id}`} className="flex flex-wrap items-center justify-between gap-1 border-b border-line py-1.5">
-                                <span>{i + 1} → {i + 2} · {stop.mode === 'walking' ? '도보' : '자동차'} · {leg ? `${formatRouteDuration(leg.durationMillis)} · ${formatRouteDistance(leg.distanceMeters)}` : '경로 확인 필요'}</span>
+                                <span>{i + 1} → {i + 2} · {stop.mode === 'walking' ? '도보' : '자동차'} · {leg ? `${formatRouteDuration(leg.durationMillis)} · ${formatRouteDistance(leg.distanceMeters)}` : result?.data?.geometryOnly ? '이전 경로' : '경로 확인 필요'}</span>
                                 <ExternalLink href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${stopPosition(stops[i]).lat},${stopPosition(stops[i]).lng}`)}&destination=${encodeURIComponent(`${stopPosition(stop).lat},${stopPosition(stop).lng}`)}&travelmode=${stop.mode}`}>구글지도</ExternalLink>
                             </div>;
                         })}
@@ -329,7 +337,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                     </div>
                 </details>
             )}
-            {routeResults?.flatMap(r => r.data?.warnings ?? []).map((warning, i) => <p key={`${i}-${warning}`} className="mt-1 text-[10px] text-muted">{warning}</p>)}
+            {Array.from(new Set(routeResults?.flatMap(r => r.data?.warnings ?? []) ?? [])).map(warning => <p key={warning} className="mt-1 text-[10px] text-muted">{warning}</p>)}
             </div>
         </div>
     );
@@ -405,10 +413,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                                 // 선택된 핀을 맨 위에, 장소 핀은 맛집 배지보다 위에
                                 zIndex={selected ? 1000 : 500 - item.number}
                             >
-                                <span className={`pin ${selected ? 'pin-selected' : ''}`}>
-                                    <StopIcon name={stopIconName(item.stop)} className="size-[18px]" />
-                                    <span className="pin-number">{item.number}</span>
-                                </span>
+                                <PlaceMarker icon={stopIconName(item.stop)} color={item.stop.iconColor} number={item.number} selected={selected} />
                             </AdvancedMarker>
                         ) : (
                             <AdvancedMarker
@@ -420,9 +425,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                                 anchorTop="-50%"
                                 zIndex={selected ? 1000 : 100}
                             >
-                                <span className={`food-badge food-badge-${item.food.category} ${selected ? 'food-badge-selected' : ''}`}>
-                                    <FoodIcon category={item.food.category} className="size-4" />
-                                </span>
+                                <PlaceMarker icon={item.food.category} color={item.food.iconColor} selected={selected} />
                             </AdvancedMarker>
                         );
                     })}
@@ -481,9 +484,9 @@ function InfoTitle({ item }: { item: MapItem }) {
             {item.type === 'stop' ? (
                 `${item.number}. ${item.stop.title}`
             ) : (
-                // 맛집: 종류 아이콘(SVG) + 이름. 아이콘 색은 식당 주황 / 카페 갈색(배지와 같은 색)
+                // 후보도 지도 배지와 같은 사용자 색상과 대비를 사용합니다.
                 <>
-                    <FoodIcon category={item.food.category} className={`mr-1 ${item.food.category === 'cafe' ? 'text-[#8a5a3c]' : 'text-[#e8743b]'}`} />
+                    <span className="mr-1 inline-flex align-middle"><PlaceMarker icon={item.food.category} color={item.food.iconColor} /></span>
                     {item.food.name}
                 </>
             )}

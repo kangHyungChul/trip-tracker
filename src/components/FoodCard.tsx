@@ -6,6 +6,7 @@ import { ExternalLink, SourceLink } from './common';
 import type { Food } from '../types';
 import { StopIcon } from './StopIcon';
 import { STOP_ICON_LABELS } from '../lib/stopIcons';
+import { iconMarkerStyle } from '../lib/iconColors';
 
 interface FoodCardProps {
     food: Food;
@@ -51,7 +52,8 @@ export function FoodCard({ food, selected, onFocus, onEdit, onSchedule, schedule
                     disabled={!located}
                     aria-label={`${food.name} 지도 보기`}
                     title={located ? '지도에서 보기' : '위치 없음'}
-                    className={`food-badge food-badge-${food.category} shrink-0`}
+                    className="food-badge shrink-0"
+                    style={iconMarkerStyle(food.iconColor)}
                 >
                     <FoodIcon category={food.category} className="size-4" />
                 </button>

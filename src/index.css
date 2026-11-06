@@ -182,22 +182,25 @@
     .itinerary-stop:last-child::before { display: none; }
     .itinerary-stop-content { position: relative; margin-left: 41px; }
     /* 지도 번호 핀 (Google 지도 AdvancedMarker 안의 HTML) */
-    .pin {
-        position: relative;
+    .pin, .food-badge {
         display: grid;
         place-items: center;
+        background: #ea580c;
+        color: #fff;
+        line-height: 1;
+    }
+    .pin {
+        position: relative;
         width: 34px;
         height: 34px;
         border: 3px solid #fff;
         border-radius: 50%;
-        background: var(--color-green);
         box-shadow: 0 3px 7px #0003;
-        color: #fff;
         font-size: 12px;
         font-weight: 700;
     }
-    .pin-selected {
-        background: var(--color-ink);
+    .pin-selected, .food-badge-selected {
+        outline: 3px solid var(--color-ink);
         transform: scale(1.15);
     }
     .pin-number {
@@ -209,36 +212,21 @@
         min-width: 19px;
         height: 19px;
         padding: 0 3px;
-        border: 1px solid var(--color-green);
+        border: 1px solid var(--color-ink);
         border-radius: 999px;
         background: #fff;
-        color: var(--color-green);
+        color: var(--color-ink);
         font-size: 10px;
         line-height: 1;
     }
     /* 맛집·카페 배지: 번호 핀(원)과 구분되도록 둥근 사각형 + SVG 아이콘. 지도와 맛집 카드에서 함께 사용 */
     .food-badge {
-        background: var(--color-green);
-        display: grid;
-        place-items: center;
         width: 28px;
         height: 28px;
         border: 2px solid #fff;
         border-radius: 8px;
         box-shadow: 0 2px 6px #0003;
-        color: #fff; /* 안의 SVG 아이콘(stroke=currentColor)이 흰색이 되도록 */
         font-size: 14px;
-        line-height: 1;
-    }
-    .food-badge-restaurant {
-        background: #e8743b; /* 식당: 주황 */
-    }
-    .food-badge-cafe {
-        background: #8a5a3c; /* 카페: 갈색 */
-    }
-    .food-badge-selected {
-        outline: 3px solid var(--color-ink);
-        transform: scale(1.15);
     }
     /* 지도 정보창 제목 (닫기 버튼 줄) */
     .map-info-title {

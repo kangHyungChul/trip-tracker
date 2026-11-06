@@ -2,6 +2,7 @@
 // UI와 분리된 순수 함수만 모아 두어 Vitest로 바로 테스트할 수 있습니다.
 
 import seed from '../data/seed.json';
+import { iconColor, isIconColor } from './iconColors';
 import { inferStopIcon, isStopIcon, STOP_ICON_LABELS } from './stopIcons';
 import { CURRENCY_PATTERN, DEFAULT_CURRENCY, LEGACY_CURRENCY } from './currency';
 import { isValidISODate, isValidTime, parseISODate, splitTimeText } from './datetime';
@@ -65,6 +66,7 @@ function validateFood(value: unknown, ids: Set<string>): Food {
     if (!isObject(value)) throw new Error(message);
     const id = uniqueId(value.id, ids, '중복되거나 잘못된 후보 ID입니다.');
     if (!isStopIcon(value.category)) throw new Error(message);
+    if (value.iconColor !== undefined && !isIconColor(value.iconColor)) throw new Error('아이콘 색상을 확인해 주세요.');
     const name = str(value.name, 10000, message);
     const query = str(value.query, 10000, message);
     if (!name.trim() || !query.trim()) throw new Error('장소 후보 이름과 구글지도 검색어가 필요합니다.');
@@ -74,6 +76,7 @@ function validateFood(value: unknown, ids: Set<string>): Food {
     return {
         id,
         category: value.category as FoodCategory,
+        iconColor: iconColor(value.iconColor as string | undefined),
         name,
         query,
         lat: hasCoords ? num(value.lat, -90, 90, coordMessage) : null,
@@ -108,6 +111,7 @@ function validateStop(value: unknown, ids: Set<string>): Stop {
     if (value.unit !== 'adult' && value.unit !== 'vehicle') throw new Error(amountMessage);
     if (value.mode !== 'driving' && value.mode !== 'walking') throw new Error(message);
     if (value.icon !== undefined && !isStopIcon(value.icon)) throw new Error('지도 아이콘 종류를 확인하세요.');
+    if (value.iconColor !== undefined && !isIconColor(value.iconColor)) throw new Error('아이콘 색상을 확인해 주세요.');
     let arrival: Stop['arrival'];
     if (value.arrival !== undefined) {
         const point = value.arrival;
@@ -134,6 +138,7 @@ function validateStop(value: unknown, ids: Set<string>): Stop {
         source: str(value.source, 12000, message),
         kind: str(value.kind, 12000, message),
         icon: value.icon ?? inferStopIcon(str(value.kind, 12000, message)),
+        iconColor: iconColor(value.iconColor as string | undefined),
         ...(arrival ? { arrival } : {}),
         ...(value.sourceCandidateId !== undefined ? { sourceCandidateId: str(value.sourceCandidateId, 200, message) } : {}),
         mode: value.mode as TravelMode,
