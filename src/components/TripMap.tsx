@@ -127,6 +127,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const [infoId, setInfoId] = useState<string | null>(null);
     const [showFoods, setShowFoods] = useState(true);
     const [routePanelOpen, setRoutePanelOpen] = useState(false);
+    const [routesVisible, setRoutesVisible] = useState(true);
     const [routeColor, setRouteColor] = useState<string>(ROUTE_COLORS[0].value);
     const [myPosition, setMyPosition] = useState<google.maps.LatLngLiteral | null>(null);
     const routingKey = routeKey(stops);
@@ -134,9 +135,10 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const routeBusy = useRef(false);
     const [routeState, setRouteState] = useState<{ key: string; loading: boolean; results: RouteResult[]; error: string; diagnostic?: string } | null>(null);
     const currentRoute = routeState?.key === routingKey ? routeState : null;
-    const routeResults = currentRoute?.results;
-    const hasSavedPaths = !!routeResults?.some(result => result.data?.geometryOnly);
-    const progress = routeProgress(routeResults ?? [], Math.max(0, stops.length - 1));
+    // 경로 데이터는 보관하고 지도에 그리는 것만 끕니다. 다시 표시할 때 재조회하지 않습니다.
+    const routeResults = routesVisible ? currentRoute?.results : undefined;
+    const hasSavedPaths = !!currentRoute?.results.some(result => result.data?.geometryOnly);
+    const progress = routeProgress(currentRoute?.results ?? [], Math.max(0, stops.length - 1));
     const { confirmedLegs } = progress;
     // 날짜·위치·순서·이동수단 변경 시 이전 응답과 남은 요청을 무효화합니다. 자동 호출은 하지 않습니다.
     useLayoutEffect(() => {
@@ -150,6 +152,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     }, [routingKey]);
     const calculateRoutes = async (refresh = false) => {
         if (routeBusy.current || stops.length < 2) return;
+        setRoutesVisible(true);
         routeBusy.current = true;
         const requestId = ++routeRequest.current;
         setRouteState({ key: routingKey, loading: true, results: currentRoute?.results ?? [], error: '' });
@@ -282,6 +285,11 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
             <div id="trip-route-panel" hidden={!routePanelOpen}>
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[11px] text-muted">{stops.length < 2 ? '장소를 2곳 이상 추가하면 경로를 볼 수 있어요.' : '자동차 실선 · 도보 점선 · 교통 미반영'}</span>
+                {currentRoute?.results.some(result => result.data?.path.length) && (
+                    <button type="button" className="btn btn-mini" aria-pressed={routesVisible} onClick={() => setRoutesVisible(visible => !visible)}>
+                        {routesVisible ? '경로 숨기기' : '경로 다시 표시'}
+                    </button>
+                )}
                 {stops.length > 1 && <button type="button" className="btn btn-mini" onClick={() => void calculateRoutes(hasSavedPaths)} disabled={currentRoute?.loading || (!!currentRoute && !currentRoute.error && !hasSavedPaths)}>
                     {currentRoute?.loading ? '경로 계산 중…' : currentRoute?.error ? '경로 다시 시도' : hasSavedPaths ? '시간·거리 확인' : currentRoute ? progress.label : '실제 경로 보기'}
                 </button>}
@@ -357,9 +365,8 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                     // 첫 항목(장소 → 위치 있는 맛집 순) 근처에서 시작하고, 곧바로 fitAll 이 전체가 보이게 맞춥니다.
                     defaultCenter={items[0]?.position ?? DEFAULT_CENTER}
                     defaultZoom={items[0] ? 11 : DEFAULT_ZOOM}
-                    // greedy: 한 손가락으로 바로 이동·확대 (fill 모드는 페이지가 스크롤되지 않으므로 ‘두 손가락을 사용하세요’ 안내 없이 조작)
-                    // cooperative: 페이지 스크롤 중 지도가 움직이지 않도록 두 손가락·Ctrl+휠로만 조작
-                    gestureHandling={fill ? 'greedy' : 'cooperative'}
+                    // 지도 위에서는 휠·한 손가락으로 바로 조작합니다. Ctrl 안내도 표시하지 않습니다.
+                    gestureHandling="greedy"
                     mapTypeControl={false}
                     streetViewControl={false}
                     // 확대·이동은 휠·드래그·터치로 조작하고, 기본 줌·방향 화살표는 숨깁니다.
