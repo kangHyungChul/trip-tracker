@@ -72,7 +72,7 @@ export function HomePage({ onOpenSettings }: HomePageProps) {
             return;
         }
         const trip = createTrip(title);
-        if (!writeTrip(trip)) toast('기기 저장 공간이 부족해 이 페이지에서만 임시로 유지됩니다. JSON 백업을 권장합니다.');
+        if (!writeTrip(trip)) toast('저장 공간이 부족해 현재 화면에서만 임시로 보관됩니다. 여행을 백업 파일로 내려받아 주세요.');
         markDirty(trip.id); // Supabase 업로드 예약
         setNewOpen(false);
         goTrip(trip.id); // 바로 새 여행 화면으로 이동
@@ -121,19 +121,19 @@ export function HomePage({ onOpenSettings }: HomePageProps) {
                     <div>
                         <p className="eyebrow">MY TRIPS · {entries.length}</p>
                         <h1 className="m-0 text-[clamp(25px,3vw,38px)] leading-[1.3] font-[550] tracking-[-1.8px]">나의 여행</h1>
-                        <p className="mt-[13px] text-[13px] text-muted">여행을 고르거나 새 여행을 만들어 일정·맛집·지도를 정리하세요.</p>
+                        <p className="mt-[13px] text-[13px] text-muted">여행을 고르거나 새 여행을 만들어 일정과 가보고 싶은 장소를 모아보세요.</p>
                         {/* 클라우드 동기화 상태 한 줄 */}
                         <p role="status" className="mt-1 text-[11px] text-muted">
                             {!cloud
-                                ? 'Supabase 미설정 · 이 기기에만 저장됩니다.'
+                                ? '여행은 이 기기에 저장됩니다.'
                                 : cloudSync.state === 'syncing'
-                                  ? '클라우드와 동기화 중…'
+                                  ? '여행 목록을 불러오는 중…'
                                   : cloudSync.state === 'failed'
-                                    ? `클라우드에 연결하지 못해 기기에 저장된 목록을 보여줍니다. 연결되면 자동으로 맞춥니다. (${cloudSync.message})`
+                                    ? '연결이 끊겨 마지막으로 저장한 여행을 보여드립니다. 인터넷에 연결되면 최신 내용을 불러옵니다.'
                                     : (
                                         // 정상 연결: 문구 뒤에 초록 체크 SVG 아이콘
                                         <>
-                                            클라우드 자동 저장 사용 중 <Check className="icon text-green" />
+                                            여행이 저장되었습니다 <Check className="icon text-green" />
                                         </>
                                     )}
                         </p>
@@ -166,7 +166,7 @@ export function HomePage({ onOpenSettings }: HomePageProps) {
             </main>
 
             <footer className="mx-[5%] mt-4 mb-5 border-t border-line pt-5 text-[10px] text-muted print:hidden">
-                TRIP TRACKER <span className="mx-[9px]">·</span> Supabase 자동 저장 / 구글지도
+                TRIP TRACKER
             </footer>
 
             <NewTripDialog open={newOpen} onClose={() => setNewOpen(false)} onCreate={create} />
@@ -182,8 +182,8 @@ function TripCard({ entry, onDelete }: { entry: StoredTrip; onDelete: (id: strin
         return (
             <article className="h-full rounded-[14px] border border-[#e8d1c4] bg-[#f7ede5] p-5 text-[12px] text-[#935e43]">
                 <strong className="block text-[15px]">읽을 수 없는 여행</strong>
-                <p className="my-2">{entry.status === 'broken' ? entry.error : '저장된 데이터가 없습니다.'}</p>
-                <p className="my-2">이 기기의 손상된 사본이며 클라우드에는 올라가지 않습니다.</p>
+                <p className="my-2">여행 내용을 불러오지 못했습니다.</p>
+                <p className="my-2">원본 파일을 내려받아 보관한 뒤 다시 불러와 주세요.</p>
                 <div className="flex gap-2">
                     {entry.status === 'broken' && (
                         <button type="button" className="btn btn-outline" onClick={() => downloadText(`trip-tracker-raw-${entry.id}.json`, entry.raw)}>

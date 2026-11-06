@@ -50,7 +50,7 @@ export function useTrip(initial: Trip) {
                 }
                 tripRef.current = event.trip;
                 setTrip(event.trip);
-                toast('클라우드의 최신 내용을 불러왔습니다.');
+                toast('최신 여행 내용을 불러왔습니다.');
             }),
         [initial.id, toast],
     );
@@ -66,7 +66,7 @@ export function useTrip(initial: Trip) {
         } else {
             value = { ...next, updatedAt: new Date().toISOString() };
             // localStorage 가 가득 차도 메모리에는 보관되므로, 이 페이지에서는 업로드가 계속 가능합니다.
-            if (!writeTrip(value)) toast('기기 저장 공간이 부족합니다. 클라우드 저장은 계속되지만 JSON 백업을 권장합니다.');
+            if (!writeTrip(value)) toast('이 기기의 저장 공간이 부족합니다. 현재 여행을 백업 파일로 내려받아 보관해 주세요.');
             markDirty(value.id);
         }
         tripRef.current = value;

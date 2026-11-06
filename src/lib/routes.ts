@@ -78,11 +78,11 @@ export function routeErrorDetails(error: unknown): string {
 export function routeErrorMessage(error: unknown): string {
     const text = routeErrorDetails(error);
     if (/RESOURCE_EXHAUSTED|OVER_QUERY_LIMIT|QUOTA|429|code: 8\b/i.test(text)) return '경로 계산 한도에 도달했습니다. 잠시 후 또는 다음 날 다시 시도하거나 구글지도 길찾기를 이용하세요.';
-    if (/BILLING|billing account|payment/i.test(text)) return '경로 계산을 위한 결제 연결을 확인하세요. 무료 사용량 내에서도 Google Cloud 결제 계정 연결이 필요합니다.';
-    if (/API.*(?:not.*enabled|not.*activated|disabled)|SERVICE_DISABLED|ApiNotActivated/i.test(text)) return '지도 키가 속한 Google Cloud 프로젝트에서 Routes API를 사용 설정하세요.';
-    if (/PERMISSION_DENIED|UNAUTHENTICATED|REQUEST_DENIED|403|API_KEY|code: (7|16)\b/i.test(text)) return '경로 계산 권한이 없습니다. Routes API 사용 설정, API 키의 API·웹사이트 제한을 확인하세요.';
+    if (/BILLING|billing account|payment/i.test(text)) return '경로를 이용하려면 지도 서비스의 결제 연결을 확인해 주세요.';
+    if (/API.*(?:not.*enabled|not.*activated|disabled)|SERVICE_DISABLED|ApiNotActivated/i.test(text)) return '경로 안내가 아직 준비되지 않았습니다. 설정에서 지도 연결을 확인해 주세요.';
+    if (/PERMISSION_DENIED|UNAUTHENTICATED|REQUEST_DENIED|403|API_KEY|code: (7|16)\b/i.test(text)) return '경로를 확인할 권한이 없습니다. 설정에서 지도 연결을 확인해 주세요.';
     if (/ROUTES_LIBRARY_UNAVAILABLE|computeRoutes.*not a function|Cannot read.*computeRoutes/i.test(text)) return '현재 로드된 Google 지도에서 경로 계산 기능을 사용할 수 없습니다. 페이지를 완전히 새로고침해 주세요.';
-    if (/INVALID_ARGUMENT|InvalidValueError|invalid.*field|unknown.*field|400|code: 3\b/i.test(text)) return '경로 요청 형식이 거부되었습니다. 오류 상세를 확인해 주세요.';
+    if (/INVALID_ARGUMENT|InvalidValueError|invalid.*field|unknown.*field|400|code: 3\b/i.test(text)) return '경로를 확인하지 못했습니다. 문제가 계속되면 오류 상세를 확인해 주세요.';
     if (/UNAVAILABLE|INTERNAL|DEADLINE_EXCEEDED|code: (13|14)\b/i.test(text)) return 'Google 경로 서비스가 응답하지 않습니다. 잠시 후 다시 시도해 주세요.';
     return '경로를 불러오지 못했습니다. 아래 오류 상세에서 원인을 확인해 주세요.';
 }

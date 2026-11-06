@@ -50,8 +50,8 @@ function StorageBody({ onClose, getTrip, replace, saveStatus }: TripStorageDialo
             const ok = await confirm({
                 title: `현재 여행을 백업 파일('${candidate.title}')로 덮어쓸까요?`,
                 message: cloud
-                    ? '지금 내용은 사라지고, 클라우드에도 백업 내용이 저장되어 다른 기기에도 반영됩니다. 필요하면 먼저 ‘JSON 백업’을 내려받으세요.'
-                    : '지금 내용은 사라집니다. 필요하면 먼저 ‘JSON 백업’을 내려받으세요.',
+                    ? '현재 여행이 백업 내용으로 바뀌고 다른 기기에도 반영됩니다. 필요하면 먼저 현재 여행을 백업해 주세요.'
+                    : '현재 여행이 백업 내용으로 바뀝니다. 필요하면 먼저 현재 여행을 백업해 주세요.',
                 confirmLabel: '덮어쓰기',
                 danger: true,
             });
@@ -89,16 +89,16 @@ function StorageBody({ onClose, getTrip, replace, saveStatus }: TripStorageDialo
                     </p>
                     <p className={desc}>
                         {cloud
-                            ? '편집 내용은 잠시 뒤 Supabase 에 자동 저장되어 다른 기기에서도 보입니다. 오프라인이면 기기에 보관했다가 연결되면 올립니다.'
-                            : 'Supabase 연결 설정이 없어 이 브라우저에만 저장됩니다.'}
+                            ? '변경한 내용은 자동으로 저장됩니다. 인터넷에 연결되면 다른 기기에서도 이어서 볼 수 있습니다.'
+                            : '이 여행은 이 기기에 저장됩니다. 다른 기기로 옮기려면 백업 파일을 이용해 주세요.'}
                     </p>
                 </section>
 
                 <section className={block}>
-                    <h3 className="mb-2 text-[16px] font-bold">JSON 백업</h3>
+                    <h3 className="mb-2 text-[16px] font-bold">여행 백업</h3>
                     <p className={desc}>이 여행을 파일로 내려받아 보관하거나, 받아 둔 파일로 이 여행을 덮어씁니다.</p>
                     <div className="mt-3 flex flex-wrap items-center gap-2.5">
-                        <button type="button" className="btn btn-primary" onClick={() => exportTrip(getTrip())}><Download className="icon" />JSON 백업</button>
+                        <button type="button" className="btn btn-primary" onClick={() => exportTrip(getTrip())}><Download className="icon" />백업 파일 내려받기</button>
                         {/* 파일 입력칸은 숨기고 라벨을 버튼처럼 보이게 합니다. 라벨 클릭 = 파일 선택 */}
                         <label className="btn btn-outline">
                             <Upload className="icon" />백업으로 덮어쓰기

@@ -92,9 +92,9 @@ function MapPlaceholder({ status, onOpenSettings, fill }: { status: ReturnType<t
     if (status === 'no-key') {
         body = (
             <>
-                <strong className="text-[14px]">Google Maps API 키가 필요합니다</strong>
+                <strong className="text-[14px]">지도를 연결해 주세요</strong>
                 <p className="my-2 text-[12px] text-muted">
-                    설정에서 키를 입력하거나 .env.local 에 VITE_GOOGLE_MAPS_API_KEY 를 넣고 다시 실행하세요. 길찾기 버튼은 키 없이도 동작합니다.
+                    설정에서 지도 연결을 확인해 주세요. 구글지도 길찾기는 계속 이용할 수 있습니다.
                 </p>
                 <button type="button" className="btn btn-primary" onClick={onOpenSettings}><Settings className="icon" />지도 설정</button>
             </>
@@ -104,7 +104,7 @@ function MapPlaceholder({ status, onOpenSettings, fill }: { status: ReturnType<t
             <>
                 <strong className="text-[14px] text-danger">지도를 불러오지 못했습니다</strong>
                 <p className="my-2 text-[12px] text-muted">
-                    API 키, 허용 웹사이트(HTTP 리퍼러)에 지금 주소가 있는지, Maps JavaScript API 사용 설정을 확인하세요.
+                    인터넷 연결을 확인하고 잠시 후 다시 시도해 주세요. 문제가 계속되면 지도 설정을 확인해 주세요.
                 </p>
                 <button type="button" className="btn btn-outline" onClick={onOpenSettings}><Settings className="icon" />지도 설정</button>
             </>
@@ -297,7 +297,7 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
             {currentRoute && !currentRoute.loading && !currentRoute.error && progress.hasMissingRoutes && (
                 <p className="mt-2 text-[11px] leading-relaxed text-muted">
                     Google에서 일부 구간의 경로를 반환하지 않았습니다. 지원 지역·이동수단과 장소 좌표를 확인해 주세요.
-                    한국 내 자동차·도보 경로는 Google Maps Platform에서 지원하지 않습니다. 국내 이동은 네이버지도·카카오맵을 이용해 주세요.{' '}
+                    한국 내 자동차·도보 경로는 제공되지 않습니다. 국내 이동은 네이버지도·카카오맵을 이용해 주세요.{' '}
                     <ExternalLink href="https://developers.google.com/maps/coverage">지역별 지원 범위</ExternalLink>
                 </p>
             )}

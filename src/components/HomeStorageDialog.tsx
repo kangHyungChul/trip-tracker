@@ -51,7 +51,7 @@ function Body({ onClose, onChanged }: HomeStorageDialogProps) {
                 // 같은 여행이 이미 있으면 덮어쓰기 / 새 여행으로 추가 / 취소 중에서 고릅니다.
                 const picked = await choose({
                     title: `'${trip.title}' 여행이 이미 있습니다`,
-                    message: '덮어쓰면 기존 내용은 사라집니다(클라우드 포함). 새 여행으로 추가하면 두 여행을 따로 보관합니다.',
+                    message: '덮어쓰면 기존 여행이 백업 내용으로 바뀝니다. 새 여행으로 추가하면 두 여행을 따로 보관합니다.',
                     choices: [
                         { value: 'copy', label: '새 여행으로 추가', tone: 'outline' },
                         { value: 'overwrite', label: '덮어쓰기', tone: 'danger' },
@@ -93,15 +93,15 @@ function Body({ onClose, onChanged }: HomeStorageDialogProps) {
                     <h3 className="mb-2 text-[16px] font-bold">자동 저장</h3>
                     <p className={desc}>
                         {cloud
-                            ? '모든 편집은 Supabase 에 자동 저장되어, 이 앱 주소로 접속한 모든 기기에서 같은 여행을 보고 편집할 수 있습니다. 오프라인일 때는 기기에 보관했다가 연결되면 올립니다.'
-                            : 'Supabase 연결 설정이 없어 이 브라우저에만 저장됩니다. 설정 또는 .env.local 에 Supabase URL·공개 키를 넣으면 자동으로 클라우드에 저장됩니다.'}
+                            ? '여행을 수정하면 자동으로 저장됩니다. 인터넷에 연결되어 있으면 다른 기기에서도 이어서 볼 수 있습니다.'
+                            : '여행은 이 기기에 저장됩니다. 다른 기기로 옮기려면 백업 파일을 이용해 주세요.'}
                     </p>
-                    {cloud && <p className={`${desc} text-[#935e43]`}>로그인 기능이 없어 주소를 아는 누구나 편집·삭제할 수 있습니다. 주소를 공유할 때 주의하세요.</p>}
+                    {cloud && <p className={`${desc} text-[#935e43]`}>이 여행 공간의 주소를 공유하면 다른 사람도 여행을 수정하거나 삭제할 수 있습니다.</p>}
                 </section>
 
                 <section className={block}>
                     <h3 className="mb-2 text-[16px] font-bold">백업 파일로 여행 추가</h3>
-                    <p className={desc}>여행 화면의 ‘JSON 백업’으로 받은 파일(예전 가고시마 앱 백업 포함)을 여행 목록에 추가합니다.</p>
+                    <p className={desc}>내려받아 둔 여행 백업 파일을 불러와 목록에 추가합니다.</p>
                     <label className="btn btn-outline mt-2">
                         <Upload className="icon" />백업 파일 불러오기
                         <input type="file" accept=".json,application/json" hidden onChange={importFile} />
@@ -111,7 +111,7 @@ function Body({ onClose, onChanged }: HomeStorageDialogProps) {
                 {cloud && (
                     <section className={block}>
                         <h3 className="mb-2 text-[16px] font-bold">휴지통</h3>
-                        <p className={desc}>삭제한 여행은 클라우드 휴지통에 남아 있어 복구할 수 있습니다. (최근 50개)</p>
+                        <p className={desc}>최근 삭제한 여행 50개까지 확인하고 복구할 수 있습니다.</p>
                         <button
                             type="button"
                             className="btn btn-outline mt-2"

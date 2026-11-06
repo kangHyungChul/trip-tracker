@@ -41,7 +41,7 @@ describe('호출·중복·오류 처리', () => {
     it('SDK가 요청을 거절하면 사용자에게 오류 코드를 보존한다', async () => {
         const fetch = vi.fn(async () => { throw Object.assign(new Error('Invalid field: legs.durationMillis'), { code: 'INVALID_ARGUMENT', endpoint: 'DIRECTIONS_ROUTE' }); });
         const response = await createRouteClient(fetch).calculate(stops(3));
-        expect(response.error).toContain('요청 형식');
+        expect(response.error).toContain('경로를 확인하지 못했습니다');
         expect(response.diagnostic).toContain('INVALID_ARGUMENT');
         expect(response.diagnostic).toContain('legs.durationMillis');
     });
@@ -111,9 +111,9 @@ describe('오류 진단', () => {
     it.each([
         [{ code: 'PERMISSION_DENIED', message: 'Request denied' }, '권한'],
         [{ error: { code: 403, message: 'Billing must be enabled' } }, '결제'],
-        [{ status: 'PERMISSION_DENIED', message: 'Routes API has not been enabled' }, '사용 설정'],
+        [{ status: 'PERMISSION_DENIED', message: 'Routes API has not been enabled' }, '지도 연결'],
         [{ code: 8 }, '한도'],
-        [{ code: 3 }, '요청 형식'],
+        [{ code: 3 }, '경로를 확인하지 못했습니다'],
         [new TypeError('Cannot read properties of undefined (reading computeRoutes)'), '새로고침'],
         [{ code: 'UNAVAILABLE' }, '서비스'],
     ])('오류에 맞는 안내를 표시한다: %j', (error, expected) => {

@@ -787,7 +787,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
             </main>
 
             <footer className="mx-[5%] mt-10 mb-5 border-t border-line pt-5 text-[10px] text-muted max-phone:text-[9px] print:hidden">
-                TRIP TRACKER <span className="mx-[9px]">·</span> 구글지도 길찾기 / 직접 편집 / Supabase 자동 저장
+                TRIP TRACKER
             </footer>
 
             {dialogs}

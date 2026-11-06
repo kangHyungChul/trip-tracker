@@ -34,19 +34,19 @@ export function SyncCoordinator() {
                     const picked = await choose({
                         title: `'${title}' 여행이 다른 기기에서 먼저 수정(또는 삭제)되었습니다`,
                         message:
-                            '이 기기의 변경은 아직 클라우드에 저장되지 않았습니다.\n' +
-                            '‘클라우드 내용 불러오기’를 고르면 이 기기의 변경이 사라지고, ‘내 내용으로 덮어쓰기’를 고르면 다른 기기의 변경이 사라집니다.\n' +
-                            '필요하면 ‘나중에’를 누르고 여행 화면에서 JSON 백업을 먼저 받으세요.',
+                            '이 기기에서 수정한 내용은 아직 다른 기기에 반영되지 않았습니다.\n' +
+                            '‘다른 기기의 내용 불러오기’를 고르면 지금 수정한 내용이 사라지고, ‘내 내용으로 덮어쓰기’를 고르면 다른 기기의 변경이 사라집니다.\n' +
+                            '두 내용을 모두 보관하려면 ‘나중에’를 누르고 현재 여행을 백업해 주세요.',
                         cancelLabel: '나중에',
                         choices: [
-                            { value: 'cloud', label: '클라우드 내용 불러오기', tone: 'outline' },
+                            { value: 'cloud', label: '다른 기기의 내용 불러오기', tone: 'outline' },
                             { value: 'mine', label: '내 내용으로 덮어쓰기', tone: 'danger' },
                         ],
                     });
                     if (picked === null) continue; // 나중에: 충돌 상태 유지 (헤더 상태를 눌러 다시 열 수 있음)
                     try {
                         await resolveConflict(id, picked as 'cloud' | 'mine');
-                        toast(picked === 'mine' ? '이 기기의 내용으로 저장했습니다.' : '클라우드 내용을 불러왔습니다.');
+                        toast(picked === 'mine' ? '지금 수정한 내용으로 저장했습니다.' : '다른 기기의 여행 내용을 불러왔습니다.');
                     } catch (error) {
                         toast('충돌 해결 실패: ' + (error instanceof Error ? error.message : String(error)));
                     }
