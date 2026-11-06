@@ -41,7 +41,8 @@ export function StopCard({ stop, number, selected, onFocus, onToggleDone, onDeta
                     type="button"
                     onClick={() => onFocus(stop.id)}
                     aria-label={`${number}번 지도 보기`}
-                    className="grid h-[30px] flex-[0_0_30px] place-items-center rounded-full bg-light text-[12px] font-bold text-green"
+                    aria-current={selected ? 'location' : undefined}
+                    className={`grid h-[30px] flex-[0_0_30px] place-items-center rounded-full text-[12px] font-bold ${selected ? 'bg-black text-white' : 'bg-light text-green'}`}
                 >
                     {number}
                 </button>

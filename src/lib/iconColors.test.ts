@@ -6,8 +6,9 @@ import { scheduleCandidate } from './itinerary';
 import { routeKey } from './routes';
 
 describe('사용자 아이콘 색상', () => {
-    it('기본 주황색과 직접 지정한 색상을 일관되게 정규화한다', () => {
-        expect(iconColor()).toBe(DEFAULT_ICON_COLOR);
+    it('기본 검은색과 직접 지정한 색상을 일관되게 정규화한다', () => {
+        expect(DEFAULT_ICON_COLOR).toBe('#000000');
+        expect(iconColor()).toBe('#000000');
         expect(iconColor('#ABCDEF')).toBe('#abcdef');
         expect(isIconColor('#fff')).toBe(false);
         expect(isIconColor('red')).toBe(false);

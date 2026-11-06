@@ -1,6 +1,6 @@
-export const DEFAULT_ICON_COLOR = '#ea580c';
+export const DEFAULT_ICON_COLOR = '#000000';
 export const ICON_COLORS = [
-    { value: DEFAULT_ICON_COLOR, label: '주황색' }, { value: '#db2777', label: '분홍색' },
+    { value: DEFAULT_ICON_COLOR, label: '검은색' }, { value: '#ea580c', label: '주황색' }, { value: '#db2777', label: '분홍색' },
     { value: '#7c3aed', label: '보라색' }, { value: '#2563eb', label: '파란색' },
     { value: '#059669', label: '초록색' }, { value: '#182c38', label: '잉크색' },
 ] as const;
