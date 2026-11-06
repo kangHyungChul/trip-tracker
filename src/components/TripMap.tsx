@@ -258,9 +258,9 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     const infoItem = infoId ? items.find(item => item.id === infoId) : undefined;
     const hiddenFoods = foods.filter(food => food.lat === null).length;
 
-    // 지도 조작 버튼 (맛집 표시 / 전체 보기 / 내 위치)
+    // 지도 우측 하단. 휴대폰은 바텀시트 위로 올리되 지도 위쪽을 벗어나지 않게 제한합니다.
     const controls = (
-        <div role="group" aria-label="지도 조작" className="absolute top-3 right-3 z-[2] flex flex-col gap-2">
+        <div role="group" aria-label="지도 조작" className="absolute right-3 z-[2] flex flex-col gap-2" style={{ bottom: fill ? `min(${bottomInset + 12}px, max(28px, calc(100% - 148px)))` : 28 }}>
             <button type="button" className={`${MAP_ICON_BUTTON} ${showFoods ? 'bg-light' : ''}`} onClick={() => setShowFoods(show => !show)} aria-label="장소 후보 표시" aria-pressed={showFoods} title={showFoods ? '장소 후보 숨기기' : '장소 후보 표시'}><Layers className="size-[18px]" /></button>
             <button type="button" className={MAP_ICON_BUTTON} onClick={fitAll} aria-label="전체 보기" title="전체 보기"><Scan className="size-[18px]" /></button>
             <button type="button" className={MAP_ICON_BUTTON} onClick={locate} aria-label="내 위치 표시" title="내 위치"><LocateFixed className="size-[18px]" /></button>
@@ -355,10 +355,10 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
                     gestureHandling={fill ? 'greedy' : 'cooperative'}
                     mapTypeControl={false}
                     streetViewControl={false}
-                    // fill 모드: 확대·전체화면 버튼은 손가락 확대로 대신하고, 아래 바텀시트·위 버튼과 겹치지 않게 숨깁니다.
-                    zoomControl={!fill}
+                    // 확대·이동은 휠·드래그·터치로 조작하고, 기본 줌·방향 화살표는 숨깁니다.
+                    zoomControl={false}
                     fullscreenControl={!fill}
-                    cameraControl={!fill}
+                    cameraControl={false}
                     clickableIcons={false} // 구글 기본 장소 아이콘 클릭 정보창 끄기
                     onClick={() => setInfoId(null)}
                     className={`${fill || desktop ? 'h-full' : MAP_HEIGHT} bg-[#e2e9df]`}

@@ -29,7 +29,7 @@ export function Fact({ label, children }: { label: string; children: ReactNode }
     return (
         <div className="flex gap-[9px]">
             <span className="min-w-[30px] shrink-0 text-[10px] text-[#9d875b]">{label}</span>
-            <span className="text-[#5b685b]">{children}</span>
+            <span className="min-w-0 wrap-anywhere text-[#5b685b]">{children}</span>
         </div>
     );
 }

@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { Check, Cloud, Plus, Settings, Trash2 } from 'lucide-react';
-import { AppHeader, headerButton } from '../components/AppHeader';
+import { AppHeader, headerButton, headerIconButton } from '../components/AppHeader';
 import { HomeStorageDialog } from '../components/HomeStorageDialog';
 import { NewTripDialog } from '../components/NewTripDialog';
 import { downloadText } from '../lib/backup';
@@ -112,8 +112,8 @@ export function HomePage({ onOpenSettings }: HomePageProps) {
     return (
         <>
             <AppHeader>
-                <button type="button" className={headerButton} onClick={() => setStorageOpen(true)}><Cloud className="icon" />저장·백업</button>
-                <button type="button" className={headerButton} onClick={onOpenSettings} aria-label="설정"><Settings className="icon" /></button>
+                <button type="button" className={headerButton} onClick={() => setStorageOpen(true)}><Cloud className="size-5 shrink-0" />저장·백업</button>
+                <button type="button" className={headerIconButton} onClick={onOpenSettings} aria-label="설정" title="설정"><Settings className="size-5 shrink-0" /></button>
             </AppHeader>
 
             <main className="mx-auto max-w-[1500px] px-[5%] pb-10 max-tab:px-[22px] max-phone:px-[15px] wide:px-[50px]">

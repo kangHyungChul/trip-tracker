@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function DayTabs({ days, selectedId, activeRef, onSelect, onAdd }: Props) {
-    return <nav aria-label="여행 날짜" className="flex shrink-0 scroll-px-2.5 gap-1.5 overflow-x-auto border-b border-line bg-paper px-2.5 py-2 [scrollbar-width:none]">
+    return <nav aria-label="여행 날짜" className="flex min-w-0 max-w-full shrink-0 scroll-px-2.5 gap-1.5 overflow-x-auto border-b border-line bg-paper px-2.5 py-2 [scrollbar-width:none]">
         {days.map((day, index) => {
             const active = day.id === selectedId;
             const weekday = weekdayOf(day.date);

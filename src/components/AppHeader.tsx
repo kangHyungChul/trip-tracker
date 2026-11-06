@@ -23,4 +23,5 @@ export function AppHeader({ children }: { children?: ReactNode }) {
 }
 
 /** 헤더 오른쪽 작은 버튼 공통 스타일 */
-export const headerButton = 'btn btn-soft max-phone:px-2.5 max-phone:py-2 max-phone:text-[11px]';
+export const headerButton = 'btn btn-soft h-10 shrink-0 text-[14px] leading-none max-phone:h-9 max-phone:px-2.5 max-phone:py-2 max-phone:text-[11px]';
+export const headerIconButton = `${headerButton} w-10 px-0 max-phone:w-9 max-phone:px-0`;

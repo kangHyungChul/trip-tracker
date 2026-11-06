@@ -41,7 +41,7 @@ export function FoodCard({ food, selected, onFocus, onEdit, onSchedule, schedule
             onClick={event => {
                 if (located && !isInteractiveTarget(event.target)) onFocus(food.id);
             }}
-            className={`mb-3 scroll-mt-[15px] rounded-[11px] border bg-paper p-[17px] ${located ? 'cursor-pointer' : ''} ${selected ? 'border-[#d9b98a] shadow-[0_0_0_2px_#f3e6d2]' : 'border-line'}`}
+            className={`mb-3 min-w-0 scroll-mt-[15px] rounded-[11px] border bg-paper p-[17px] wrap-anywhere ${located ? 'cursor-pointer' : ''} ${selected ? 'border-[#d9b98a] shadow-[0_0_0_2px_#f3e6d2]' : 'border-line'}`}
         >
             <div className="flex items-start gap-[11px]">
                 {/* 지도 배지와 같은 모양의 버튼. 위치가 없으면 지도 이동 대신 비활성 */}
@@ -62,7 +62,7 @@ export function FoodCard({ food, selected, onFocus, onEdit, onSchedule, schedule
                     </div>
                     <h3 className="my-[3px] text-[16px] font-bold">{food.name}</h3>
                 </div>
-                <button type="button" onClick={() => onEdit(food.id)} className="px-[3px] py-1 text-[11px] text-muted print:hidden">
+                <button type="button" onClick={() => onEdit(food.id)} className="shrink-0 px-[3px] py-1 text-[11px] text-muted print:hidden">
                     편집
                 </button>
             </div>

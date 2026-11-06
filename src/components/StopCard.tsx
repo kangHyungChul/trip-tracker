@@ -30,7 +30,7 @@ export function StopCard({ stop, number, selected, onFocus, onToggleDone, onDeta
                 if (!isInteractiveTarget(event.target)) onFocus(stop.id);
             }}
             className={[
-                'mb-3 cursor-pointer scroll-mt-[15px] rounded-xl border bg-paper p-[18px] shadow-[0_2px_8px_#24452b03] max-tab:p-[17px] print:break-inside-avoid print:shadow-none',
+                'mb-3 min-w-0 cursor-pointer scroll-mt-[15px] rounded-xl border bg-paper p-[18px] wrap-anywhere shadow-[0_2px_8px_#24452b03] max-tab:p-[17px] print:break-inside-avoid print:shadow-none',
                 selected ? 'border-[#abbd9d] shadow-[0_0_0_2px_#e1e8d9]' : 'border-line',
                 stop.done ? 'opacity-[0.66]' : '',
             ].join(' ')}
@@ -45,7 +45,7 @@ export function StopCard({ stop, number, selected, onFocus, onToggleDone, onDeta
                     {number}
                 </button>
                 <div className="min-w-0 flex-1">
-                    <div className="mb-[3px] flex items-center gap-2 text-[10px] text-muted max-phone:flex-wrap">
+                    <div className="mb-[3px] flex flex-wrap items-center gap-2 text-[10px] text-muted">
                         {/* 시작~종료 + 메모를 한 줄로 (예: "18:50~20:20", "17:45 예상") */}
                         <span className="font-[650] text-green">{formatTime(stop.start, stop.end, stop.timeNote)}</span>
                         <span>· {stop.duration}</span>
@@ -61,7 +61,7 @@ export function StopCard({ stop, number, selected, onFocus, onToggleDone, onDeta
                     checked={stop.done}
                     onChange={event => onToggleDone(stop.id, event.target.checked)}
                     aria-label={`${stop.title} 방문 완료`}
-                    className="mt-1 h-[19px] w-[19px] cursor-pointer p-0 accent-green print:hidden"
+                    className="mt-1 h-[19px] w-[19px] shrink-0 cursor-pointer p-0 accent-green print:hidden"
                 />
             </div>
             <p className="mt-[9px] mb-3 text-[11px] leading-[1.8] whitespace-pre-wrap text-muted">{stop.note}</p>

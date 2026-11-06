@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpDown, ArrowUpRight, Check, Cloud, Pencil, Plus, Search, Settings, TriangleAlert } from 'lucide-react';
-import { AppHeader, headerButton } from '../components/AppHeader';
+import { AppHeader, headerButton, headerIconButton } from '../components/AppHeader';
 import { BottomSheet, type SheetHeights, type SheetSnap } from '../components/BottomSheet';
 import { DayEditDialog, type DayFields } from '../components/DayEditDialog';
 import { DayTabs } from '../components/DayTabs';
@@ -379,8 +379,8 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                     {syncState === 'saved' && <Check className="icon ml-0.5 text-green" />}
                 </span>
             )}
-            <button type="button" className={headerButton} onClick={() => setStorageOpen(true)}><Cloud className="icon" />저장·백업</button>
-            <button type="button" className={headerButton} onClick={onOpenSettings} aria-label="설정"><Settings className="icon" /></button>
+            <button type="button" className={headerButton} onClick={() => setStorageOpen(true)}><Cloud className="size-5 shrink-0" />저장·백업</button>
+            <button type="button" className={headerIconButton} onClick={onOpenSettings} aria-label="설정" title="설정"><Settings className="size-5 shrink-0" /></button>
         </AppHeader>
     );
 
@@ -523,10 +523,10 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
 
     /** 일정 / 맛집 탭과 목록 */
     const listSection = day && (
-        <section>
+        <section className="min-w-0">
             {/* 탭 줄 고정 위치: 휴대폰은 바텀시트 목록 맨 위(top-0), 좁은 화면은 상단 바·날짜 탭 아래 */}
             <div
-                className={`mb-3.5 flex items-center justify-between gap-2.5 print:hidden ${
+                className={`mb-3.5 flex min-w-0 justify-between gap-2.5 print:hidden ${phoneLayout || desktopLayout ? 'flex-col items-stretch' : 'flex-wrap items-center'} ${
                     phoneLayout || desktopLayout ? 'sticky top-0 z-[2] bg-bg py-[9px]' : 'max-tab:sticky max-tab:top-[52px] max-tab:z-[2] max-tab:bg-bg max-tab:py-[9px] max-phone:top-[75px]'
                 }`}
             >
@@ -550,26 +550,26 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                         </button>
                     ))}
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex min-w-0 items-center gap-1.5">
                     {/* 순서 편집 중에는 검색으로 일부만 보이면 순서가 헷갈리므로 검색칸을 숨깁니다. */}
                     {!reorder && (
-                        <label className="flex items-center gap-1.5 rounded-[7px] bg-[#eceee7] px-2.5 py-1">
+                        <label className="flex min-w-0 flex-1 items-center gap-1.5 rounded-[7px] bg-[#eceee7] px-2.5 py-1">
                             {/* 돋보기 SVG 아이콘 (장식용) */}
-                            <Search className="icon text-[12px] text-muted" />
+                            <Search className="icon shrink-0 text-[12px] text-muted" />
                             <input
                                 type="search"
                                 placeholder={view === 'food' ? '후보 검색' : '장소 검색'}
                                 aria-label={view === 'food' ? '후보 검색' : '장소 검색'}
                                 value={search}
                                 onChange={event => setSearch(event.target.value)}
-                                className="w-[110px] border-0 bg-transparent p-[3px] text-[11px] max-phone:w-[80px]"
+                                className="w-full min-w-0 border-0 bg-transparent p-[3px] text-[11px]"
                             />
                         </label>
                     )}
                     {view === 'route' ? (
                         <button
                             type="button"
-                            className={`btn btn-mini whitespace-nowrap ${reorder ? 'bg-green text-white' : ''}`}
+                            className={`btn btn-mini shrink-0 whitespace-nowrap ${reorder ? 'bg-green text-white' : ''}`}
                             onClick={toggleReorder}
                             disabled={!reorder && day.stops.length < 2}
                         >
@@ -584,7 +584,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                             )}
                         </button>
                     ) : (
-                        <button type="button" className="btn btn-mini whitespace-nowrap" onClick={() => setEditFoodId(null)}>
+                        <button type="button" className="btn btn-mini shrink-0 whitespace-nowrap" onClick={() => setEditFoodId(null)}>
                             <Plus className="icon" />후보 추가
                         </button>
                     )}
@@ -662,9 +662,9 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
             <div className="flex h-dvh min-h-0 flex-col overflow-hidden">
                 <div className="shrink-0">{header}</div>
                 <main className="flex min-h-0 flex-1 overflow-hidden">
-                    <aside aria-label="여행 일정 목록" className="flex w-[360px] shrink-0 flex-col border-r border-line bg-bg wide:w-[390px]">
+                    <aside aria-label="여행 일정 목록" className="flex min-w-0 w-[360px] shrink-0 flex-col overflow-hidden border-r border-line bg-bg wide:w-[390px]">
                         {dayTabs}
-                        <div ref={desktopScrollerRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-5">
+                        <div ref={desktopScrollerRef} className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-4 pb-5 wrap-anywhere">
                             <div className="flex items-center gap-1.5 py-4">
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-[11px] text-muted" title={trip.title}>{trip.title}</p>
