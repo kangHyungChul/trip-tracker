@@ -1,23 +1,20 @@
 // 모든 화면 공통 상단 바: TRIP TRACKER 로고(첫 화면 링크) + 오른쪽 버튼 영역.
 
 import type { ReactNode } from 'react';
-import { Plane } from 'lucide-react';
+import { Route } from 'lucide-react';
 
 export function AppHeader({ children }: { children?: ReactNode }) {
     return (
-        <header className="flex h-[85px] items-center justify-between border-b border-line bg-paper px-[5%] max-tab:h-[73px] max-tab:px-[22px] max-phone:px-[15px]">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-line bg-paper px-6 max-phone:h-14 max-phone:px-4">
             {/* #/ : 여행 목록(첫 화면)으로 이동 */}
-            <a href="#/" aria-label="TRIP TRACKER 여행 목록" className="flex items-center gap-3 text-[17px] leading-[1.3] font-bold no-underline max-phone:gap-2 max-phone:text-[14px]">
+            <a href="#/" aria-label="TRIP TRACKER 여행 목록" className="flex min-w-0 items-center gap-2.5 text-[17px] leading-[1.3] font-semibold no-underline max-phone:text-[14px]">
                 {/* 로고: 초록 원 안의 비행기 SVG 아이콘 (크기는 글자 크기 text-[20px]/[17px] 기준 .icon 비율) */}
-                <span className="grid h-[43px] w-[43px] place-items-center rounded-full bg-green text-[20px] text-paper max-phone:h-[35px] max-phone:w-[35px] max-phone:text-[17px]">
-                    <Plane className="icon" />
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-green text-paper">
+                    <Route className="size-5" />
                 </span>
-                <span className="tracking-[1.5px]">
-                    TRIP TRACKER
-                    <small className="mt-[5px] block text-[9px] font-medium tracking-[2px] text-muted max-phone:text-[8px]">TRAVEL JOURNAL</small>
-                </span>
+                <span className="truncate tracking-[-0.04em]">Trip tracker</span>
             </a>
-            <div className="flex items-center gap-[18px] max-tab:gap-[9px] print:hidden">{children}</div>
+            <div className="flex shrink-0 items-center gap-2 print:hidden">{children}</div>
         </header>
     );
 }

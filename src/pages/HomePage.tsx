@@ -2,7 +2,7 @@
 // 목록은 기기 캐시를 먼저 보여주고, Supabase 와 동기화(syncAll)가 끝나면 다시 읽습니다.
 
 import { useEffect, useState } from 'react';
-import { Check, Cloud, Plus, Settings, Trash2 } from 'lucide-react';
+import { Bookmark, CalendarDays, Check, Cloud, MapPin, Plus, Settings, Trash2 } from 'lucide-react';
 import { AppHeader, headerButton, headerIconButton } from '../components/AppHeader';
 import { HomeStorageDialog } from '../components/HomeStorageDialog';
 import { NewTripDialog } from '../components/NewTripDialog';
@@ -116,12 +116,11 @@ export function HomePage({ onOpenSettings }: HomePageProps) {
                 <button type="button" className={headerIconButton} onClick={onOpenSettings} aria-label="설정" title="설정"><Settings className="size-5 shrink-0" /></button>
             </AppHeader>
 
-            <main className="mx-auto max-w-[1500px] px-[5%] pb-10 max-tab:px-[22px] max-phone:px-[15px] wide:px-[50px]">
-                <section className="flex items-end justify-between gap-5 pt-12 pb-8 max-tab:py-[30px]">
-                    <div>
-                        <p className="eyebrow">MY TRIPS · {entries.length}</p>
-                        <h1 className="m-0 text-[clamp(25px,3vw,38px)] leading-[1.3] font-[550] tracking-[-1.8px]">나의 여행</h1>
-                        <p className="mt-[13px] text-[13px] text-muted">여행을 고르거나 새 여행을 만들어 일정과 가보고 싶은 장소를 모아보세요.</p>
+            <main className="mx-auto max-w-[1240px] px-8 pb-12 max-phone:px-4">
+                <section className="flex flex-wrap items-end justify-between gap-5 pt-12 pb-9 max-phone:pt-8">
+                    <div className="min-w-0">
+                        <h1 className="m-0 text-[clamp(28px,3vw,40px)] leading-[1.3] font-semibold tracking-[-1.5px]">나의 여행<span className="ml-3 align-middle text-[16px] font-normal tracking-normal text-muted">{entries.length}</span></h1>
+                        <p className="mt-3 max-w-[36em] text-[14px] text-muted">가보고 싶은 장소를 모으고, 하루의 동선을 계획해 보세요.</p>
                         {/* 클라우드 동기화 상태 한 줄 */}
                         <p role="status" className="mt-1 text-[11px] text-muted">
                             {!cloud
@@ -138,15 +137,15 @@ export function HomePage({ onOpenSettings }: HomePageProps) {
                                     )}
                         </p>
                     </div>
-                    <button type="button" className="btn btn-primary shrink-0" onClick={() => setNewOpen(true)}><Plus className="icon" />새 여행</button>
+                    <button type="button" className="btn btn-primary shrink-0" onClick={() => setNewOpen(true)}><Plus className="icon" />여행 만들기</button>
                 </section>
 
                 {entries.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-line p-10 text-center text-muted">
-                        {cloudSync.state === 'syncing' ? '여행 목록을 불러오는 중…' : '아직 여행이 없습니다. ‘새 여행’으로 시작하세요.'}
+                        {cloudSync.state === 'syncing' ? '여행 목록을 불러오는 중…' : '아직 여행이 없습니다. ‘여행 만들기’로 첫 일정을 계획해 보세요.'}
                     </div>
                 ) : (
-                    <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 p-0 max-phone:grid-cols-1">
+                    <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-5 p-0 max-phone:grid-cols-1">
                         {entries.map(entry => (
                             <li key={entry.id}>
                                 <TripCard entry={entry} onDelete={remove} />
@@ -199,16 +198,21 @@ function TripCard({ entry, onDelete }: { entry: StoredTrip; onDelete: (id: strin
     const range = formatDateRange(trip);
     const counts = countItems(trip);
     return (
-        <article className="group relative h-full rounded-[14px] border border-line bg-paper shadow-card transition-colors hover:border-[#abbd9d]">
+        <article className="journey-card group relative h-full transition-colors">
             {/* 카드 전체를 여행 화면 링크로 (삭제 버튼은 링크 위에 따로 배치) */}
-            <a href={`#/trip/${trip.id}`} className="block h-full p-5 pr-12 no-underline">
-                <p className="eyebrow">{[range || '날짜 미정', trip.companion].filter(Boolean).join(' · ')}</p>
-                <h2 className="m-0 text-[20px] leading-[1.4] font-semibold tracking-[-0.6px]">{trip.title}</h2>
-                {trip.tagline && <p className="mt-1.5 mb-0 text-[12px] text-muted">{trip.tagline}</p>}
-                <p className="mt-4 mb-0 text-[11px] text-[#5b685b]">
-                    <span className="text-gold">{trip.days.length} DAYS</span> · 일정 {counts.stops} · 후보 {counts.foods}
-                </p>
-                {trip.updatedAt && <small className="mt-1 block text-[10px] text-muted">{new Date(trip.updatedAt).toLocaleString('ko-KR')} 수정</small>}
+            <a href={`#/trip/${trip.id}`} className="flex h-full min-w-0 flex-col px-6 pt-6 pb-4 no-underline">
+                <p className="mb-3 pr-6 text-[12px] text-muted">{range || '날짜 미정'}</p>
+                <h2 className="m-0 pr-4 text-[23px] leading-[1.4] font-semibold tracking-[-0.7px] wrap-anywhere">{trip.title}</h2>
+                {trip.companion && <p className="mt-1 text-[12px] text-muted">{trip.companion}</p>}
+                {trip.tagline && <p className="mt-3 mb-0 line-clamp-2 text-[13px] text-muted">{trip.tagline}</p>}
+                <div className="mt-auto pt-6">
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-line pt-4 text-[12px] text-muted">
+                        <span className="flex items-center gap-1.5"><CalendarDays className="size-3.5" />{trip.days.length}일</span>
+                        <span className="flex items-center gap-1.5"><MapPin className="size-3.5" />일정 {counts.stops}</span>
+                        <span className="flex items-center gap-1.5"><Bookmark className="size-3.5" />후보 {counts.foods}</span>
+                    </div>
+                    {trip.updatedAt && <small className="mt-3 block text-[11px] text-muted">{new Date(trip.updatedAt).toLocaleDateString('ko-KR')} 수정</small>}
+                </div>
             </a>
             <button
                 type="button"

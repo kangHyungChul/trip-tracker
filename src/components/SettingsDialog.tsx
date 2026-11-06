@@ -75,10 +75,10 @@ function SettingsForm({ onClose }: SettingsDialogProps) {
     const sourceText = config.source === 'device' ? '별도로 연결됨' : config.source === 'env' ? '기본 연결 사용 중' : '연결 안 됨';
     return (
         <form onSubmit={save}>
-            <ModalHead id="settings-heading" eyebrow="SETTINGS" title="설정" onClose={onClose} />
+            <ModalHead id="settings-heading" title="설정" onClose={onClose} />
             <h3 className="mx-[25px] mt-[22px] mb-0 text-[15px] font-bold max-phone:mx-[18px]">Google 지도</h3>
             <div className="px-[25px] py-[22px] text-[12px] max-phone:p-[18px]">
-                <div className="mb-4 grid gap-1 rounded-[10px] bg-[#f2f4ee] p-3">
+                <div className="mb-4 grid gap-1 rounded-[10px] bg-bg p-3">
                     <span>
                         <b>{STATUS_TEXT[status] ?? '지도 연결 확인 중'}</b>
                         {/* 정상 동작이면 초록 체크 SVG 아이콘 */}
@@ -159,7 +159,7 @@ function SupabaseSection() {
     return (
         <section className="mt-6 border-t border-line pt-5">
             <h3 className="mt-0 mb-2 text-[15px] font-bold">여행 저장</h3>
-            <p className="mb-3 rounded-[10px] bg-[#f2f4ee] p-3">{status}</p>
+            <p className="mb-3 rounded-[10px] bg-bg p-3">{status}</p>
             <details>
             <summary className="mb-3 cursor-pointer font-semibold">저장 연결 변경</summary>
             <label className="field">

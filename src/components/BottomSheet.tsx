@@ -174,11 +174,11 @@ export function BottomSheet({ snap, onSnapChange, onHeightsChange, header, child
         <div
             ref={sheetRef}
             role="region"
-            aria-label="일정·맛집 목록"
+            aria-label="일정·후보 목록"
             // 처음 크기를 재기 전(areaHeight 0)에는 보이지 않게 둡니다.
             style={{ height: areaHeight ? height : undefined, visibility: areaHeight ? undefined : 'hidden' }}
             className={[
-                'absolute inset-x-0 bottom-0 z-[3] flex flex-col overflow-hidden rounded-t-[18px] bg-bg shadow-[0_-6px_24px_rgba(32,60,53,0.16)]',
+                'absolute inset-x-0 bottom-0 z-[3] flex flex-col overflow-hidden rounded-t-[22px] border-t border-line bg-paper shadow-[0_-4px_20px_#182c3814]',
                 // 끄는 중에는 손가락을 바로 따라오도록 애니메이션을 끕니다.
                 dragHeight === null ? 'transition-[height] duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]' : '',
             ].join(' ')}
@@ -191,7 +191,7 @@ export function BottomSheet({ snap, onSnapChange, onHeightsChange, header, child
                     aria-label={snap === 'full' ? '목록 줄이기' : '목록 펼치기'}
                     className="flex w-full justify-center rounded-none pt-2.5 pb-1.5"
                 >
-                    <span className="block h-[5px] w-10 rounded-full bg-[#c9d0c4]" />
+                    <span className="block h-1 w-10 rounded-full bg-line" />
                 </button>
                 {header}
             </div>

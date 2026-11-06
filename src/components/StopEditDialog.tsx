@@ -126,7 +126,7 @@ function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps
 
     return (
         <form onSubmit={submit}>
-            <ModalHead id="edit-heading" eyebrow="MAKE IT YOURS" title={stop ? '장소 편집' : '새 장소 추가'} onClose={onClose} />
+            <ModalHead id="edit-heading" title={stop ? '일정 편집' : '일정 추가'} onClose={onClose} />
             <div className="px-[25px] py-[22px] max-phone:p-[18px]">
                 <PlaceLocator
                     lat={toCoord(draft.lat)}
@@ -211,7 +211,7 @@ function EditForm({ stop, bias, currency, onClose, onSave }: StopEditDialogProps
             <ModalFooter>
                 {error && <p className="m-0 mr-auto self-center text-[11px] text-danger">{error}</p>}
                 <button type="button" className="btn btn-outline" onClick={onClose}>취소</button>
-                <button type="submit" className="btn btn-primary">저장</button>
+                <button type="submit" className="btn btn-primary">{stop ? '변경 내용 저장' : '일정 추가'}</button>
             </ModalFooter>
         </form>
     );

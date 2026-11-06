@@ -41,7 +41,7 @@ export function FoodCard({ food, selected, onFocus, onEdit, onSchedule, schedule
             onClick={event => {
                 if (located && !isInteractiveTarget(event.target)) onFocus(food.id);
             }}
-            className={`mb-3 min-w-0 scroll-mt-[15px] rounded-[11px] border bg-paper p-[17px] wrap-anywhere ${located ? 'cursor-pointer' : ''} ${selected ? 'border-[#d9b98a] shadow-[0_0_0_2px_#f3e6d2]' : 'border-line'}`}
+            className={`min-w-0 scroll-mt-[15px] border-b border-line px-3 py-[18px] wrap-anywhere ${located ? 'cursor-pointer' : ''} ${selected ? 'rounded-xl bg-light' : ''}`}
         >
             <div className="flex items-start gap-[11px]">
                 {/* 지도 배지와 같은 모양의 버튼. 위치가 없으면 지도 이동 대신 비활성 */}
@@ -56,19 +56,20 @@ export function FoodCard({ food, selected, onFocus, onEdit, onSchedule, schedule
                     <FoodIcon category={food.category} className="size-4" />
                 </button>
                 <div className="min-w-0 flex-1">
-                    <div className="text-[10px] text-[#9d875b]">
+                    <div className="text-[11px] text-muted">
                         {STOP_ICON_LABELS[food.category]}{scheduled ? ' · 일정에 추가됨' : ''}
                         {food.kind ? ` · ${food.kind}` : ''}
                     </div>
-                    <h3 className="my-[3px] text-[16px] font-bold">{food.name}</h3>
+                    <h3 className="my-[3px] text-[16px] font-semibold">{food.name}</h3>
                 </div>
                 <button type="button" onClick={() => onEdit(food.id)} className="shrink-0 px-[3px] py-1 text-[11px] text-muted print:hidden">
                     편집
                 </button>
             </div>
-            {food.menu && <p className="my-[5px] text-[12px] text-[#657361]">{food.menu}</p>}
+            <div className="ml-[39px]">
+            {food.menu && <p className="my-[5px] text-[12px] text-muted">{food.menu}</p>}
             {food.budget && (
-                <p className="my-[5px] text-[12px] text-[#657361]">
+                <p className="my-[5px] text-[12px] text-ink">
                     <strong>{food.budget}</strong>
                 </p>
             )}
@@ -80,11 +81,12 @@ export function FoodCard({ food, selected, onFocus, onEdit, onSchedule, schedule
                 </small>
             )}
             <div className="mt-3 flex flex-wrap items-center gap-2.5 text-[11px] print:hidden">
-                <button type="button" className="btn btn-mini" onClick={() => onSchedule(food.id)}><Plus className="icon" />일정에 추가</button>
+                <button type="button" className="btn btn-outline px-2 py-1.5 text-[11px]" onClick={() => onSchedule(food.id)}><Plus className="icon" />일정에 추가</button>
                 {/* 자동차 길찾기와 도보 길찾기를 모두 제공합니다. (↗ 아이콘은 ExternalLink 가 붙임) */}
                 <ExternalLink href={gmaps(food.query, true)} className="navlink">길찾기</ExternalLink>
                 <ExternalLink href={gmaps(food.query, true, 'walking')}>도보</ExternalLink>
                 <SourceLink url={food.source} label="정보 원문" />
+            </div>
             </div>
         </article>
     );

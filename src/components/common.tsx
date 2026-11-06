@@ -28,8 +28,8 @@ export function SourceLink({ url, label = '공식·참고 원문', className }: 
 export function Fact({ label, children }: { label: string; children: ReactNode }) {
     return (
         <div className="flex gap-[9px]">
-            <span className="min-w-[30px] shrink-0 text-[10px] text-[#9d875b]">{label}</span>
-            <span className="min-w-0 wrap-anywhere text-[#5b685b]">{children}</span>
+            <span className="min-w-[30px] shrink-0 text-[11px] text-muted">{label}</span>
+            <span className="min-w-0 wrap-anywhere text-muted">{children}</span>
         </div>
     );
 }

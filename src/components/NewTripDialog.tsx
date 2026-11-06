@@ -25,7 +25,7 @@ function NewTripForm({ onClose, onCreate }: NewTripDialogProps) {
     };
     return (
         <form onSubmit={submit}>
-            <ModalHead id="new-trip-heading" eyebrow="NEW JOURNEY" title="새 여행 만들기" onClose={onClose} />
+            <ModalHead id="new-trip-heading" title="새 여행 만들기" onClose={onClose} />
             <div className="px-[25px] py-[22px] max-phone:p-[18px]">
                 <label className="field">
                     여행 이름
@@ -36,7 +36,7 @@ function NewTripForm({ onClose, onCreate }: NewTripDialogProps) {
             </div>
             <ModalFooter>
                 <button type="button" className="btn btn-outline" onClick={onClose}>취소</button>
-                <button type="submit" className="btn btn-primary">만들기</button>
+                <button type="submit" className="btn btn-primary">여행 만들기</button>
             </ModalFooter>
         </form>
     );

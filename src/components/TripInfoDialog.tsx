@@ -57,7 +57,7 @@ function InfoForm({ info, onClose, onSave }: TripInfoDialogProps) {
 
     return (
         <form onSubmit={submit}>
-            <ModalHead id="trip-info-heading" eyebrow="ABOUT THIS TRIP" title="여행 정보" onClose={onClose} />
+            <ModalHead id="trip-info-heading" title="여행 정보" onClose={onClose} />
             <div className="px-[25px] py-[22px] max-phone:p-[18px]">
                 <label className="field">
                     여행 제목

@@ -32,7 +32,7 @@ export function Modal({ open, onClose, children, labelledBy, size = 'default' }:
             // Esc 키로 닫으면 브라우저가 close 이벤트를 보냅니다. 부모 상태도 닫힘으로 맞춥니다.
             onClose={onClose}
             aria-labelledby={labelledBy}
-            className={`max-h-[90dvh] w-[calc(100%-28px)] ${size === 'small' ? 'max-w-[420px]' : 'max-w-[680px]'} rounded-2xl border border-line bg-paper p-0 text-ink shadow-[0_20px_100px_#17291d30] backdrop:bg-[#102e2866] backdrop:backdrop-blur-[2px]`}
+            className={`max-h-[90dvh] w-[calc(100%-28px)] ${size === 'small' ? 'max-w-[420px]' : 'max-w-[680px]'} rounded-[20px] border border-line bg-paper p-0 text-ink shadow-[0_24px_80px_#182c3830] backdrop:bg-[#182c3866] backdrop:backdrop-blur-[3px]`}
         >
             {/* 닫혀 있을 때는 내용을 렌더링하지 않아, 다시 열 때마다 폼 상태가 새로 초기화됩니다. */}
             {open && children}
@@ -41,14 +41,14 @@ export function Modal({ open, onClose, children, labelledBy, size = 'default' }:
 }
 
 /** 모달 상단 제목 영역 (작은 머리말 + 제목 + X 닫기 버튼) */
-export function ModalHead({ id, eyebrow, title, onClose }: { id?: string; eyebrow?: string; title: string; onClose: () => void }) {
+export function ModalHead({ id, subtitle, title, onClose }: { id?: string; subtitle?: ReactNode; title: string; onClose: () => void }) {
     return (
         <div className="flex items-center justify-between gap-2.5 border-b border-line px-[25px] py-[23px] max-phone:p-[18px]">
-            <div>
-                {eyebrow && <p className="eyebrow max-phone:text-[9px]">{eyebrow}</p>}
-                <h2 id={id} className="m-0 text-[22px] leading-[1.4] font-semibold tracking-[-0.8px] max-phone:text-[20px]">
+            <div className="min-w-0">
+                <h2 id={id} className="m-0 text-[21px] leading-[1.4] font-semibold tracking-[-0.6px] max-phone:text-[20px]">
                     {title}
                 </h2>
+                {subtitle && <p className="mt-1 text-[12px] text-muted">{subtitle}</p>}
             </div>
             {/* 누르기 쉽게 36px 정사각형 영역 가운데에 22px X 아이콘 */}
             <button type="button" onClick={onClose} aria-label="닫기" className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted hover:text-ink">
@@ -61,6 +61,6 @@ export function ModalHead({ id, eyebrow, title, onClose }: { id?: string; eyebro
 /** 모달 하단 버튼 영역. 내용이 길어 스크롤돼도 아래에 붙어 있습니다. */
 export function ModalFooter({ children }: { children: ReactNode }) {
     return (
-        <div className="sticky bottom-0 flex justify-end gap-2.5 border-t border-line bg-[#f6f6ef] px-[25px] py-[17px]">{children}</div>
+        <div className="sticky bottom-0 flex flex-wrap justify-end gap-2.5 border-t border-line bg-paper px-[25px] py-[17px]">{children}</div>
     );
 }

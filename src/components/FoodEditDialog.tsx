@@ -61,7 +61,7 @@ function FoodForm({ food, bias, onClose, onSave, onDelete }: FoodEditDialogProps
 
     return (
         <form onSubmit={submit}>
-            <ModalHead id="food-heading" eyebrow="PLACE CANDIDATES" title={food ? '장소 후보 편집' : '장소 후보 추가'} onClose={onClose} />
+            <ModalHead id="food-heading" title={food ? '후보 편집' : '후보 추가'} onClose={onClose} />
             <div className="px-[25px] py-[22px] max-phone:p-[18px]">
                 <PlaceLocator
                     lat={draft.lat}
@@ -97,7 +97,7 @@ function FoodForm({ food, bias, onClose, onSave, onDelete }: FoodEditDialogProps
                     </button>
                 )}
                 <button type="button" className="btn btn-outline" onClick={onClose}>취소</button>
-                <button type="submit" className="btn btn-primary">저장</button>
+                <button type="submit" className="btn btn-primary">{food ? '변경 내용 저장' : '후보 추가'}</button>
             </ModalFooter>
         </form>
     );

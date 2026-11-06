@@ -114,7 +114,7 @@ function MapPlaceholder({ status, onOpenSettings, fill }: { status: ReturnType<t
     }
     // fill 모드: 아래쪽은 바텀시트가 가리므로 안내를 위쪽(items-start)에 둡니다.
     const layout = fill ? 'h-full place-items-start pt-10' : `${MAP_HEIGHT} place-items-center`;
-    return <div className={`${layout} grid bg-[#e9eee4] p-6 text-center`}><div>{body}</div></div>;
+    return <div className={`${layout} grid bg-light p-6 text-center`}><div>{body}</div></div>;
 }
 
 /** Google 지도 본체 (스크립트 로드 완료 후에만 렌더링) */

@@ -68,7 +68,7 @@ function DayForm({ day, defaultDate, onClose, onSave, onDelete }: DayEditDialogP
     const weekday = weekdayOf(draft.date);
     return (
         <form onSubmit={submit}>
-            <ModalHead id="day-heading" eyebrow="PLAN YOUR DAY" title={day ? '날짜 편집' : '새 날짜 추가'} onClose={onClose} />
+            <ModalHead id="day-heading" title={day ? '날짜 편집' : '새 날짜 추가'} onClose={onClose} />
             <div className="px-[25px] py-[22px] max-phone:p-[18px]">
                 <div className="grid grid-cols-2 gap-x-3.5 max-phone:grid-cols-1">
                     <Field label={`날짜${weekday ? ` · ${weekday}요일` : ' (비우면 미정)'}`}>

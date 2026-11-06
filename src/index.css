@@ -4,18 +4,18 @@
 
 @theme {
     /* 색상: bg-*, text-*, border-* 유틸리티 이름이 됩니다. (예: bg-green, text-muted, border-line) */
-    --color-bg: #f6f5ef;
-    --color-paper: #fffefa;
-    --color-ink: #203c35;
-    --color-muted: #737e75;
-    --color-line: #dfe4da;
-    --color-green: #244e40;
-    --color-light: #e8eee5;
-    --color-gold: #b99459;
-    --color-danger: #a54b3c;
+    --color-bg: #f3f6f8;
+    --color-paper: #ffffff;
+    --color-ink: #182c38;
+    --color-muted: #607580;
+    --color-line: #dce5ea;
+    --color-green: #087f8c;
+    --color-light: #e8f4f5;
+    --color-gold: #516c7d;
+    --color-danger: #b6404c;
 
-    --shadow-card: 0 12px 38px #243f3010;
-    --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+    --shadow-card: 0 3px 14px #182c3810;
+    --font-sans: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
 
     /* 반응형 기준점. 기존 CSS 의 max-width:850px / 480px 를 그대로 쓰기 위해
        max-tab: (851px 미만 = 850px 이하), max-phone: (481px 미만 = 480px 이하) 변형으로 사용합니다. */
@@ -27,7 +27,8 @@
 /* 요소 기본 스타일 (Tailwind 기본 초기화 위에 기존 앱의 기본값을 다시 적용) */
 @layer base {
     body {
-        @apply bg-bg font-sans text-[14px] leading-[1.65] text-ink;
+        @apply bg-bg font-sans text-[14px] leading-[1.65] tracking-[-0.02em] text-ink;
+        -webkit-font-smoothing: antialiased;
     }
     button {
         cursor: pointer;
@@ -41,17 +42,18 @@
     a:focus-visible,
     input:focus-visible,
     summary:focus-visible {
-        outline: 3px solid #c6a866;
+        outline: 3px solid #087f8c;
         outline-offset: 3px;
     }
     input,
     textarea,
     select {
-        border: 1px solid #d3dcd0;
-        background: #fffefa;
-        border-radius: 7px;
-        padding: 10px;
+        border: 1px solid var(--color-line);
+        background: var(--color-paper);
+        border-radius: 10px;
+        padding: 10px 12px;
         color: var(--color-ink);
+        font: inherit;
     }
     textarea {
         resize: vertical;
@@ -71,18 +73,21 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        border-radius: 9px;
+        border-radius: 10px;
         padding: 10px 15px;
         font-weight: 600;
         text-decoration: none;
         cursor: pointer;
+        font-size: 13px;
+        line-height: 1.5;
+        transition: background-color 120ms ease, border-color 120ms ease;
     }
     .btn-primary {
         background: var(--color-green);
         color: #fff;
     }
     .btn-outline {
-        border: 1px solid #ced7ca;
+        border: 1px solid var(--color-line);
         background: var(--color-paper);
     }
     .btn-soft {
@@ -91,7 +96,7 @@
     .btn-mini {
         font-size: 12px;
         padding: 5px 9px;
-        background: #f2f4ee;
+        background: var(--color-bg);
     }
     .btn-text {
         font-size: 12px;
@@ -113,7 +118,7 @@
     }
     /* 초록색 길찾기 링크 버튼 */
     .navlink {
-        border-radius: 7px;
+        border-radius: 8px;
         background: var(--color-green);
         padding: 7px 11px;
         font-size: 11px;
@@ -124,16 +129,17 @@
     /* 작은 대문자 머리말 */
     .eyebrow {
         margin: 0 0 8px;
-        font-size: 10px;
-        font-weight: 650;
-        letter-spacing: 1.8px;
-        color: #768377;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: normal;
+        color: var(--color-muted);
     }
     /* 모달 안의 입력 라벨: 라벨 텍스트 아래에 입력칸이 꽉 차게 배치 */
     .field {
         display: block;
-        margin: 0 0 14px;
-        font-size: 12px;
+        margin: 0 0 18px;
+        font-size: 13px;
+        font-weight: 500;
     }
     .field input:not([type='checkbox']),
     .field textarea,
@@ -141,7 +147,40 @@
         display: block;
         width: 100%;
         margin-top: 5px;
+        font-weight: 400;
     }
+    .journey-card {
+        border: 1px solid var(--color-line);
+        border-radius: 16px;
+        background: var(--color-paper);
+        overflow: hidden;
+    }
+    .journey-card:hover {
+        border-color: var(--color-green);
+    }
+    .itinerary-stop {
+        position: relative;
+        margin-left: 0;
+        padding: 18px 12px;
+        border-bottom: 1px solid var(--color-line);
+    }
+    .itinerary-stop-selected {
+        border-radius: 12px;
+        background: var(--color-light);
+        box-shadow: inset 3px 0 var(--color-green);
+    }
+    .itinerary-stop::before {
+        content: '';
+        position: absolute;
+        left: 27px;
+        top: 51px;
+        bottom: 0;
+        width: 1px;
+        background: var(--color-line);
+        pointer-events: none;
+    }
+    .itinerary-stop:last-child::before { display: none; }
+    .itinerary-stop-content { position: relative; margin-left: 41px; }
     /* 지도 번호 핀 (Google 지도 AdvancedMarker 안의 HTML) */
     .pin {
         position: relative;
@@ -158,7 +197,7 @@
         font-weight: 700;
     }
     .pin-selected {
-        background: #b38642;
+        background: var(--color-ink);
         transform: scale(1.15);
     }
     .pin-number {
@@ -198,7 +237,7 @@
         background: #8a5a3c; /* 카페: 갈색 */
     }
     .food-badge-selected {
-        outline: 3px solid #b38642;
+        outline: 3px solid var(--color-ink);
         transform: scale(1.15);
     }
     /* 지도 정보창 제목 (닫기 버튼 줄) */
@@ -231,6 +270,10 @@
         color: var(--color-green);
         font-weight: 650;
     }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0s !important; }
 }
 
 /* ── react-datepicker 보정 ──

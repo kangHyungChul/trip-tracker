@@ -25,7 +25,7 @@ export function StopDetailDialog({ stop, checkedAt, onClose, onEdit, onDelete }:
                 <>
                     <ModalHead
                         id="detail-title"
-                        eyebrow={`${formatTime(stop.start, stop.end, stop.timeNote)} · ${stop.kind}`}
+                        subtitle={`${formatTime(stop.start, stop.end, stop.timeNote)} · ${stop.kind}`}
                         title={stop.title}
                         onClose={onClose}
                     />

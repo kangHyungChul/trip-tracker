@@ -43,7 +43,7 @@ export function PlaceLocator({ lat, lng, onFound, bias, label = '구글지도 UR
 
     const hasCoords = lat !== null && lng !== null;
     return (
-        <div className="mb-3.5 rounded-[10px] border border-line bg-[#f7f8f2] p-3">
+        <div className="mb-5 rounded-xl border border-line bg-bg p-3.5">
             <label className="field mb-2">
                 {label}
                 <div className="mt-[5px] flex gap-2">

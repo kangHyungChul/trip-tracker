@@ -18,7 +18,7 @@ import { StopEditDialog } from '../components/StopEditDialog';
 import { TripInfoDialog, type TripInfo } from '../components/TripInfoDialog';
 import { TripMap, type FocusRequest } from '../components/TripMap';
 import { TripStorageDialog } from '../components/TripStorageDialog';
-import { currencySymbol, formatMoney } from '../lib/currency';
+import { formatMoney } from '../lib/currency';
 import { addDays, shortDate } from '../lib/datetime';
 import { lastDayKey, readItem, writeItem } from '../lib/storage';
 import { clone, dayCost, foodMatches, newId, stopMatches, validateTrip } from '../lib/trip';
@@ -261,7 +261,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
         if (!commitValidated(next)) return;
         setSelectedId(stop.id);
         setEditStopId(undefined);
-        toast('장소를 저장했습니다.');
+        toast(input.id ? '일정 변경 내용을 저장했습니다.' : '일정을 추가했습니다.');
     };
 
     // ── 맛집 동작 ──
@@ -277,7 +277,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
         if (!commitValidated(next)) return;
         setSelectedId(food.id);
         setEditFoodId(undefined);
-        toast(food.lat === null ? '후보를 저장했습니다. 위치가 없어 지도에는 표시되지 않습니다.' : '여행 공통 후보함에 저장했습니다.');
+        toast((input.id ? '후보 변경 내용을 저장했습니다.' : '후보를 추가했습니다.') + (food.lat === null ? ' 위치를 지정하면 지도에서도 볼 수 있습니다.' : ''));
     };
 
     const deleteFood = async (id: string) => {
@@ -399,7 +399,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                 {trip.tagline && <p className="mt-[13px] text-[13px] text-muted max-tab:text-[12px]">{trip.tagline}</p>}
             </div>
             <div className="flex shrink-0 flex-col gap-[3px] border-l border-line pl-7 max-tab:hidden">
-                <span className="text-[10px] tracking-[2px] text-gold">{trip.days.length} DAYS</span>
+                <span className="text-[12px] text-muted">{trip.days.length}일 여행</span>
                 {trip.highlight && <strong className="text-[15px]">{trip.highlight}</strong>}
                 {trip.highlightSub && <small className="text-[11px] text-muted">{trip.highlightSub}</small>}
             </div>
@@ -468,19 +468,15 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
     /** 비용 합계·주의 문구·여행 인원·안내 (넓은 화면은 지도 아래, 휴대폰은 바텀시트 목록 아래) */
     const dayInfo = day && (
         <>
-            <div className="mt-4 flex items-center justify-between rounded-xl border border-line bg-[#e9eee4] px-5 py-[19px] max-tab:mt-3 max-tab:px-4 max-tab:py-3">
-                <div>
-                    <small className="text-[10px] text-muted max-phone:text-[9px]">성인 {trip.travelers}명 기준 · 장소별로 입력한 금액 합계</small>
+            <div className="mt-5 rounded-xl bg-bg p-4">
+                <div className="min-w-0">
+                    <small className="text-[12px] text-muted">{trip.travelers}명 예상 비용</small>
                     {/* formatMoney: 여행 통화의 기호·자릿수로 표시 (예: ₩19,500 / ¥1,950 / $19.5) */}
-                    <strong className="block text-[27px] font-[550] tracking-[-1px] max-tab:text-[24px]">약 {formatMoney(dayCost(day, trip.travelers), trip.currency)}</strong>
-                    <p className="mt-0.5 text-[10px] text-muted">
+                    <strong className="mt-1 block text-[25px] font-semibold tracking-[-0.8px]">{formatMoney(dayCost(day, trip.travelers), trip.currency)}</strong>
+                    <p className="mt-1 text-[11px] leading-relaxed text-muted">
                         식비·숙박·렌트·유류·쇼핑 등 입력하지 않은 비용 제외{day.costNote ? ` / ${day.costNote}` : ''}
                     </p>
                 </div>
-                {/* 장식용 큰 통화 기호 (기호가 긴 통화는 글자를 줄임) */}
-                <span aria-hidden="true" className={`font-serif text-[#a6b19c] ${currencySymbol(trip.currency).length > 2 ? 'text-[20px]' : 'text-[35px]'}`}>
-                    {currencySymbol(trip.currency)}
-                </span>
             </div>
 
             {(day.pace || day.warning) && (
@@ -530,7 +526,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
             {/* 탭 줄 고정 위치: 휴대폰은 바텀시트 목록 맨 위(top-0), 좁은 화면은 상단 바·날짜 탭 아래 */}
             <div
                 className={`mb-3.5 flex min-w-0 justify-between gap-2.5 print:hidden ${phoneLayout || desktopLayout ? 'flex-col items-stretch' : 'flex-wrap items-center'} ${
-                    phoneLayout || desktopLayout ? 'sticky top-0 z-[2] bg-bg py-[9px]' : 'max-tab:sticky max-tab:top-[52px] max-tab:z-[2] max-tab:bg-bg max-tab:py-[9px] max-phone:top-[75px]'
+                    phoneLayout || desktopLayout ? 'sticky top-0 z-[2] bg-paper py-3' : 'max-tab:sticky max-tab:top-[52px] max-tab:z-[2] max-tab:bg-bg max-tab:py-[9px] max-phone:top-[75px]'
                 }`}
             >
                 <div className="flex gap-[18px] border-b border-line max-phone:gap-[15px]">
@@ -547,7 +543,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                                 setView(key);
                                 setReorder(false);
                             }}
-                            className={`rounded-none px-0 py-[9px] text-[12px] whitespace-nowrap ${view === key ? 'border-b-2 border-green text-green' : 'text-muted'}`}
+                            className={`rounded-none px-0 py-2 text-[13px] font-semibold whitespace-nowrap ${view === key ? 'border-b-2 border-green text-green' : 'text-muted'}`}
                         >
                             {label}
                         </button>
@@ -556,7 +552,7 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
                 <div className="flex min-w-0 items-center gap-1.5">
                     {/* 순서 편집 중에는 검색으로 일부만 보이면 순서가 헷갈리므로 검색칸을 숨깁니다. */}
                     {!reorder && (
-                        <label className="flex min-w-0 flex-1 items-center gap-1.5 rounded-[7px] bg-[#eceee7] px-2.5 py-1">
+                        <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-line bg-paper px-2.5 py-1">
                             {/* 돋보기 SVG 아이콘 (장식용) */}
                             <Search className="icon shrink-0 text-[12px] text-muted" />
                             <input
@@ -661,14 +657,14 @@ export function TripPage({ initialTrip, onOpenSettings }: TripPageProps) {
             <div className="flex h-dvh min-h-0 flex-col overflow-hidden">
                 <div className="shrink-0">{header}</div>
                 <main className="flex min-h-0 flex-1 overflow-hidden">
-                    <aside aria-label="여행 일정 목록" className="flex min-w-0 w-[360px] shrink-0 flex-col overflow-hidden border-r border-line bg-bg wide:w-[390px]">
+                    <aside aria-label="여행 일정 목록" className="flex min-w-0 w-[360px] shrink-0 flex-col overflow-hidden border-r border-line bg-paper wide:w-[390px]">
                         {dayTabs}
                         <div ref={desktopScrollerRef} className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-4 pb-5 wrap-anywhere">
-                            <div className="flex items-center gap-1.5 py-4">
+                            <div className="flex items-center gap-2 border-b border-line py-5">
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-[11px] text-muted" title={trip.title}>{view === 'food' ? '여행 전체 공통' : trip.title}</p>
                                     <div className="flex min-w-0 items-center gap-1">
-                                        <h1 className="min-w-0 truncate text-[19px] font-semibold" title={view === 'food' ? '장소 후보' : day.title}>{view === 'food' ? '장소 후보' : day.title}</h1>
+                                    <h1 className="min-w-0 truncate text-[20px] font-semibold tracking-[-0.6px]" title={view === 'food' ? '장소 후보' : day.title}>{view === 'food' ? '장소 후보' : day.title}</h1>
                                         {view === 'route' && <button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-full" onClick={() => setEditDayId(day.id)} aria-label="날짜 편집" title="날짜 편집"><Pencil className="size-4" /></button>}
                                     </div>
                                 </div>

@@ -80,7 +80,7 @@ function StorageBody({ onClose, getTrip, replace, saveStatus }: TripStorageDialo
 
     return (
         <>
-            <ModalHead id="storage-heading" eyebrow="YOUR TRAVEL NOTE" title="이 여행 저장과 백업" onClose={onClose} />
+            <ModalHead id="storage-heading" title="이 여행 저장과 백업" onClose={onClose} />
             <div className="px-[25px] py-[22px] max-phone:p-[18px]">
                 <section className={block}>
                     <h3 className="mb-2 text-[16px] font-bold">자동 저장</h3>

@@ -18,9 +18,9 @@ export function DayTabs({ days, selectedId, activeRef, onSelect, onAdd }: Props)
             const weekday = weekdayOf(day.date);
             const label = day.date ? `${shortDate(day.date)}${weekday ? `(${weekday})` : ''}` : '미정';
             return <button key={day.id} ref={active ? activeRef : undefined} type="button" onClick={() => onSelect(day.id)} aria-current={active ? 'date' : undefined} title={[day.title, day.dateNote].filter(Boolean).join(' · ')} className={`shrink-0 rounded-full border px-3 py-[7px] text-[12px] whitespace-nowrap ${active ? 'border-green bg-green text-white' : 'border-line bg-paper text-ink'}`}>
-                <b className="font-bold">DAY {index + 1}</b><span className={active ? 'text-[#cbd8c7]' : 'text-muted'}> · {label}</span>
+                <b className="font-semibold">{index + 1}일차</b><span className={active ? 'text-white/80' : 'text-muted'}> {label}</span>
             </button>;
         })}
-        <button type="button" onClick={onAdd} className="shrink-0 rounded-full border border-dashed border-[#c9d0c4] px-3 py-[7px] text-[12px] font-semibold whitespace-nowrap text-green" aria-label="날짜 추가"><Plus className="icon mr-0.5" />날짜</button>
+        <button type="button" onClick={onAdd} className="shrink-0 rounded-full border border-dashed border-line px-3 py-[7px] text-[12px] font-semibold whitespace-nowrap text-green" aria-label="날짜 추가"><Plus className="icon mr-0.5" />날짜</button>
     </nav>;
 }

@@ -87,7 +87,7 @@ function Body({ onClose, onChanged }: HomeStorageDialogProps) {
 
     return (
         <>
-            <ModalHead id="home-storage-heading" eyebrow="YOUR TRAVEL NOTES" title="저장과 백업" onClose={onClose} />
+            <ModalHead id="home-storage-heading" title="저장과 백업" onClose={onClose} />
             <div className="px-[25px] py-[22px] max-phone:p-[18px]">
                 <section className={block}>
                     <h3 className="mb-2 text-[16px] font-bold">자동 저장</h3>
