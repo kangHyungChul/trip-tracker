@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AdvancedMarker, APILoadingStatus, InfoWindow, Map, Polyline, useMap } from '@vis.gl/react-google-maps';
-import { ChevronDown, ChevronUp, Layers, LocateFixed, Route, Scan, Settings } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Layers, LocateFixed, Route, Scan, Settings } from 'lucide-react';
 import { formatTime } from '../lib/datetime';
 import { gmaps } from '../lib/links';
 import { useMaps } from '../hooks/useMaps';
@@ -272,9 +272,17 @@ function GoogleTripMap({ stops, foods, selectedId, focusRequest, onSelect, onSto
     // 지도 우측 하단. 휴대폰은 바텀시트 위로 올리되 지도 위쪽을 벗어나지 않게 제한합니다.
     const controls = (
         <div role="group" aria-label="지도 조작" className="absolute right-3 z-[2] flex flex-col gap-2" style={{ bottom: fill ? `min(${bottomInset + 12}px, max(28px, calc(100% - 148px)))` : 28 }}>
-            <button type="button" className="flex min-h-12 min-w-10 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-1.5 shadow-card" style={{ backgroundColor: showFoods ? DEFAULT_CANDIDATE_COLOR : '#ffffff', color: showFoods ? '#ffffff' : '#607580', borderColor: showFoods ? DEFAULT_CANDIDATE_COLOR : '#dce5ea' }} onClick={() => setShowFoods(show => !show)} aria-label={showFoods ? '장소 후보 켜짐, 누르면 숨기기' : '장소 후보 꺼짐, 누르면 표시'} aria-pressed={showFoods} title={showFoods ? '장소 후보 숨기기' : '장소 후보 표시'}>
+            <button type="button" className={`${MAP_ICON_BUTTON} relative`} style={{ backgroundColor: showFoods ? DEFAULT_CANDIDATE_COLOR : '#ffffff', color: showFoods ? '#ffffff' : '#607580', borderColor: showFoods ? DEFAULT_CANDIDATE_COLOR : '#dce5ea' }} onClick={() => {
+                const next = !showFoods;
+                setShowFoods(next);
+                toast(next ? '장소 후보를 표시했습니다.' : '장소 후보를 숨겼습니다.');
+            }} aria-label={showFoods ? '장소 후보 켜짐, 누르면 숨기기' : '장소 후보 꺼짐, 누르면 표시'} aria-pressed={showFoods} title={showFoods ? '장소 후보 숨기기' : '장소 후보 표시'}>
                 <Layers className="size-[18px]" />
-                <span className="text-[10px] leading-none font-semibold">후보 {showFoods ? 'ON' : 'OFF'}</span>
+                {showFoods && (
+                    <span aria-hidden="true" className="absolute right-0.5 bottom-0.5 grid size-3.5 place-items-center rounded-full bg-white" style={{ color: DEFAULT_CANDIDATE_COLOR }}>
+                        <Check className="size-2.5" strokeWidth={3} />
+                    </span>
+                )}
             </button>
             <button type="button" className={MAP_ICON_BUTTON} onClick={fitAll} aria-label="전체 보기" title="전체 보기"><Scan className="size-[18px]" /></button>
             <button type="button" className={MAP_ICON_BUTTON} onClick={locate} aria-label="내 위치 표시" title="내 위치"><LocateFixed className="size-[18px]" /></button>
